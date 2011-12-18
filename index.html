@@ -1,0 +1,15 @@
+---
+layout: default
+title: "MING CHEN's notes"
+---
+
+<div id="home">
+  <h2>Latest</h2>
+  <ul class="posts">
+    {% for post in site.posts limit:15 %}
+      <li>&raquo; <a href="{{ post.url }}">{{ post.title }}</a>&nbsp;&nbsp;&nbsp;(<a href="{{ post.url }}#disqus_thread">comments</a>)</li>
+      <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>posted on {{ post.date | date_to_relative }}, tags: {{ post.tags |list_array }}</span></li>
+    {% endfor %}
+  </ul>
+  
+</div>
