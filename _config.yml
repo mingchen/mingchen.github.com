@@ -1,0 +1,4 @@
+markdown: rdiscount
+pygments: true
+lsi: false
+exclude: ["lib", "blog.rb", "config", "log", "favicon.svg", "Rakefile", "tmp"]

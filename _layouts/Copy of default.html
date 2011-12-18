@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>{{ page.title }}</title>
+   <meta name="author" content="Roy L Zuo" />
+
+   <!--feed burner-->
+   <link href="http://feeds.feedburner.com/roylez" rel="alternate" title="@roylez" type="application/atom+xml" />
+
+   <!--google font api-->
+   <link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:regular,bold' rel='stylesheet' type='text/css'>
+
+   <!--blue print CSS-->
+   <link rel="stylesheet" href="/css/blueprint/screen.css" type="text/css" media="screen, projection">
+   <link rel="stylesheet" href="/css/blueprint/print.css" type="text/css" media="print">
+   <!--[if lt IE 8]>
+     <link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection">
+   <![endif]-->
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/css/override.css" type="text/css" media="all" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+
+   <!-- open id -->
+   <link rel="openid.server" href="http://www.myopenid.com/server" />
+   <link rel="openid.delegate" href="http://roylez.myopenid.com/" />
+
+   <!-- Typekit -->
+   <!--<script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>-->
+   <!--<script type="text/javascript">try{Typekit.load();}catch(e){}</script>-->
+</head>
+<body>
+<div class="container">
+
+  <!--<div class="span-18 site">-->
+  <div class="span-24 site">
+      <h1 id="site_title"><a href="/">@roylez: bizarrely trapped</a></h1>
+  </div>
+  <!--<div class="span-4 last">-->
+    <!--<a class="extra" href="/">home</a>-->
+  <!--</div>-->
+  
+  <div class="span-24 last">
+  {{ content }}
+  </div>
+  
+  <div class="span-24 last">
+    <div class="span-12">
+      <h2>Network</h2>
+      <p>
+        <a href="http://twitter.com/roylez/">twitter.com/roylez</a><br />
+      </p>
+    </div>
+    <div class="span-9">
+        <h2>Code</h2>
+            <ul class="posts">
+            <li><a href="http://github.com/roylez/dotfiles/">dotfiles:</a> 我的配置文件</li>
+        </ul>
+    </div>
+    <div class="span-3 last rss">
+      <a href="http://feeds.feedburner.com/roylez">
+        <img src="/images/rss.png" alt="Subscribe to RSS Feed" />
+      </a>
+    </div>
+  </div>
+
+<!--<a href="http://github.com/mojombo"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>-->
+
+<!--google analytics-->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-17606054-1']);
+  _gaq.push(['_setDomainName', 'none']);
+  _gaq.push(['_setAllowLinker', true]);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+<!--disqus comment counter-->
+</script>
+<script type="text/javascript">
+    var disqus_shortname = 'roylez'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+
+</div>
+</body>
+</html>
