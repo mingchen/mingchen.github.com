@@ -10,10 +10,17 @@ title: 实现jQuery的treeview的filter
 做tree的filter可以这样实现：
 
 $("#filter").change(function(){
-   var tval=$(this).val();
-   $("li").hide().filter(":contains('"+tval+"')").find('li').andSelf().show();
+  var tval=$(this).val();
+  $("li").hide().filter(":contains('"+tval+"')").find('li').andSelf().show();
+
+  var all = $("li span.file", tree).parent();
+  var selects = $("li span.file a", tree).filter(":contains('" + filter + "')").parent().parent();
+  all.not(selects).hide();
+
 });
+
 
 
 参考：
 http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-based-on-search-criteria
+
