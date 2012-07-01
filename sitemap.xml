@@ -1,55 +1,55 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth/</loc>
+        <loc>http://blog.chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth/</loc>
         <lastmod>2012-07-01T12:03:47+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2011/12/22/linux-reset-terminal/</loc>
+        <loc>http://blog.chenming.info/blog/2011/12/22/linux-reset-terminal/</loc>
         <lastmod>2012-07-01T13:26:30+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2011/12/24/jquery-tree-filter/</loc>
+        <loc>http://blog.chenming.info/blog/2011/12/24/jquery-tree-filter/</loc>
         <lastmod>2012-07-01T13:10:49+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2011/12/28/jquery-revert-selection/</loc>
+        <loc>http://blog.chenming.info/blog/2011/12/28/jquery-revert-selection/</loc>
         <lastmod>2012-07-01T13:32:58+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2011/12/29/web-developer-tools-bookmark/</loc>
+        <loc>http://blog.chenming.info/blog/2011/12/29/web-developer-tools-bookmark/</loc>
         <lastmod>2012-07-01T13:14:48+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive/</loc>
+        <loc>http://blog.chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive/</loc>
         <lastmod>2012-07-01T08:56:15+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp/</loc>
+        <loc>http://blog.chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp/</loc>
         <lastmod>2012-07-01T13:16:57+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2012/01/16/windows-phone-debug-message-output/</loc>
+        <loc>http://blog.chenming.info/blog/2012/01/16/windows-phone-debug-message-output/</loc>
         <lastmod>2012-07-01T13:17:43+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2012/06/22/html5-resources/</loc>
+        <loc>http://blog.chenming.info/blog/2012/06/22/html5-resources/</loc>
         <lastmod>2012-07-01T14:49:30+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/about/</loc>
+        <loc>http://blog.chenming.info/blog/about/</loc>
         <lastmod>2012-07-01T15:07:47+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/archives/</loc>
+        <loc>http://blog.chenming.info/blog/archives/</loc>
         <lastmod>2012-07-01T14:49:30+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/categories/</loc>
+        <loc>http://blog.chenming.info/blog/categories/</loc>
         <lastmod>2012-07-01T14:34:48+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/</loc>
+        <loc>http://blog.chenming.info/</loc>
         <lastmod>2012-07-01T14:49:30+08:00</lastmod>
     </url>
 </urlset>

@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: django | Ming's Blog]]></title>
-  <link href="http://chenming.info/blog/categories/django/atom.xml" rel="self"/>
-  <link href="http://chenming.info/"/>
-  <updated>2012-07-01T18:35:23+08:00</updated>
-  <id>http://chenming.info/</id>
+  <link href="http://blog.chenming.info/blog/categories/django/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-01T18:39:27+08:00</updated>
+  <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
     <email><![CDATA[chenming_cd@hotmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[服务器时间不正确导致django的认证失败]]></title>
-    <link href="http://chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth/"/>
+    <link href="http://blog.chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth/"/>
     <updated>2011-12-20T08:20:00+08:00</updated>
-    <id>http://chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth</id>
+    <id>http://blog.chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth</id>
     <content type="html"><![CDATA[<p>平时跑的好好的django系统，突然发现IE登录后可以访问第一个页面，
 而再继续访问其它页面的时候就出现认证失败，而Firefox是没有问题的。
 django的认证是借助cookie来实现的。</p>

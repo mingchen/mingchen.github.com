@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: wp7 | Ming's Blog]]></title>
-  <link href="http://chenming.info/blog/categories/wp7/atom.xml" rel="self"/>
-  <link href="http://chenming.info/"/>
-  <updated>2012-07-01T18:35:23+08:00</updated>
-  <id>http://chenming.info/</id>
+  <link href="http://blog.chenming.info/blog/categories/wp7/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-01T18:39:27+08:00</updated>
+  <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
     <email><![CDATA[chenming_cd@hotmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[WP7中写调试消息]]></title>
-    <link href="http://chenming.info/blog/2012/01/16/windows-phone-debug-message-output/"/>
+    <link href="http://blog.chenming.info/blog/2012/01/16/windows-phone-debug-message-output/"/>
     <updated>2012-01-16T21:55:00+08:00</updated>
-    <id>http://chenming.info/blog/2012/01/16/windows-phone-debug-message-output</id>
+    <id>http://blog.chenming.info/blog/2012/01/16/windows-phone-debug-message-output</id>
     <content type="html"><![CDATA[<p>在WP7中写调试消息</p>
 
 <pre><code>    System.Diagnostics.Debug.WriteLine("Debug message here...");
@@ -35,9 +35,9 @@
   
   <entry>
     <title type="html"><![CDATA[在XP下安装WP7的SDK]]></title>
-    <link href="http://chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp/"/>
+    <link href="http://blog.chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp/"/>
     <updated>2012-01-13T22:12:00+08:00</updated>
-    <id>http://chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp</id>
+    <id>http://blog.chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp</id>
     <content type="html"><![CDATA[<ol>
 <li><p>下载 WP7 SDK 的安装文件: <code>vm_web.exe</code></p></li>
 <li><p>解压缩安装包：</p>
@@ -69,9 +69,9 @@
   
   <entry>
     <title type="html"><![CDATA[How to use WP7 as USB drive]]></title>
-    <link href="http://chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive/"/>
+    <link href="http://blog.chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive/"/>
     <updated>2012-01-02T21:21:00+08:00</updated>
-    <id>http://chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive</id>
+    <id>http://blog.chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive</id>
     <content type="html"><![CDATA[<p>How to use WP7 as usb drive ?</p>
 
 <p>If your like me and like to save things on your phone then this is for you. I found it yesterday and it works fine I now have all my stuff on my HD7.</p>

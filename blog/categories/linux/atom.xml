@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: linux | Ming's Blog]]></title>
-  <link href="http://chenming.info/blog/categories/linux/atom.xml" rel="self"/>
-  <link href="http://chenming.info/"/>
-  <updated>2012-07-01T18:35:23+08:00</updated>
-  <id>http://chenming.info/</id>
+  <link href="http://blog.chenming.info/blog/categories/linux/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-01T18:39:27+08:00</updated>
+  <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
     <email><![CDATA[chenming_cd@hotmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[在Linux下清屏是clear还是reset]]></title>
-    <link href="http://chenming.info/blog/2011/12/22/linux-reset-terminal/"/>
+    <link href="http://blog.chenming.info/blog/2011/12/22/linux-reset-terminal/"/>
     <updated>2011-12-22T19:21:00+08:00</updated>
-    <id>http://chenming.info/blog/2011/12/22/linux-reset-terminal</id>
+    <id>http://blog.chenming.info/blog/2011/12/22/linux-reset-terminal</id>
     <content type="html"><![CDATA[<p>在终端中<code>Ctrl+L</code>或者<code>clear</code>会重绘屏幕。
 它能清除由系统广播消息导致的屏幕混乱情况。
 但如果是由于屏幕上打印了一些控制字符引起的屏幕混乱，
