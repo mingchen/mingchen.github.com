@@ -121,6 +121,425 @@ list2 title1 title2
 
     </article>
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/01/16/WP_Debug_Message_Output/">WP7 调试消息</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-16T21:55:00+08:00" pubdate data-updated="true">Jan 16<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/01/16/WP_Debug_Message_Output/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>在WP7中写调试消息</p>
+
+<p>System.Diagnostics.Debug.WriteLine(&#8220;Debug message here&#8230;&#8221;);</p>
+
+<ol>
+<li>这个只有在调试版本才有效。</li>
+<li>在VS2010的Output窗口可以看到输出。</li>
+</ol>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/01/13/Install_WP7_SDK_on_XP/">在XP下安装WP7的SDK</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-13T22:12:00+08:00" pubdate data-updated="true">Jan 13<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/01/13/Install_WP7_SDK_on_XP/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ol>
+<li><p>下载 WP7 SDK 的安装文件，vm_web.exe</p></li>
+<li><p>解压缩安装包：
+vm_web.exe /x</p></li>
+<li><p>到解压缩的目录中修改安装配置，要修改的文件为 baseline.dat</p>
+
+<p> 找到 gencomp7788 配置，并修改如下配置：</p>
+
+<pre><code> InstallOnLHS=0
+ InstallOnWinXP=0
+</code></pre></li>
+<li><p>运行安装
+setup.exe /web</p></li>
+</ol>
+
+
+<p>参考:
+http://www.redfrogfish.com/483/how-to-install-windows-phone-7-developer-tools-on-windows-xp/</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/01/02/How_To_Use_WP7_As_USB_Drive/">How to Use WP7 as USB Drive</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-02T21:21:00+08:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2012</time>
+        
+         | <a href="/blog/2012/01/02/How_To_Use_WP7_As_USB_Drive/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>How to use WP7 as usb drive ?</p>
+
+<p>If your like me and like to save things on your phone then this is for you. I found it yesterday and it works fine I now have all my stuff on my HD7.</p>
+
+<p>Open Windows Registry Editor by typing regedit in your start menu
+- Go to HKEY_LOCAL_MACHINE\SYSTEM\
+- Then go to HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\U SB (and not the other ControlSet01 or 02 if you have them) and then search for ZuneDriver</p>
+
+<ul>
+<li>Change ShowInShell from 0 to 1 &lt;- this enable Windows Explorer to show the device when pluged in</li>
+<li>Change PortableDeviceNameSpaceExcludeFromShell from 1 to 0</li>
+<li>Change EnableLegacySupport from 0 to 1 &lt;- this enables Windows Explorer to detect the device</li>
+<li>You can also change EnableDefaultAutoPlaySupport but it didn’t seem to do anything.</li>
+</ul>
+
+
+<p>Once its done just plug-in your device to your PC. The Zune software will automatically launch as usual and your device will also appear in the Windows explorer</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/29/Web_Developer_Tools_Bookmark/">网站开发书签</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-29T20:32:00+08:00" pubdate data-updated="true">Dec 29<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/12/29/Web_Developer_Tools_Bookmark/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>一个在线调试和共享js代码的网站：</p>
+
+<p><a href="http://jsfiddle.net">http://jsfiddle.net</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/28/jQuery_revert_selection/">Jquery_revert_selection</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-28T00:00:00+08:00" pubdate data-updated="true">Dec 28<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/12/28/jQuery_revert_selection/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content">
+
+<ul>
+  <li>sub 1</li>
+  <li>inv 1</li>
+  <li>sub 2</li>
+  <li>inv 2</li>
+</ul>
+
+
+<p>(function($) {
+  $.fn.reverse = function ()
+  {</p>
+
+<pre><code>  var orig = this.prevObject;
+  return orig.not(this) || jQuery(null);
+</code></pre>
+
+<p>  }
+})(jQuery);</p>
+
+<p>$(&#8216;li&#8217;).css(&#8216;background-color&#8217;,&#8217;gray&#8217;)</p>
+
+<pre><code>.filter(':contains("sub")')
+.css('color','yellow')
+.reverse()
+.css('color','red');
+</code></pre>
+
+<p>http://stackoverflow.com/questions/4502533/jquery-method-to-select-a-subset-and-also-its-inverse</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/24/jQuery_tree_filter/">实现jQuery的treeview的filter</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-24T21:21:00+08:00" pubdate data-updated="true">Dec 24<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/12/24/jQuery_tree_filter/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>使用jQuery的treeview插件做了一个tree，遇到一个tree特别长的问题，
+需要做一下filter，方便查找。</p>
+
+<p>做tree的filter可以这样实现：</p>
+
+<p>$(&#8220;#filter&#8221;).change(function(){
+  var tval=$(this).val();
+  $(&#8220;li&#8221;).hide().filter(&#8220;:contains(&#8216;&#8221;+tval+&#8221;&#8217;)&#8221;).find(&#8216;li&#8217;).andSelf().show();</p>
+
+<p>  var all = $(&#8220;li span.file&#8221;, tree).parent();
+  var selects = $(&#8220;li span.file a&#8221;, tree).filter(&#8220;:contains(&#8216;&#8221; + filter + &#8220;&#8217;)&#8221;).parent().parent();
+  all.not(selects).hide();</p>
+
+<p>});</p>
+
+<p>参考：
+http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-based-on-search-criteria</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/22/Linux_Reset_Terminal/">Linux_reset_terminal</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-22T00:00:00+08:00" pubdate data-updated="true">Dec 22<span>nd</span>, 2011</time>
+        
+         | <a href="/blog/2011/12/22/Linux_Reset_Terminal/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>﻿&#8212;
+layout: post
+title: Linux下清屏：clear还是reset
+date: 2011-12-22 19:21
+comments: true</p>
+
+<h2>categories: [Linux, terminal]</h2>
+
+<p>Ctrl+L 或者 clear 会重绘屏幕。它能清除由系统广播消息导致的屏幕混乱情况。
+但如果是由于屏幕上打印了一些控制字符引起的屏幕混乱，Ctrl+L 就没有效果了，
+这个时候需要使用 reset 命令。</p>
+
+<p><a href="http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-4.html">http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-4.html</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/20/Cookie_Expries/">Cookie_expries</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-20T00:00:00+08:00" pubdate data-updated="true">Dec 20<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/12/20/Cookie_Expries/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>﻿&#8212;
+layout: post
+title: 服务器时间不正确导致django的认证失败
+author: Ming
+date: 2011-12-20 8:20
+comments: true</p>
+
+<h2>categories: [django]</h2>
+
+<p>平时跑的好好的django系统，突然发现IE登录后可以访问第一个页面，
+而再继续访问其它页面的时候就出现认证失败，而Firefox是没有问题的。
+django的认证是借助cookie来实现的。
+经过对IE的抓包分析发现在后续的请求没有携带Cookie，
+而在仔细看之前的http请求和响应，发现登录时服务器返回的Set-Cookie的超时时间是去年的时间，这就导致了IE认为这个Cookie已经过期，在后续的请求中就没有把这个Cookie带上，导致了认证的失败。再到服务器上看，服务器的时间居然被人改成去年的时间了。</p>
+
+<p>解决方法很简单了，就是把服务器的时间修改正确。</p>
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
     
     <a href="/blog/archives">Blog Archives</a>
@@ -135,6 +554,38 @@ list2 title1 title2
     
       <li class="post">
         <a href="/blog/2012/07/01/post-template/">Blog模板</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/16/WP_Debug_Message_Output/">WP7 调试消息</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/13/Install_WP7_SDK_on_XP/">在XP下安装WP7的SDK</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/02/How_To_Use_WP7_As_USB_Drive/">How to use WP7 as USB drive</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/29/Web_Developer_Tools_Bookmark/">网站开发书签</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/28/jQuery_revert_selection/">Jquery_revert_selection</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/24/jQuery_tree_filter/">实现jQuery的treeview的filter</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/22/Linux_Reset_Terminal/">Linux_reset_terminal</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/20/Cookie_Expries/">Cookie_expries</a>
       </li>
     
   </ul>
