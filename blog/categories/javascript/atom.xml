@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: javascript | Mings Blog]]></title>
+  <link href="http://chenming.info/blog/categories/javascript/atom.xml" rel="self"/>
+  <link href="http://chenming.info/"/>
+  <updated>2012-07-01T08:57:31+08:00</updated>
+  <id>http://chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[网站开发书签]]></title>
+    <link href="http://chenming.info/blog/2011/12/29/Web_Developer_Tools_Bookmark/"/>
+    <updated>2011-12-29T20:32:00+08:00</updated>
+    <id>http://chenming.info/blog/2011/12/29/Web_Developer_Tools_Bookmark</id>
+    <content type="html"><![CDATA[<p>一个在线调试和共享js代码的网站：</p>
+
+<p><a href="http://jsfiddle.net">http://jsfiddle.net</a></p>
+]]></content>
+  </entry>
+  
+</feed>

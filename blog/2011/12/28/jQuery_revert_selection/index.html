@@ -1,0 +1,30 @@
+
+
+<ul>
+  <li>sub 1</li>
+  <li>inv 1</li>
+  <li>sub 2</li>
+  <li>inv 2</li>
+</ul>
+
+
+<p>(function($) {
+  $.fn.reverse = function ()
+  {</p>
+
+<pre><code>  var orig = this.prevObject;
+  return orig.not(this) || jQuery(null);
+</code></pre>
+
+<p>  }
+})(jQuery);</p>
+
+<p>$(&#8216;li&#8217;).css(&#8216;background-color&#8217;,&#8217;gray&#8217;)</p>
+
+<pre><code>.filter(':contains("sub")')
+.css('color','yellow')
+.reverse()
+.css('color','red');
+</code></pre>
+
+<p>http://stackoverflow.com/questions/4502533/jquery-method-to-select-a-subset-and-also-its-inverse</p>
