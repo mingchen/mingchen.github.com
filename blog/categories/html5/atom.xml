@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: web | Ming's Blog]]></title>
-  <link href="http://chenming.info/blog/categories/web/atom.xml" rel="self"/>
+  <title><![CDATA[Category: html5 | Ming's Blog]]></title>
+  <link href="http://chenming.info/blog/categories/html5/atom.xml" rel="self"/>
   <link href="http://chenming.info/"/>
   <updated>2012-07-01T15:04:02+08:00</updated>
   <id>http://chenming.info/</id>
@@ -174,18 +174,6 @@
 <li><a href="http://dev.w3.org/html5/html4-differences/">HTML5 differences from HTML4</a></li>
 <li><a href="http://webdesign.about.com/od/html5/a/html_5_whats_new.htm">What's New in HTML5</a></li>
 <li><a href="http://www.w3.org/html/logo/">HTML5图标</a>: 各种样式和大小的HTML5的图标。</li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[网站开发书签]]></title>
-    <link href="http://chenming.info/blog/2011/12/29/web-developer-tools-bookmark/"/>
-    <updated>2011-12-29T20:32:00+08:00</updated>
-    <id>http://chenming.info/blog/2011/12/29/web-developer-tools-bookmark</id>
-    <content type="html"><![CDATA[<ul>
-<li>一个在线调试和共享js代码的网站：<a href="http://jsfiddle.net">http://jsfiddle.net</a></li>
 </ul>
 
 ]]></content>
