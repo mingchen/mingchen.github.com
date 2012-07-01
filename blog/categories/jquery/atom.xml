@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: jQuery | Mings Blog]]></title>
+  <title><![CDATA[Category: jquery | Ming's Blog]]></title>
   <link href="http://chenming.info/blog/categories/jquery/atom.xml" rel="self"/>
   <link href="http://chenming.info/"/>
-  <updated>2012-07-01T08:57:31+08:00</updated>
+  <updated>2012-07-01T13:36:17+08:00</updated>
   <id>http://chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -14,27 +14,156 @@
 
   
   <entry>
+    <title type="html"><![CDATA[jQuery reverse selection]]></title>
+    <link href="http://chenming.info/blog/2011/12/28/jquery_revert_selection/"/>
+    <updated>2011-12-28T22:12:00+08:00</updated>
+    <id>http://chenming.info/blog/2011/12/28/jquery_revert_selection</id>
+    <content type="html"><![CDATA[<p>TODO...</p>
+
+<script>
+(function($) {
+  $.fn.reverse = function () 
+  {
+      var orig = this.prevObject;
+      return orig.not(this) || jQuery(null);
+  }
+})(jQuery);
+
+$('li').css('background-color','gray')
+    .filter(':contains("sub")')
+    .css('color','yellow')
+    .reverse()
+    .css('color','red');
+</script>
+
+
+
+
+<ul>
+  <li>sub 1</li>
+  <li>inv 1</li>
+  <li>sub 2</li>
+  <li>inv 2</li>
+</ul>
+
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">$</span><span class="p">.</span><span class="nx">fn</span><span class="p">.</span><span class="nx">reverse</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span>
+</span><span class='line'>  <span class="p">{</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span>  <span class="kd">var</span> <span class="nx">orig</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">prevObject</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">orig</span><span class="p">.</span><span class="nx">not</span><span class="p">(</span><span class="k">this</span><span class="p">)</span> <span class="o">||</span> <span class="nx">jQuery</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">}</span>
+</span><span class='line'><span class="p">})(</span><span class="nx">jQuery</span><span class="p">);</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">).</span><span class="nx">css</span><span class="p">(</span><span class="s1">&#39;background-color&#39;</span><span class="p">,</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="s1">&#39;:contains(&quot;sub&quot;)&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">.</span><span class="nx">css</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span><span class="s1">&#39;yellow&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">.</span><span class="nx">reverse</span><span class="p">()</span>
+</span><span class='line'><span class="p">.</span><span class="nx">css</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span><span class="s1">&#39;red&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>参考</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/4502533/jquery-method-to-select-a-subset-and-also-its-inverse">http://stackoverflow.com/questions/4502533/jquery-method-to-select-a-subset-and-also-its-inverse</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[实现jQuery的treeview的filter]]></title>
-    <link href="http://chenming.info/blog/2011/12/24/jQuery_tree_filter/"/>
+    <link href="http://chenming.info/blog/2011/12/24/jquery_tree_filter/"/>
     <updated>2011-12-24T21:21:00+08:00</updated>
-    <id>http://chenming.info/blog/2011/12/24/jQuery_tree_filter</id>
+    <id>http://chenming.info/blog/2011/12/24/jquery_tree_filter</id>
     <content type="html"><![CDATA[<p>使用jQuery的treeview插件做了一个tree，遇到一个tree特别长的问题，
 需要做一下filter，方便查找。</p>
 
 <p>做tree的filter可以这样实现：</p>
 
-<p>$("#filter").change(function(){
-  var tval=$(this).val();
-  $("li").hide().filter(":contains('"+tval+"')").find('li').andSelf().show();</p>
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#filter&quot;</span><span class="p">).</span><span class="nx">change</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="kd">var</span> <span class="nx">tval</span><span class="o">=</span><span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">val</span><span class="p">();</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;li&quot;</span><span class="p">).</span><span class="nx">hide</span><span class="p">()</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span>     <span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="s2">&quot;:contains(&#39;&quot;</span><span class="o">+</span><span class="nx">tval</span><span class="o">+</span><span class="s2">&quot;&#39;)&quot;</span><span class="p">)</span>
+</span><span class='line'>     <span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">)</span>
+</span><span class='line'>     <span class="p">.</span><span class="nx">andSelf</span><span class="p">()</span>
+</span><span class='line'>     <span class="p">.</span><span class="nx">show</span><span class="p">();</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="kd">var</span> <span class="nx">all</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;li span.file&quot;</span><span class="p">,</span> <span class="nx">tree</span><span class="p">).</span><span class="nx">parent</span><span class="p">();</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="kd">var</span> <span class="nx">selects</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;li span.file a&quot;</span><span class="p">,</span> <span class="nx">tree</span><span class="p">)</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span>             <span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="s2">&quot;:contains(&#39;&quot;</span> <span class="o">+</span> <span class="nx">filter</span> <span class="o">+</span> <span class="s2">&quot;&#39;)&quot;</span><span class="p">)</span>
+</span><span class='line'>             <span class="p">.</span><span class="nx">parent</span><span class="p">()</span>
+</span><span class='line'>             <span class="p">.</span><span class="nx">parent</span><span class="p">();</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="nx">all</span><span class="p">.</span><span class="nx">not</span><span class="p">(</span><span class="nx">selects</span><span class="p">).</span><span class="nx">hide</span><span class="p">();</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
-<p>  var all = $("li span.file", tree).parent();
-  var selects = $("li span.file a", tree).filter(":contains('" + filter + "')").parent().parent();
-  all.not(selects).hide();</p>
+<p>参考</p>
 
-<p>});</p>
+<ul>
+<li><a href="http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-based-on-search-criteria">http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-based-on-search-criteria</a></li>
+</ul>
 
-<p>参考：
-http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-based-on-search-criteria</p>
 ]]></content>
   </entry>
   

@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: web - Ming's Blog</title>
+  <title>How to use WP7 as USB drive - Ming's Blog</title>
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="Category: web">
+  <meta name="description" content="How to use WP7 as usb drive ? If your like me and like to save things on your phone then this is for you. I found it yesterday and it works fine I &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://chenming.infoblog/categories/web/">
+  <link rel="canonical" href="http://chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -63,36 +63,109 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: Web</h1>
+    
+      <h1 class="entry-title">How to Use WP7 as USB Drive</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-02T21:21:00+08:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><p>How to use WP7 as usb drive ?</p>
 
-  
-  <h2>2011</h2>
+<p>If your like me and like to save things on your phone then this is for you. I found it yesterday and it works fine I now have all my stuff on my HD7.</p>
 
-<article>
-  
-<h1><a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a></h1>
-<time datetime="2011-12-29T20:32:00+08:00" pubdate><span class='month'>Dec</span> <span class='day'>29</span> <span class='year'>2011</span></time>
+<p>Open Windows Registry Editor by typing regedit in your start menu
+- Go to HKEY_LOCAL_MACHINE\SYSTEM\
+- Then go to HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\U SB (and not the other ControlSet01 or 02 if you have them) and then search for ZuneDriver</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/javascript/'>javascript</a>, <a class='category' href='/blog/categories/web/'>web</a></span>
-</footer>
+<ul>
+<li>Change ShowInShell from 0 to 1 &lt;- this enable Windows Explorer to show the device when pluged in</li>
+<li>Change PortableDeviceNameSpaceExcludeFromShell from 1 to 0</li>
+<li>Change EnableLegacySupport from 0 to 1 &lt;- this enables Windows Explorer to detect the device</li>
+<li>You can also change EnableDefaultAutoPlaySupport but it didn’t seem to do anything.</li>
+</ul>
 
 
-</article>
-
+<p>Once its done just plug-in your device to your PC. The Zune software will automatically launch as usual and your device will also appear in the Windows explorer</p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Ming</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-02T21:21:00+08:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/wp7/'>wp7</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/12/29/web-developer-tools-bookmark/" title="Previous Post: 网站开发书签">&laquo; 网站开发书签</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/01/13/install-wp7-sdk-on-xp/" title="Next Post: 在XP下安装WP7的SDK">在XP下安装WP7的SDK &raquo;</a>
+      
+    </p>
+  </footer>
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
 
@@ -160,7 +233,10 @@
       var disqus_shortname = 'chenming';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive/';
+        var disqus_url = 'http://chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

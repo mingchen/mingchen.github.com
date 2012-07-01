@@ -5,11 +5,14 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: web - Ming's Blog</title>
+  <title>服务器时间不正确导致django的认证失败 - Ming's Blog</title>
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="Category: web">
+  <meta name="description" content="平时跑的好好的django系统，突然发现IE登录后可以访问第一个页面，
+而再继续访问其它页面的时候就出现认证失败，而Firefox是没有问题的。
+django的认证是借助cookie来实现的。 经过对IE的抓包分析发现在后续的请求没有携带Cookie，
+而在仔细看之前的http请求和响应， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +21,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://chenming.infoblog/categories/web/">
+  <link rel="canonical" href="http://chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -63,36 +66,98 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: Web</h1>
+    
+      <h1 class="entry-title">服务器时间不正确导致django的认证失败</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-20T08:20:00+08:00" pubdate data-updated="true">Dec 20<span>th</span>, 2011</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><p>平时跑的好好的django系统，突然发现IE登录后可以访问第一个页面，
+而再继续访问其它页面的时候就出现认证失败，而Firefox是没有问题的。
+django的认证是借助cookie来实现的。</p>
 
-  
-  <h2>2011</h2>
+<p>经过对IE的抓包分析发现在后续的请求没有携带Cookie，
+而在仔细看之前的http请求和响应，发现登录时服务器返回的Set-Cookie的超时时间是去年的时间，这就导致了IE认为这个Cookie已经过期，在后续的请求中就没有把这个Cookie带上，导致了认证的失败。再到服务器上看，服务器的时间居然被人改成去年的时间了。</p>
 
-<article>
-  
-<h1><a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a></h1>
-<time datetime="2011-12-29T20:32:00+08:00" pubdate><span class='month'>Dec</span> <span class='day'>29</span> <span class='year'>2011</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/javascript/'>javascript</a>, <a class='category' href='/blog/categories/web/'>web</a></span>
-</footer>
-
-
-</article>
-
+<p>解决方法很简单了，就是把服务器的时间修改正确。</p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Ming</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-20T08:20:00+08:00" pubdate data-updated="true">Dec 20<span>th</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/django/'>django</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/12/22/linux-reset-terminal/" title="Next Post: 在Linux下清屏是clear还是reset">在Linux下清屏是clear还是reset &raquo;</a>
+      
+    </p>
+  </footer>
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
 
@@ -160,7 +225,10 @@
       var disqus_shortname = 'chenming';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth/';
+        var disqus_url = 'http://chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

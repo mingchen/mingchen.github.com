@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Mings Blog]]></title>
+  <title><![CDATA[Ming's Blog]]></title>
   <link href="http://chenming.info/atom.xml" rel="self"/>
   <link href="http://chenming.info/"/>
-  <updated>2012-07-01T08:57:31+08:00</updated>
+  <updated>2012-07-01T13:36:17+08:00</updated>
   <id>http://chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -14,36 +14,16 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Blog模板]]></title>
-    <link href="http://chenming.info/blog/2012/07/01/post-template/"/>
-    <updated>2012-07-01T07:22:00+08:00</updated>
-    <id>http://chenming.info/blog/2012/07/01/post-template</id>
-    <content type="html"><![CDATA[<p>This is a markdown post template.</p>
-
-<p>模板文件。</p>
-
-<ul>
-<li>list1</li>
-<li><p>list2</p></li>
-<li><p>list1</p></li>
-<li>list2</li>
-</ul>
-
-
-<h1>title1</h1>
-
-<h2>title2</h2>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[WP7 调试消息]]></title>
-    <link href="http://chenming.info/blog/2012/01/16/WP_Debug_Message_Output/"/>
+    <title type="html"><![CDATA[WP7中写调试消息]]></title>
+    <link href="http://chenming.info/blog/2012/01/16/windows-phone-debug-message-output/"/>
     <updated>2012-01-16T21:55:00+08:00</updated>
-    <id>http://chenming.info/blog/2012/01/16/WP_Debug_Message_Output</id>
+    <id>http://chenming.info/blog/2012/01/16/windows-phone-debug-message-output</id>
     <content type="html"><![CDATA[<p>在WP7中写调试消息</p>
 
-<p>System.Diagnostics.Debug.WriteLine(&#8220;Debug message here&#8230;&#8221;);</p>
+<pre><code>    System.Diagnostics.Debug.WriteLine("Debug message here...");
+</code></pre>
+
+<p>说明:</p>
 
 <ol>
 <li>这个只有在调试版本才有效。</li>
@@ -55,35 +35,43 @@
   
   <entry>
     <title type="html"><![CDATA[在XP下安装WP7的SDK]]></title>
-    <link href="http://chenming.info/blog/2012/01/13/Install_WP7_SDK_on_XP/"/>
+    <link href="http://chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp/"/>
     <updated>2012-01-13T22:12:00+08:00</updated>
-    <id>http://chenming.info/blog/2012/01/13/Install_WP7_SDK_on_XP</id>
+    <id>http://chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp</id>
     <content type="html"><![CDATA[<ol>
-<li><p>下载 WP7 SDK 的安装文件，vm_web.exe</p></li>
-<li><p>解压缩安装包：
-vm_web.exe /x</p></li>
-<li><p>到解压缩的目录中修改安装配置，要修改的文件为 baseline.dat</p>
+<li><p>下载 WP7 SDK 的安装文件: <code>vm_web.exe</code></p></li>
+<li><p>解压缩安装包：</p>
+
+<pre><code> vm_web.exe /x
+</code></pre></li>
+<li><p>到解压缩的目录中修改安装配置，要修改的文件为<code>baseline.dat</code></p>
 
 <p> 找到 gencomp7788 配置，并修改如下配置：</p>
 
 <pre><code> InstallOnLHS=0
  InstallOnWinXP=0
 </code></pre></li>
-<li><p>运行安装
-setup.exe /web</p></li>
+<li><p>运行安装</p>
+
+<pre><code> setup.exe /web
+</code></pre></li>
 </ol>
 
 
-<p>参考:
-http://www.redfrogfish.com/483/how-to-install-windows-phone-7-developer-tools-on-windows-xp/</p>
+<p>参考:</p>
+
+<ul>
+<li><a href="http://www.redfrogfish.com/483/how-to-install-windows-phone-7-developer-tools-on-windows-xp/">http://www.redfrogfish.com/483/how-to-install-windows-phone-7-developer-tools-on-windows-xp/</a></li>
+</ul>
+
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[How to use WP7 as USB drive]]></title>
-    <link href="http://chenming.info/blog/2012/01/02/How_To_Use_WP7_As_USB_Drive/"/>
+    <link href="http://chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive/"/>
     <updated>2012-01-02T21:21:00+08:00</updated>
-    <id>http://chenming.info/blog/2012/01/02/How_To_Use_WP7_As_USB_Drive</id>
+    <id>http://chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive</id>
     <content type="html"><![CDATA[<p>How to use WP7 as usb drive ?</p>
 
 <p>If your like me and like to save things on your phone then this is for you. I found it yesterday and it works fine I now have all my stuff on my HD7.</p>
@@ -106,21 +94,41 @@ http://www.redfrogfish.com/483/how-to-install-windows-phone-7-developer-tools-on
   
   <entry>
     <title type="html"><![CDATA[网站开发书签]]></title>
-    <link href="http://chenming.info/blog/2011/12/29/Web_Developer_Tools_Bookmark/"/>
+    <link href="http://chenming.info/blog/2011/12/29/web-developer-tools-bookmark/"/>
     <updated>2011-12-29T20:32:00+08:00</updated>
-    <id>http://chenming.info/blog/2011/12/29/Web_Developer_Tools_Bookmark</id>
-    <content type="html"><![CDATA[<p>一个在线调试和共享js代码的网站：</p>
+    <id>http://chenming.info/blog/2011/12/29/web-developer-tools-bookmark</id>
+    <content type="html"><![CDATA[<ul>
+<li>一个在线调试和共享js代码的网站：<a href="http://jsfiddle.net">http://jsfiddle.net</a></li>
+</ul>
 
-<p><a href="http://jsfiddle.net">http://jsfiddle.net</a></p>
 ]]></content>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Jquery_revert_selection]]></title>
-    <link href="http://chenming.info/blog/2011/12/28/jQuery_revert_selection/"/>
-    <updated>2011-12-28T00:00:00+08:00</updated>
-    <id>http://chenming.info/blog/2011/12/28/jQuery_revert_selection</id>
-    <content type="html"><![CDATA[
+    <title type="html"><![CDATA[jQuery reverse selection]]></title>
+    <link href="http://chenming.info/blog/2011/12/28/jquery_revert_selection/"/>
+    <updated>2011-12-28T22:12:00+08:00</updated>
+    <id>http://chenming.info/blog/2011/12/28/jquery_revert_selection</id>
+    <content type="html"><![CDATA[<p>TODO&#8230;</p>
+
+<script>
+(function($) {
+  $.fn.reverse = function () 
+  {
+      var orig = this.prevObject;
+      return orig.not(this) || jQuery(null);
+  }
+})(jQuery);
+
+$('li').css('background-color','gray')
+    .filter(':contains("sub")')
+    .css('color','yellow')
+    .reverse()
+    .css('color','red');
+</script>
+
+
+
 
 <ul>
   <li>sub 1</li>
@@ -130,93 +138,135 @@ http://www.redfrogfish.com/483/how-to-install-windows-phone-7-developer-tools-on
 </ul>
 
 
-<p>(function($) {
-  $.fn.reverse = function ()
-  {</p>
 
-<pre><code>  var orig = this.prevObject;
-  return orig.not(this) || jQuery(null);
-</code></pre>
 
-<p>  }
-})(jQuery);</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">$</span><span class="p">.</span><span class="nx">fn</span><span class="p">.</span><span class="nx">reverse</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">orig</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">prevObject</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nx">orig</span><span class="p">.</span><span class="nx">not</span><span class="p">(</span><span class="k">this</span><span class="p">)</span> <span class="o">||</span> <span class="nx">jQuery</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">})(</span><span class="nx">jQuery</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">).</span><span class="nx">css</span><span class="p">(</span><span class="s1">&#39;background-color&#39;</span><span class="p">,</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="s1">&#39;:contains(&quot;sub&quot;)&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">.</span><span class="nx">css</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span><span class="s1">&#39;yellow&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">.</span><span class="nx">reverse</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">.</span><span class="nx">css</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span><span class="s1">&#39;red&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>$(&#8216;li&#8217;).css(&#8216;background-color&#8217;,&#8217;gray&#8217;)</p>
 
-<pre><code>.filter(':contains("sub")')
-.css('color','yellow')
-.reverse()
-.css('color','red');
-</code></pre>
+<p>参考</p>
 
-<p>http://stackoverflow.com/questions/4502533/jquery-method-to-select-a-subset-and-also-its-inverse</p>
+<ul>
+<li><a href="http://stackoverflow.com/questions/4502533/jquery-method-to-select-a-subset-and-also-its-inverse">http://stackoverflow.com/questions/4502533/jquery-method-to-select-a-subset-and-also-its-inverse</a></li>
+</ul>
+
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[实现jQuery的treeview的filter]]></title>
-    <link href="http://chenming.info/blog/2011/12/24/jQuery_tree_filter/"/>
+    <link href="http://chenming.info/blog/2011/12/24/jquery_tree_filter/"/>
     <updated>2011-12-24T21:21:00+08:00</updated>
-    <id>http://chenming.info/blog/2011/12/24/jQuery_tree_filter</id>
+    <id>http://chenming.info/blog/2011/12/24/jquery_tree_filter</id>
     <content type="html"><![CDATA[<p>使用jQuery的treeview插件做了一个tree，遇到一个tree特别长的问题，
 需要做一下filter，方便查找。</p>
 
 <p>做tree的filter可以这样实现：</p>
 
-<p>$(&#8220;#filter&#8221;).change(function(){
-  var tval=$(this).val();
-  $(&#8220;li&#8221;).hide().filter(&#8220;:contains(&#8216;&#8221;+tval+&#8221;&#8217;)&#8221;).find(&#8216;li&#8217;).andSelf().show();</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#filter&quot;</span><span class="p">).</span><span class="nx">change</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">tval</span><span class="o">=</span><span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">val</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;li&quot;</span><span class="p">).</span><span class="nx">hide</span><span class="p">()</span>
+</span><span class='line'>         <span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="s2">&quot;:contains(&#39;&quot;</span><span class="o">+</span><span class="nx">tval</span><span class="o">+</span><span class="s2">&quot;&#39;)&quot;</span><span class="p">)</span>
+</span><span class='line'>         <span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">)</span>
+</span><span class='line'>         <span class="p">.</span><span class="nx">andSelf</span><span class="p">()</span>
+</span><span class='line'>         <span class="p">.</span><span class="nx">show</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">all</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;li span.file&quot;</span><span class="p">,</span> <span class="nx">tree</span><span class="p">).</span><span class="nx">parent</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">selects</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;li span.file a&quot;</span><span class="p">,</span> <span class="nx">tree</span><span class="p">)</span>
+</span><span class='line'>                 <span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="s2">&quot;:contains(&#39;&quot;</span> <span class="o">+</span> <span class="nx">filter</span> <span class="o">+</span> <span class="s2">&quot;&#39;)&quot;</span><span class="p">)</span>
+</span><span class='line'>                 <span class="p">.</span><span class="nx">parent</span><span class="p">()</span>
+</span><span class='line'>                 <span class="p">.</span><span class="nx">parent</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">all</span><span class="p">.</span><span class="nx">not</span><span class="p">(</span><span class="nx">selects</span><span class="p">).</span><span class="nx">hide</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>  var all = $(&#8220;li span.file&#8221;, tree).parent();
-  var selects = $(&#8220;li span.file a&#8221;, tree).filter(&#8220;:contains(&#8216;&#8221; + filter + &#8220;&#8217;)&#8221;).parent().parent();
-  all.not(selects).hide();</p>
 
-<p>});</p>
+<p>参考</p>
 
-<p>参考：
-http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-based-on-search-criteria</p>
+<ul>
+<li><a href="http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-based-on-search-criteria">http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-based-on-search-criteria</a></li>
+</ul>
+
 ]]></content>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Linux_reset_terminal]]></title>
-    <link href="http://chenming.info/blog/2011/12/22/Linux_Reset_Terminal/"/>
-    <updated>2011-12-22T00:00:00+08:00</updated>
-    <id>http://chenming.info/blog/2011/12/22/Linux_Reset_Terminal</id>
-    <content type="html"><![CDATA[<p>﻿&#8212;
-layout: post
-title: Linux下清屏：clear还是reset
-date: 2011-12-22 19:21
-comments: true</p>
+    <title type="html"><![CDATA[在Linux下清屏是clear还是reset]]></title>
+    <link href="http://chenming.info/blog/2011/12/22/linux-reset-terminal/"/>
+    <updated>2011-12-22T19:21:00+08:00</updated>
+    <id>http://chenming.info/blog/2011/12/22/linux-reset-terminal</id>
+    <content type="html"><![CDATA[<p>在终端中<code>Ctrl+L</code>或者<code>clear</code>会重绘屏幕。
+它能清除由系统广播消息导致的屏幕混乱情况。
+但如果是由于屏幕上打印了一些控制字符引起的屏幕混乱，
+<code>Ctrl+L</code>就没有效果了，这个时候需要使用<code>reset</code>命令。</p>
 
-<h2>categories: [Linux, terminal]</h2>
+<blockquote><p>There is garbage on the screen, or all your keystrokes are echoed as line drawing characters. What to do?</p><p>Many programs will redraw the screen when `Ctrl-L` is typed. This might help when there is some modem noise or broadcast<br/>message on your screen. The command `clear` will clear the screen.</p><p>The command `reset` will reset the console driver. This helps when the screen is full of funny graphic characters, and<br/>also if it is reduced to the bottom line.</p><footer><strong>Resetting your terminal</strong> <cite><a href='http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-4.html'>Linux Howto</a></cite></footer></blockquote>
 
-<p>Ctrl+L 或者 clear 会重绘屏幕。它能清除由系统广播消息导致的屏幕混乱情况。
-但如果是由于屏幕上打印了一些控制字符引起的屏幕混乱，Ctrl+L 就没有效果了，
-这个时候需要使用 reset 命令。</p>
 
-<p><a href="http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-4.html">http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-4.html</a></p>
+
 ]]></content>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Cookie_expries]]></title>
-    <link href="http://chenming.info/blog/2011/12/20/Cookie_Expries/"/>
-    <updated>2011-12-20T00:00:00+08:00</updated>
-    <id>http://chenming.info/blog/2011/12/20/Cookie_Expries</id>
-    <content type="html"><![CDATA[<p>﻿&#8212;
-layout: post
-title: 服务器时间不正确导致django的认证失败
-author: Ming
-date: 2011-12-20 8:20
-comments: true</p>
-
-<h2>categories: [django]</h2>
-
-<p>平时跑的好好的django系统，突然发现IE登录后可以访问第一个页面，
+    <title type="html"><![CDATA[服务器时间不正确导致django的认证失败]]></title>
+    <link href="http://chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth/"/>
+    <updated>2011-12-20T08:20:00+08:00</updated>
+    <id>http://chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth</id>
+    <content type="html"><![CDATA[<p>平时跑的好好的django系统，突然发现IE登录后可以访问第一个页面，
 而再继续访问其它页面的时候就出现认证失败，而Firefox是没有问题的。
-django的认证是借助cookie来实现的。
-经过对IE的抓包分析发现在后续的请求没有携带Cookie，
+django的认证是借助cookie来实现的。</p>
+
+<p>经过对IE的抓包分析发现在后续的请求没有携带Cookie，
 而在仔细看之前的http请求和响应，发现登录时服务器返回的Set-Cookie的超时时间是去年的时间，这就导致了IE认为这个Cookie已经过期，在后续的请求中就没有把这个Cookie带上，导致了认证的失败。再到服务器上看，服务器的时间居然被人改成去年的时间了。</p>
 
 <p>解决方法很简单了，就是把服务器的时间修改正确。</p>

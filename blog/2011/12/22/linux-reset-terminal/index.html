@@ -5,11 +5,14 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: web - Ming's Blog</title>
+  <title>在Linux下清屏是clear还是reset - Ming's Blog</title>
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="Category: web">
+  <meta name="description" content="在终端中Ctrl+L或者clear会重绘屏幕。
+它能清除由系统广播消息导致的屏幕混乱情况。
+但如果是由于屏幕上打印了一些控制字符引起的屏幕混乱，
+Ctrl+L就没有效果了，这个时候需要使用reset命令。 There is garbage on the screen, or all your &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +21,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://chenming.infoblog/categories/web/">
+  <link rel="canonical" href="http://chenming.info/blog/2011/12/22/linux-reset-terminal/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -63,36 +66,101 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: Web</h1>
+    
+      <h1 class="entry-title">在Linux下清屏是clear还是reset</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-22T19:21:00+08:00" pubdate data-updated="true">Dec 22<span>nd</span>, 2011</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><p>在终端中<code>Ctrl+L</code>或者<code>clear</code>会重绘屏幕。
+它能清除由系统广播消息导致的屏幕混乱情况。
+但如果是由于屏幕上打印了一些控制字符引起的屏幕混乱，
+<code>Ctrl+L</code>就没有效果了，这个时候需要使用<code>reset</code>命令。</p>
 
-  
-  <h2>2011</h2>
-
-<article>
-  
-<h1><a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a></h1>
-<time datetime="2011-12-29T20:32:00+08:00" pubdate><span class='month'>Dec</span> <span class='day'>29</span> <span class='year'>2011</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/javascript/'>javascript</a>, <a class='category' href='/blog/categories/web/'>web</a></span>
-</footer>
+<blockquote><p>There is garbage on the screen, or all your keystrokes are echoed as line drawing characters. What to do?</p><p>Many programs will redraw the screen when `Ctrl-L` is typed. This might help when there is some modem noise or broadcast<br/>message on your screen. The command `clear` will clear the screen.</p><p>The command `reset` will reset the console driver. This helps when the screen is full of funny graphic characters, and<br/>also if it is reduced to the bottom line.</p><footer><strong>Resetting your terminal</strong> <cite><a href='http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-4.html'>Linux Howto</a></cite></footer></blockquote>
 
 
-</article>
 
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Ming</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-22T19:21:00+08:00" pubdate data-updated="true">Dec 22<span>nd</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/linux/'>linux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/12/20/cookie-expries-issue-on-django-auth/" title="Previous Post: 服务器时间不正确导致django的认证失败">&laquo; 服务器时间不正确导致django的认证失败</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/12/24/jquery_tree_filter/" title="Next Post: 实现jQuery的treeview的filter">实现jQuery的treeview的filter &raquo;</a>
+      
+    </p>
+  </footer>
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
 
@@ -160,7 +228,10 @@
       var disqus_shortname = 'chenming';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chenming.info/blog/2011/12/22/linux-reset-terminal/';
+        var disqus_url = 'http://chenming.info/blog/2011/12/22/linux-reset-terminal/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

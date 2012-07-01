@@ -1,47 +1,43 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://chenming.info/blog/2011/12/20/Cookie_Expries/</loc>
-        <lastmod>2012-07-01T08:50:04+08:00</lastmod>
+        <loc>http://chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth/</loc>
+        <lastmod>2012-07-01T12:03:47+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2011/12/22/Linux_Reset_Terminal/</loc>
-        <lastmod>2012-07-01T08:51:35+08:00</lastmod>
+        <loc>http://chenming.info/blog/2011/12/22/linux-reset-terminal/</loc>
+        <lastmod>2012-07-01T13:26:30+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2011/12/24/jQuery_tree_filter/</loc>
-        <lastmod>2012-07-01T08:52:09+08:00</lastmod>
+        <loc>http://chenming.info/blog/2011/12/24/jquery_tree_filter/</loc>
+        <lastmod>2012-07-01T13:10:49+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2011/12/28/jQuery_revert_selection/</loc>
-        <lastmod>2012-07-01T08:53:01+08:00</lastmod>
+        <loc>http://chenming.info/blog/2011/12/28/jquery_revert_selection/</loc>
+        <lastmod>2012-07-01T13:32:58+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2011/12/29/Web_Developer_Tools_Bookmark/</loc>
-        <lastmod>2012-07-01T08:55:33+08:00</lastmod>
+        <loc>http://chenming.info/blog/2011/12/29/web-developer-tools-bookmark/</loc>
+        <lastmod>2012-07-01T13:14:48+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2012/01/02/How_To_Use_WP7_As_USB_Drive/</loc>
+        <loc>http://chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive/</loc>
         <lastmod>2012-07-01T08:56:15+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2012/01/13/Install_WP7_SDK_on_XP/</loc>
-        <lastmod>2012-07-01T08:56:38+08:00</lastmod>
+        <loc>http://chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp/</loc>
+        <lastmod>2012-07-01T13:16:57+08:00</lastmod>
     </url>
     <url>
-        <loc>http://chenming.info/blog/2012/01/16/WP_Debug_Message_Output/</loc>
-        <lastmod>2012-07-01T08:56:57+08:00</lastmod>
-    </url>
-    <url>
-        <loc>http://chenming.info/blog/2012/07/01/post-template/</loc>
-        <lastmod>2012-07-01T08:42:59+08:00</lastmod>
+        <loc>http://chenming.info/blog/2012/01/16/windows-phone-debug-message-output/</loc>
+        <lastmod>2012-07-01T13:17:43+08:00</lastmod>
     </url>
     <url>
         <loc>http://chenming.info/blog/archives/</loc>
-        <lastmod>2012-07-01T08:56:57+08:00</lastmod>
+        <lastmod>2012-07-01T13:32:58+08:00</lastmod>
     </url>
     <url>
         <loc>http://chenming.info/</loc>
-        <lastmod>2012-07-01T08:56:57+08:00</lastmod>
+        <lastmod>2012-07-01T13:32:58+08:00</lastmod>
     </url>
 </urlset>

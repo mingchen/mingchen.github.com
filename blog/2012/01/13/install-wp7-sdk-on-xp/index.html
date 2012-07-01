@@ -5,11 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: web - Ming's Blog</title>
+  <title>在XP下安装WP7的SDK - Ming's Blog</title>
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="Category: web">
+  <meta name="description" content="下载 WP7 SDK 的安装文件: vm_web.exe
+解压缩安装包： vm_web.exe /x 到解压缩的目录中修改安装配置，要修改的文件为baseline.dat 找到 gencomp7788 配置，并修改如下配置： InstallOnLHS=0 InstallOnWinXP=0 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://chenming.infoblog/categories/web/">
+  <link rel="canonical" href="http://chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -63,36 +64,118 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: Web</h1>
+    
+      <h1 class="entry-title">在XP下安装WP7的SDK</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-13T22:12:00+08:00" pubdate data-updated="true">Jan 13<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><ol>
+<li><p>下载 WP7 SDK 的安装文件: <code>vm_web.exe</code></p></li>
+<li><p>解压缩安装包：</p>
 
-  
-  <h2>2011</h2>
+<pre><code> vm_web.exe /x
+</code></pre></li>
+<li><p>到解压缩的目录中修改安装配置，要修改的文件为<code>baseline.dat</code></p>
 
-<article>
-  
-<h1><a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a></h1>
-<time datetime="2011-12-29T20:32:00+08:00" pubdate><span class='month'>Dec</span> <span class='day'>29</span> <span class='year'>2011</span></time>
+<p> 找到 gencomp7788 配置，并修改如下配置：</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/javascript/'>javascript</a>, <a class='category' href='/blog/categories/web/'>web</a></span>
-</footer>
+<pre><code> InstallOnLHS=0
+ InstallOnWinXP=0
+</code></pre></li>
+<li><p>运行安装</p>
+
+<pre><code> setup.exe /web
+</code></pre></li>
+</ol>
 
 
-</article>
+<p>参考:</p>
+
+<ul>
+<li><a href="http://www.redfrogfish.com/483/how-to-install-windows-phone-7-developer-tools-on-windows-xp/">http://www.redfrogfish.com/483/how-to-install-windows-phone-7-developer-tools-on-windows-xp/</a></li>
+</ul>
 
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Ming</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-13T22:12:00+08:00" pubdate data-updated="true">Jan 13<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/wp7/'>wp7</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/01/02/how-to-use-wp7-as-usb-drive/" title="Previous Post: How to use WP7 as USB drive">&laquo; How to use WP7 as USB drive</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/01/16/windows-phone-debug-message-output/" title="Next Post: WP7中写调试消息">WP7中写调试消息 &raquo;</a>
+      
+    </p>
+  </footer>
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
 
@@ -160,7 +243,10 @@
       var disqus_shortname = 'chenming';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp/';
+        var disqus_url = 'http://chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

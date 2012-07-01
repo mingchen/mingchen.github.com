@@ -5,12 +5,32 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>实现jQuery的treeview的filter - Mings Blog</title>
+  <title>实现jQuery的treeview的filter - Ming's Blog</title>
   <meta name="author" content="Ming">
 
   
   <meta name="description" content="使用jQuery的treeview插件做了一个tree，遇到一个tree特别长的问题，
-需要做一下filter，方便查找。 做tree的filter可以这样实现： $(&#8220;#filter&#8221;).change(function(){ var tval=$(this).val &hellip;">
+需要做一下filter，方便查找。 做tree的filter可以这样实现： 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+$(&quot;#filter& &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,13 +39,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://chenming.info/blog/2011/12/24/jQuery_tree_filter/">
+  <link rel="canonical" href="http://chenming.info/blog/2011/12/24/jquery_tree_filter/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
   <script src="/javascripts/ender.js"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <link href="/atom.xml" rel="alternate" title="Mings Blog" type="application/atom+xml">
+  <link href="/atom.xml" rel="alternate" title="Ming's Blog" type="application/atom+xml">
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -36,9 +56,9 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Mings Blog</a></h1>
+  <h1><a href="/">Ming's Blog</a></h1>
   
-    <h2>trival notes</h2>
+    <h2>trivial notes</h2>
   
 </hgroup>
 
@@ -98,18 +118,55 @@
 
 <p>做tree的filter可以这样实现：</p>
 
-<p>$(&#8220;#filter&#8221;).change(function(){
-  var tval=$(this).val();
-  $(&#8220;li&#8221;).hide().filter(&#8220;:contains(&#8216;&#8221;+tval+&#8221;&#8217;)&#8221;).find(&#8216;li&#8217;).andSelf().show();</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#filter&quot;</span><span class="p">).</span><span class="nx">change</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">tval</span><span class="o">=</span><span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">val</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;li&quot;</span><span class="p">).</span><span class="nx">hide</span><span class="p">()</span>
+</span><span class='line'>         <span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="s2">&quot;:contains(&#39;&quot;</span><span class="o">+</span><span class="nx">tval</span><span class="o">+</span><span class="s2">&quot;&#39;)&quot;</span><span class="p">)</span>
+</span><span class='line'>         <span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">)</span>
+</span><span class='line'>         <span class="p">.</span><span class="nx">andSelf</span><span class="p">()</span>
+</span><span class='line'>         <span class="p">.</span><span class="nx">show</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">all</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;li span.file&quot;</span><span class="p">,</span> <span class="nx">tree</span><span class="p">).</span><span class="nx">parent</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">selects</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;li span.file a&quot;</span><span class="p">,</span> <span class="nx">tree</span><span class="p">)</span>
+</span><span class='line'>                 <span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="s2">&quot;:contains(&#39;&quot;</span> <span class="o">+</span> <span class="nx">filter</span> <span class="o">+</span> <span class="s2">&quot;&#39;)&quot;</span><span class="p">)</span>
+</span><span class='line'>                 <span class="p">.</span><span class="nx">parent</span><span class="p">()</span>
+</span><span class='line'>                 <span class="p">.</span><span class="nx">parent</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">all</span><span class="p">.</span><span class="nx">not</span><span class="p">(</span><span class="nx">selects</span><span class="p">).</span><span class="nx">hide</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>  var all = $(&#8220;li span.file&#8221;, tree).parent();
-  var selects = $(&#8220;li span.file a&#8221;, tree).filter(&#8220;:contains(&#8216;&#8221; + filter + &#8220;&#8217;)&#8221;).parent().parent();
-  all.not(selects).hide();</p>
 
-<p>});</p>
+<p>参考</p>
 
-<p>参考：
-http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-based-on-search-criteria</p>
+<ul>
+<li><a href="http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-based-on-search-criteria">http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-based-on-search-criteria</a></li>
+</ul>
+
 </div>
 
 
@@ -137,7 +194,7 @@ http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-ba
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/jquery/'>jQuery</a>
+    <a class='category' href='/blog/categories/javascript/'>javascript</a>, <a class='category' href='/blog/categories/jquery/'>jquery</a>
   
 </span>
 
@@ -146,8 +203,6 @@ http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-ba
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://chenming.info/blog/2011/12/24/jQuery_tree_filter/" data-via="" data-counturl="http://chenming.info/blog/2011/12/24/jQuery_tree_filter/" >Tweet</a>
-  
   
   
 </div>
@@ -155,10 +210,10 @@ http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-ba
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2011/12/22/Linux_Reset_Terminal/" title="Previous Post: Linux_reset_terminal">&laquo; Linux_reset_terminal</a>
+        <a class="basic-alignment left" href="/blog/2011/12/22/linux-reset-terminal/" title="Previous Post: 在Linux下清屏是clear还是reset">&laquo; 在Linux下清屏是clear还是reset</a>
       
       
-        <a class="basic-alignment right" href="/blog/2011/12/28/jQuery_revert_selection/" title="Next Post: Jquery_revert_selection">Jquery_revert_selection &raquo;</a>
+        <a class="basic-alignment right" href="/blog/2011/12/28/jquery_revert_selection/" title="Next Post: jQuery reverse selection">jQuery reverse selection &raquo;</a>
       
     </p>
   </footer>
@@ -179,39 +234,35 @@ http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-ba
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2012/07/01/post-template/">Blog模板</a>
+        <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2012/01/16/WP_Debug_Message_Output/">WP7 调试消息</a>
+        <a href="/blog/2012/01/13/install-wp7-sdk-on-xp/">在XP下安装WP7的SDK</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2012/01/13/Install_WP7_SDK_on_XP/">在XP下安装WP7的SDK</a>
+        <a href="/blog/2012/01/02/how-to-use-wp7-as-usb-drive/">How to use WP7 as USB drive</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2012/01/02/How_To_Use_WP7_As_USB_Drive/">How to use WP7 as USB drive</a>
+        <a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2011/12/29/Web_Developer_Tools_Bookmark/">网站开发书签</a>
+        <a href="/blog/2011/12/28/jquery_revert_selection/">jQuery reverse selection</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2011/12/28/jQuery_revert_selection/">Jquery_revert_selection</a>
+        <a href="/blog/2011/12/24/jquery_tree_filter/">实现jQuery的treeview的filter</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2011/12/24/jQuery_tree_filter/">实现jQuery的treeview的filter</a>
+        <a href="/blog/2011/12/22/linux-reset-terminal/">在Linux下清屏是clear还是reset</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2011/12/22/Linux_Reset_Terminal/">Linux_reset_terminal</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2011/12/20/Cookie_Expries/">Cookie_expries</a>
+        <a href="/blog/2011/12/20/cookie-expries-issue-on-django-auth/">服务器时间不正确导致django的认证失败</a>
       </li>
     
   </ul>
@@ -241,8 +292,8 @@ http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-ba
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://chenming.info/blog/2011/12/24/jQuery_tree_filter/';
-        var disqus_url = 'http://chenming.info/blog/2011/12/24/jQuery_tree_filter/';
+        var disqus_identifier = 'http://chenming.info/blog/2011/12/24/jquery_tree_filter/';
+        var disqus_url = 'http://chenming.info/blog/2011/12/24/jquery_tree_filter/';
         var disqus_script = 'embed.js';
       
     (function () {

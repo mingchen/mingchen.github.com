@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: django | Ming's Blog]]></title>
+  <link href="http://chenming.info/blog/categories/django/atom.xml" rel="self"/>
+  <link href="http://chenming.info/"/>
+  <updated>2012-07-01T13:36:17+08:00</updated>
+  <id>http://chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[服务器时间不正确导致django的认证失败]]></title>
+    <link href="http://chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth/"/>
+    <updated>2011-12-20T08:20:00+08:00</updated>
+    <id>http://chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth</id>
+    <content type="html"><![CDATA[<p>平时跑的好好的django系统，突然发现IE登录后可以访问第一个页面，
+而再继续访问其它页面的时候就出现认证失败，而Firefox是没有问题的。
+django的认证是借助cookie来实现的。</p>
+
+<p>经过对IE的抓包分析发现在后续的请求没有携带Cookie，
+而在仔细看之前的http请求和响应，发现登录时服务器返回的Set-Cookie的超时时间是去年的时间，这就导致了IE认为这个Cookie已经过期，在后续的请求中就没有把这个Cookie带上，导致了认证的失败。再到服务器上看，服务器的时间居然被人改成去年的时间了。</p>
+
+<p>解决方法很简单了，就是把服务器的时间修改正确。</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: linux | Ming's Blog]]></title>
+  <link href="http://chenming.info/blog/categories/linux/atom.xml" rel="self"/>
+  <link href="http://chenming.info/"/>
+  <updated>2012-07-01T13:36:17+08:00</updated>
+  <id>http://chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[在Linux下清屏是clear还是reset]]></title>
+    <link href="http://chenming.info/blog/2011/12/22/linux-reset-terminal/"/>
+    <updated>2011-12-22T19:21:00+08:00</updated>
+    <id>http://chenming.info/blog/2011/12/22/linux-reset-terminal</id>
+    <content type="html"><![CDATA[<p>在终端中<code>Ctrl+L</code>或者<code>clear</code>会重绘屏幕。
+它能清除由系统广播消息导致的屏幕混乱情况。
+但如果是由于屏幕上打印了一些控制字符引起的屏幕混乱，
+<code>Ctrl+L</code>就没有效果了，这个时候需要使用<code>reset</code>命令。</p>
+
+<p><blockquote><p>There is garbage on the screen, or all your keystrokes are echoed as line drawing characters. What to do?</p></p><p><p>Many programs will redraw the screen when <code>Ctrl-L</code> is typed. This might help when there is some modem noise or broadcast<br/>message on your screen. The command <code>clear</code> will clear the screen.</p></p><p><p>The command <code>reset</code> will reset the console driver. This helps when the screen is full of funny graphic characters, and<br/>also if it is reduced to the bottom line.</p><footer><strong>Resetting your terminal</strong> <cite><a href='http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-4.html'>Linux Howto</a></cite></footer></blockquote></p>
+]]></content>
+  </entry>
+  
+</feed>
