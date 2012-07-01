@@ -5,12 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>WP7中写调试消息 - Ming's Blog</title>
+  <title>jQuery reverse selection - Ming's Blog</title>
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="在WP7中写调试消息 System.Diagnostics.Debug.WriteLine("Debug message here..."); 说明: 这个只有在调试版本才有效。
-在VS2010的Output窗口可以看到输出。 ">
+  <meta name="description" content="TODO&#8230; (function($) { $.fn.reverse = function () { var orig = this.prevObject; return orig.not(this) || jQuery(null); }
+})(jQuery); $('li').css &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://chenming.info/blog/2012/01/16/windows-phone-debug-message-output/">
+  <link rel="canonical" href="http://chenming.info/blog/2011/12/28/jquery-revert-selection/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -68,7 +68,7 @@
   
   <header>
     
-      <h1 class="entry-title">WP7中写调试消息</h1>
+      <h1 class="entry-title">jQuery Reverse Selection</h1>
     
     
       <p class="meta">
@@ -84,7 +84,7 @@
   
 
 
-<time datetime="2012-01-16T21:55:00+08:00" pubdate data-updated="true">Jan 16<span>th</span>, 2012</time>
+<time datetime="2011-12-28T22:12:00+08:00" pubdate data-updated="true">Dec 28<span>th</span>, 2011</time>
         
          | <a href="#disqus_thread">Comments</a>
         
@@ -93,17 +93,71 @@
   </header>
 
 
-<div class="entry-content"><p>在WP7中写调试消息</p>
+<div class="entry-content"><p>TODO&#8230;</p>
 
-<pre><code>    System.Diagnostics.Debug.WriteLine("Debug message here...");
-</code></pre>
+<script>
+(function($) {
+  $.fn.reverse = function () 
+  {
+      var orig = this.prevObject;
+      return orig.not(this) || jQuery(null);
+  }
+})(jQuery);
 
-<p>说明:</p>
+$('li').css('background-color','gray')
+    .filter(':contains("sub")')
+    .css('color','yellow')
+    .reverse()
+    .css('color','red');
+</script>
 
-<ol>
-<li>这个只有在调试版本才有效。</li>
-<li>在VS2010的Output窗口可以看到输出。</li>
-</ol>
+
+
+
+<ul>
+  <li>sub 1</li>
+  <li>inv 1</li>
+  <li>sub 2</li>
+  <li>inv 2</li>
+</ul>
+
+
+
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">$</span><span class="p">.</span><span class="nx">fn</span><span class="p">.</span><span class="nx">reverse</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">orig</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">prevObject</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nx">orig</span><span class="p">.</span><span class="nx">not</span><span class="p">(</span><span class="k">this</span><span class="p">)</span> <span class="o">||</span> <span class="nx">jQuery</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">})(</span><span class="nx">jQuery</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">).</span><span class="nx">css</span><span class="p">(</span><span class="s1">&#39;background-color&#39;</span><span class="p">,</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="s1">&#39;:contains(&quot;sub&quot;)&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">.</span><span class="nx">css</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span><span class="s1">&#39;yellow&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">.</span><span class="nx">reverse</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">.</span><span class="nx">css</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span><span class="s1">&#39;red&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>参考</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/4502533/jquery-method-to-select-a-subset-and-also-its-inverse">http://stackoverflow.com/questions/4502533/jquery-method-to-select-a-subset-and-also-its-inverse</a></li>
+</ul>
 
 </div>
 
@@ -127,12 +181,12 @@
   
 
 
-<time datetime="2012-01-16T21:55:00+08:00" pubdate data-updated="true">Jan 16<span>th</span>, 2012</time>
+<time datetime="2011-12-28T22:12:00+08:00" pubdate data-updated="true">Dec 28<span>th</span>, 2011</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/wp7/'>wp7</a>
+    <a class='category' href='/blog/categories/javascript/'>javascript</a>, <a class='category' href='/blog/categories/jquery/'>jquery</a>
   
 </span>
 
@@ -148,8 +202,10 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2012/01/13/install-wp7-sdk-on-xp/" title="Previous Post: 在XP下安装WP7的SDK">&laquo; 在XP下安装WP7的SDK</a>
+        <a class="basic-alignment left" href="/blog/2011/12/24/jquery-tree-filter/" title="Previous Post: 实现jQuery的treeview的filter">&laquo; 实现jQuery的treeview的filter</a>
       
+      
+        <a class="basic-alignment right" href="/blog/2011/12/29/web-developer-tools-bookmark/" title="Next Post: 网站开发书签">网站开发书签 &raquo;</a>
       
     </p>
   </footer>
@@ -228,8 +284,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://chenming.info/blog/2012/01/16/windows-phone-debug-message-output/';
-        var disqus_url = 'http://chenming.info/blog/2012/01/16/windows-phone-debug-message-output/';
+        var disqus_identifier = 'http://chenming.info/blog/2011/12/28/jquery-revert-selection/';
+        var disqus_url = 'http://chenming.info/blog/2011/12/28/jquery-revert-selection/';
         var disqus_script = 'embed.js';
       
     (function () {

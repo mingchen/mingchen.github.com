@@ -4,7 +4,7 @@
   <title><![CDATA[Category: jquery | Ming's Blog]]></title>
   <link href="http://chenming.info/blog/categories/jquery/atom.xml" rel="self"/>
   <link href="http://chenming.info/"/>
-  <updated>2012-07-01T13:36:17+08:00</updated>
+  <updated>2012-07-01T13:41:31+08:00</updated>
   <id>http://chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[jQuery reverse selection]]></title>
-    <link href="http://chenming.info/blog/2011/12/28/jquery_revert_selection/"/>
+    <link href="http://chenming.info/blog/2011/12/28/jquery-revert-selection/"/>
     <updated>2011-12-28T22:12:00+08:00</updated>
-    <id>http://chenming.info/blog/2011/12/28/jquery_revert_selection</id>
+    <id>http://chenming.info/blog/2011/12/28/jquery-revert-selection</id>
     <content type="html"><![CDATA[<p>TODO...</p>
 
 <script>
@@ -100,9 +100,9 @@ $('li').css('background-color','gray')
   
   <entry>
     <title type="html"><![CDATA[实现jQuery的treeview的filter]]></title>
-    <link href="http://chenming.info/blog/2011/12/24/jquery_tree_filter/"/>
+    <link href="http://chenming.info/blog/2011/12/24/jquery-tree-filter/"/>
     <updated>2011-12-24T21:21:00+08:00</updated>
-    <id>http://chenming.info/blog/2011/12/24/jquery_tree_filter</id>
+    <id>http://chenming.info/blog/2011/12/24/jquery-tree-filter</id>
     <content type="html"><![CDATA[<p>使用jQuery的treeview插件做了一个tree，遇到一个tree特别长的问题，
 需要做一下filter，方便查找。</p>
 
