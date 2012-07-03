@@ -1,0 +1,619 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ace | Ming's Blog]]></title>
+  <link href="http://blog.chenming.info/blog/categories/ace/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-03T10:35:03+08:00</updated>
+  <id>http://blog.chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[ACE中register_handler()的调用时机]]></title>
+    <link href="http://blog.chenming.info/blog/2009/09/11/when-call-register-handle-in-ace/"/>
+    <updated>2009-09-11T09:36:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/09/11/when-call-register-handle-in-ace</id>
+    <content type="html"><![CDATA[<p>这个问题源自ACE邮件列表中使用Reactor来进行串口通信的问题，
+最后的根因时因为调用<code>register_handler()</code>的时机不对，
+还没有调用<code>connect()</code>，就调用了<code>register_handler()</code>，
+这个时候要注册的句柄因为没有建立连接，值还是-1，注册会失败，导致后续不能获得串口上的数据是理所当然的了。</p>
+
+<p>总结一下Reactor中<code>register_handler()</code>/<code>remove_handler()</code>的调用顺序就是：</p>
+
+<pre><code>connect()/accept()   -&gt;  register_handler()
+remove_handler() -&gt; close()
+</code></pre>
+
+<p>附讨论的原始信息：</p>
+
+<p><blockquote><p>Great news :)  Also, don't forget to do the reverse when cleaning up:  Call remove_handler() <em>before</em> closing the port or you'll see a fault on shutdown.  Basically, the sequence is "connect port -> register_handler() -> (do serial stuff) -> remove_handler() -> close port".  Finally, don't try this on Win32 platforms :)</p></p><p><ul><br/><li>Bob</li><br/></ul></p><p><br/><hr /></p><p><p>Hi Bob,</p></p><p><p>that´s the error. When I'd started I had in the right order, but cause it wasn´t running (due to some further errors) I tried some things and totally forgot to change it back. Thank you so much<sup>^.</sup></p></p><p><p>Greetings,<br/>Daniel</p></p><p><p>@Andreas: I didn´t need to try your version.<sup>^</sup> But thx anyway...</p></p><p><p>-------- Original-Nachricht --------</p></p><p><blockquote><p>Datum: Fri, 6 Nov 2009 08:19:09 -0500<br/>Von: robert.ciora@us.transport.bombardier.com<br/>An: "Daniel Kempcke" <a href="&#109;&#x61;&#105;&#x6c;&#116;&#111;&#58;&#68;&#x61;&#x6e;&#105;&#101;&#108;&#46;&#x4b;&#x65;&#x6d;&#x70;&#99;&#107;&#101;&#x40;&#x67;&#109;&#x78;&#x2e;&#110;&#x65;&#116;">&#68;&#97;&#110;&#x69;&#101;&#108;&#x2e;&#75;&#101;&#109;&#x70;&#x63;&#107;&#101;&#x40;&#x67;&#x6d;&#120;&#46;&#110;&#x65;&#x74;</a><br/>CC: ace-users@list.isis.vanderbilt.edu, ace-users-bounces@list.isis.vanderbilt.edu<br/>Betreff: Re: [ace-users] Problem reactor used with serial interface</p></p><p><p>Daniel,</p></p><p><p>Another quick one:  You're calling "reactor()->register_handler(...)"<br/>before calling "connector->connect(...)".  The register_handler() will use<br/>your get_handle() to determine which handle to register.  Since you<br/>haven't connected the port yet, your get_handle() (which calls<br/>peer_.get_handle()) is returning ACE_INVALID_HANDLE.  It's in the<br/>connect() call where the peer's handle gets set to something valid.</p></p><p><p>Try calling register_handler() <em>after</em> calling connect().</p></p><p><ul><br/><li>Bob</li><br/></ul></p><p><br/><p>Please consider the environment before you print / Antes de imprimir,<br/>piense en el medio ambiente</p></p><p><p>"Daniel Kempcke" <a href="&#109;&#97;&#105;&#108;&#x74;&#x6f;&#58;&#x44;&#x61;&#110;&#x69;&#101;&#x6c;&#x2e;&#75;&#101;&#109;&#112;&#99;&#x6b;&#101;&#x40;&#x67;&#x6d;&#120;&#46;&#110;&#101;&#116;">&#x44;&#x61;&#110;&#x69;&#x65;&#108;&#46;&#75;&#101;&#x6d;&#112;&#99;&#107;&#101;&#x40;&#103;&#109;&#120;&#46;&#110;&#101;&#x74;</a><br/>Sent by: ace-users-bounces@list.isis.vanderbilt.edu<br/>11/06/2009 04:06 AM</p></p><p><p>To<br/>ace-users@list.isis.vanderbilt.edu<br/>cc</p></p><p><p>Subject<br/>Re: [ace-users] Problem reactor used with serial interface</p></p><p><p>Hi Bob,</p></p><p><p>I tried it with -1 (and also with some other values). But the behaviour<br/>didn't change.<br/>But anyway - thx for your response...</p></p><p><p>Daniel</p></p><p><p>-------- Original-Nachricht --------</p></p><p><blockquote><p>Datum: Thu, 5 Nov 2009 10:41:30 -0500<br/>Von: robert.ciora@us.transport.bombardier.com<br/>An: "Daniel Kempcke" <a href="&#109;&#x61;&#x69;&#108;&#x74;&#x6f;&#58;&#68;&#97;&#x6e;&#x69;&#101;&#108;&#x2e;&#x4b;&#101;&#x6d;&#x70;&#99;&#x6b;&#101;&#64;&#x67;&#x6d;&#120;&#x2e;&#x6e;&#101;&#116;">&#68;&#97;&#110;&#x69;&#x65;&#108;&#x2e;&#75;&#101;&#x6d;&#112;&#x63;&#107;&#x65;&#x40;&#x67;&#109;&#120;&#x2e;&#x6e;&#101;&#116;</a><br/>CC: ace-users@list.isis.vanderbilt.edu,<br/>ace-users-bounces@list.isis.vanderbilt.edu<br/>Betreff: Re: [ace-users] Problem reactor used with serial interface</p></p><p><p>Daniel,</p></p><p><p>As a quick guess: try setting your serial parameters' "readtimeoutmsec"<br/>field to -1.  This <em>should</em> cause the reactor (select() call) to<br/>correctly<br/>block on the handle.</p></p><p><ul><br/><li>Bob</li><br/></ul></p><p><br/><p>Please consider the environment before you print / Antes de imprimir,<br/>piense en el medio ambiente</p></p><p><p>"Daniel Kempcke" <a href="&#x6d;&#97;&#105;&#x6c;&#x74;&#x6f;&#58;&#x44;&#x61;&#110;&#x69;&#101;&#108;&#46;&#75;&#x65;&#x6d;&#x70;&#99;&#x6b;&#101;&#64;&#103;&#109;&#120;&#46;&#110;&#x65;&#116;">&#68;&#x61;&#x6e;&#105;&#x65;&#108;&#x2e;&#x4b;&#x65;&#x6d;&#112;&#x63;&#107;&#101;&#x40;&#x67;&#x6d;&#120;&#46;&#110;&#101;&#x74;</a><br/>Sent by: ace-users-bounces@list.isis.vanderbilt.edu<br/>11/05/2009 10:21 AM</p></p><p><p>To<br/>ace-users@list.isis.vanderbilt.edu<br/>cc</p></p><p><p>Subject<br/>[ace-users] Problem reactor used with serial interface</p></p><p><p>To: ace-bugs@cs.wustl.edu<br/>Subject: [area]: [synopsis]</p></p><p><pre><code>ACE VERSION: 5.6.3</p><p>HOST MACHINE and OPERATING SYSTEM:<br/>- Linux - Ubuntu 9.04 - Kernel 2.6.28</p><p></p><p>TARGET MACHINE and OPERATING SYSTEM, if different from HOST:<br/>-<br/>COMPILER NAME AND VERSION (AND PATCHLEVEL):<br/>- g++ Version 4.3.3</p><p><br/>BUILD METHOD USED:<br/></code></pre></p><p><p>[Experimental ./configure or traditional makefile/project file?]</p></p><p><pre><code>- makefile/project file</p><p><br/>AREA/CLASS/EXAMPLE AFFECTED:<br/></code></pre></p><p><p>[What example failed?  What module failed to compile?]</p></p><p><p>Example for using the Reactor with a serial device and not with TCP/IP<br/>as<br/>a data source. Compiling didn´t fail.</p></p><p><pre><code>DOES THE PROBLEM AFFECT:<br/>    COMPILATION? -<br/>    LINKING? -<br/>        On Unix systems, did you run make realclean first?<br/>        - yes<br/>    EXECUTION?<br/>    - fails (no signal, caused by data input from the serial device,<br/></code></pre></p><p><p>occurs)</p></p><p><pre><code>DESCRIPTION:</p><p>The application uses the reactor. There is a serial device on which<br/></code></pre></p><p><p>constantly data arrives. The applic just opens the serial connection and</p></p><p><p>registers a handler to it. Then it starts the run_reactor_event_loop -<br/>in<br/>this case without an exit conditions.</p></p><p><p>The application uses the standard reactor methods:</p></p><p><p>The "open()" method registers a handler, makes a connect to the serial<br/>device and sets the serial parameters.<br/>The "handle_input()" method doesn´t have to do anythng special. In this<br/>example it shall only dislay the received data.<br/>"Handle_close()" just removes the handler, closes the serial connection<br/>and deletes the object.</p></p><p><p>Normally I would expect, that the reactor would get signals - cause of<br/>the<br/>incoming data on the serial interface - from the OS, which causes calls<br/>of<br/>the "handle_input()" method.<br/>But nothing happens - the "handle_input()" routine's never been called,<br/>despite there´s always data arriving on the serial interface.</p></p><p><p>I tried also other examples, which were available online. They are<br/>similar<br/>structured and also never reach the "handle_input()".</p></p><p><p>here´s the code example:</p></p><p><h1>include "ace/DEV_Connector.h"</h1></p><p><h1>include "ace/TTY_IO.h"</h1></p><p><h1>include "ace/Time_Value.h"</h1></p><p><h1>include "ace/Reactor.h"</h1></p><p><h1>include <iostream></h1></p><p><p>class Service : public ACE_Event_Handler{<br/>public:</p></p><p><pre><code>             Service();<br/>             virtual ~Service();</p><p>             int open(const char *, ACE_TTY_IO::Serial_Params&amp;<br/></code></pre></p><p><p>sSerialParams);</p></p><p><pre><code>             virtual ACE_HANDLE get_handle(void) const<br/>             {<br/>                             return this-&gt;peer_.get_handle();<br/>             }</p><p>             virtual int handle_input(ACE_HANDLE fd =<br/></code></pre></p><p><p>ACE_INVALID_HANDLE);</p></p><p><pre><code>             virtual int handle_close(ACE_HANDLE handle,<br/></code></pre></p><p><p>ACE_Reactor_Mask close_mask);</p></p><p><p>protected:</p></p><p><pre><code>             ACE_DEV_Connector connector_;<br/>             //ACE_Message_Queue&lt;ACE_NULL_SYNC&gt; output_queue;<br/></code></pre></p><p><p>private:</p></p><p><pre><code>             ACE_TTY_IO peer_;<br/></code></pre></p><p><p>};</p></p><p><p>int open(const char* name, ACE_TTY_IO::Serial_Params&amp; sSerialParams) {</p></p><p><pre><code>             int nResult = 0;</p><p>             ACE_Reactor::instance()-&gt;register_handler(this,<br/></code></pre></p><p><p> ACE_Event_Handler::READ_MASK);<br/>// Set our I/O handle to that of the peer<em> object handling our<br/>connection<br/>if (this->connector</em>.connect(peer_, ACE_DEV_Addr(name), 0,</p></p><p><pre><code>                                             ACE_Addr::sap_any, 0,<br/></code></pre></p><p><p>//reuse</p></p><p><pre><code>                                             O_RDWR |<br/></code></pre></p><p><p>FILE_FLAG_OVERLAPPED) != 0) {</p></p><p><pre><code>                             ACE_ERROR((LM_ERROR, ACE_TEXT("%p\n"),<br/>             ACE_TEXT("--- SerialIOHandler connect\n")));<br/>                             nResult = -1;<br/>             }</p><p>             if (peer_.control(ACE_TTY_IO::SETPARAMS,<br/></code></pre></p><p><p>&amp;sSerialParams)<br/>!= 0) {</p></p><p><pre><code>                             ACE_ERROR((LM_ERROR, ACE_TEXT("%p<br/></code></pre></p><p><p>control\n"), name));</p></p><p><pre><code>                             nResult = -1;<br/>             }</p><p><br/>             return nResult;<br/></code></pre></p><p><p>}</p></p><p><p>int handle_input(ACE_HANDLE) {</p></p><p><pre><code>             char *readBack;<br/>             peer_.recv((void *) &amp;readBack, 1);</p><p>             cout &lt;&lt; readBack &lt;&lt; endl;</p><p>             return 0;<br/></code></pre></p><p><p>}</p></p><p><p>int handle_close(ACE_HANDLE handle, ACE_Reactor_Mask close_mask) {</p></p><p><pre><code>             if (this-&gt;peer_.get_handle() != ACE_INVALID_HANDLE) {<br/>                             ACE_Reactor_Mask m =<br/></code></pre></p><p><p>ACE_Event_Handler::ACCEPT_MASK</p></p><p><pre><code>                                                             |<br/></code></pre></p><p><p>ACE_Event_Handler::DONT_CALL;</p></p><p><pre><code>                             this-&gt;reactor()-&gt;remove_handler(this,<br/></code></pre></p><p><p>m);</p></p><p><pre><code>                             this-&gt;peer_.close();</p><p>                             delete this;<br/>                             return 0;<br/>             }<br/>             return 0;<br/></code></pre></p><p><p>}</p></p><p><p>int ACE_TMAIN(int, ACE_TCHAR *[]) {</p></p><p><pre><code>             Service SerialIO0;<br/>             Service SerialIO1;</p><p>             ACE_TTY_IO::Serial_Params sSerialParams;<br/>       sSerialPortParams.baudrate = 115200;<br/>                sSerialPortParams.xonlim = 0;<br/>                sSerialPortParams.xofflim = 0;<br/>                sSerialPortParams.readmincharacters = 0;<br/>                sSerialPortParams.readtimeoutmsec = 1000; // 1<br/></code></pre></p><p><p>second</p></p><p><pre><code>                sSerialPortParams.paritymode = "none";<br/>                sSerialPortParams.ctsenb = false;<br/>                sSerialPortParams.rtsenb = 0;<br/>                sSerialPortParams.xinenb = false;<br/>                sSerialPortParams.xoutenb = false;<br/>                sSerialPortParams.modem = false;<br/>                sSerialPortParams.rcvenb = true;<br/>                sSerialPortParams.dsrenb = false;<br/>                sSerialPortParams.dtrdisable = false;<br/>                sSerialPortParams.databits = 8;<br/>                sSerialPortParams.stopbits = 1;</p><p><br/>             const char * serName0 = "/dev/ttyUSB0";<br/>             const char * serName1 = "/dev/ttyUSB1";</p><p><br/>             if (SerialIO0.open(serName0, sSerialParams) == -1)<br/>             {<br/>                             cout &lt;&lt; "could not connect to: " &lt;&lt;<br/></code></pre></p><p><p>serName0 &lt;&lt; endl;</p></p><p><pre><code>                             return 1;<br/>             }</p><p>             if (SerialIO1.open(serName1, sSerialParams) == -1)<br/>             {<br/>                             cout &lt;&lt; "could not connect to: " &lt;&lt;<br/></code></pre></p><p><p>serName1 &lt;&lt; endl;</p></p><p><pre><code>                             return 1;<br/>             }</p><p>             cout &lt;&lt; "connected to: " &lt;&lt; serName0 &lt;&lt; " " &lt;&lt; serName1<br/></code></pre></p><p><p>&lt;&lt; endl;</p></p><p><pre><code>             ACE_Reactor::instance()-&gt;run_reactor_event_loop();</p><p>             return 0;<br/></code></pre></p><p><p>}</p></p><p><p>Would be great if somebody could give me a little help. Thanks a lot in<br/>advance.<br/>Best regards,<br/>Daniel</p></blockquote></blockquote></p><p><p></p></blockquote></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[ACE_Message_Queue的notify和Reactor结合使用时会导致死锁]]></title>
+    <link href="http://blog.chenming.info/blog/2008/03/08/ace-message-queue-notify-deadlock-in-reactor/"/>
+    <updated>2008-03-08T22:00:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2008/03/08/ace-message-queue-notify-deadlock-in-reactor</id>
+    <content type="html"><![CDATA[<h2>现象</h2>
+
+<p>设置了Queue的通知策略之后，在<code>putq</code>之后会调用Reactor的<code>notify</code>方法，
+Reactor内部使用一个管道来传输通知事件，导致在写入通知事件时阻塞在该管道上，
+从而导致程序挂起。</p>
+
+<p>这是一个很早就发现的bug，但是一直没有被修正。一方面是它不好修正，
+从邮件列表里得到的信息是ACE的维护者缺乏资金解决这个问题。</p>
+
+<h2>一个示例的调用栈</h2>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+<span class='line-number'>205</span>
+<span class='line-number'>206</span>
+<span class='line-number'>207</span>
+<span class='line-number'>208</span>
+<span class='line-number'>209</span>
+<span class='line-number'>210</span>
+<span class='line-number'>211</span>
+<span class='line-number'>212</span>
+<span class='line-number'>213</span>
+<span class='line-number'>214</span>
+<span class='line-number'>215</span>
+<span class='line-number'>216</span>
+<span class='line-number'>217</span>
+<span class='line-number'>218</span>
+<span class='line-number'>219</span>
+<span class='line-number'>220</span>
+<span class='line-number'>221</span>
+<span class='line-number'>222</span>
+<span class='line-number'>223</span>
+<span class='line-number'>224</span>
+<span class='line-number'>225</span>
+<span class='line-number'>226</span>
+<span class='line-number'>227</span>
+<span class='line-number'>228</span>
+<span class='line-number'>229</span>
+<span class='line-number'>230</span>
+<span class='line-number'>231</span>
+<span class='line-number'>232</span>
+<span class='line-number'>233</span>
+<span class='line-number'>234</span>
+<span class='line-number'>235</span>
+<span class='line-number'>236</span>
+<span class='line-number'>237</span>
+<span class='line-number'>238</span>
+<span class='line-number'>239</span>
+<span class='line-number'>240</span>
+<span class='line-number'>241</span>
+<span class='line-number'>242</span>
+<span class='line-number'>243</span>
+<span class='line-number'>244</span>
+<span class='line-number'>245</span>
+<span class='line-number'>246</span>
+<span class='line-number'>247</span>
+<span class='line-number'>248</span>
+<span class='line-number'>249</span>
+<span class='line-number'>250</span>
+<span class='line-number'>251</span>
+<span class='line-number'>252</span>
+<span class='line-number'>253</span>
+<span class='line-number'>254</span>
+<span class='line-number'>255</span>
+<span class='line-number'>256</span>
+<span class='line-number'>257</span>
+<span class='line-number'>258</span>
+<span class='line-number'>259</span>
+<span class='line-number'>260</span>
+<span class='line-number'>261</span>
+<span class='line-number'>262</span>
+<span class='line-number'>263</span>
+<span class='line-number'>264</span>
+<span class='line-number'>265</span>
+<span class='line-number'>266</span>
+<span class='line-number'>267</span>
+<span class='line-number'>268</span>
+<span class='line-number'>269</span>
+<span class='line-number'>270</span>
+<span class='line-number'>271</span>
+<span class='line-number'>272</span>
+<span class='line-number'>273</span>
+<span class='line-number'>274</span>
+<span class='line-number'>275</span>
+<span class='line-number'>276</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>(gdb) thr app all bt&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Thread 4 (Thread 0xb7ad3b90 (LWP 31160)):   # ---- Scheduler thread.&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>0  0xb80da430 in __kernel_vsyscall ()&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>1  0xb7f790e5 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/tls/i686/cmov/libpthread.so.0&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>2  0x08070c59 in ACE_OS::cond_wait (cv=0x91a7cbc, external_mutex=0x91a7ca0)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/ACE_wrappers/ace/OS_NS_Thread.inl:329
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>3  0x08070c9f in ACE_Condition&lt;ACE_Thread_Mutex>::wait (this=0x91a7cbc)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/ACE_wrappers/ace/Condition_T.cpp:90
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>4  0x0807020a in cm::Scheduler::choose_processor (this=0x91a7c54)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/Dropbox/projects/ace_skel/src/Scheduler.cpp:94
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>5  0x080705ad in cm::Scheduler::svc (this=0x91a7c54)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/Dropbox/projects/ace_skel/src/Scheduler.cpp:80
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>6  0xb7daae52 in ACE_Task_Base::svc_run (args=0x91a7c54) at Task.cpp:275&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>7  0xb7dac2ed in ACE_Thread_Adapter::invoke_i (this=0x91a7fa0) at Thread_Adapter.cpp:149&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>8  0xb7dac366 in ACE_Thread_Adapter::invoke (this=0x91a7fa0) at Thread_Adapter.cpp:98&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>9  0xb7d33271 in ace_thread_adapter (args=0x91a7fa0) at Base_Thread_Adapter.cpp:124&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>10 0xb7f754ff in start_thread () from /lib/tls/i686/cmov/libpthread.so.0&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>11 0xb7ef049e in clone () from /lib/tls/i686/cmov/libc.so.6&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Thread 3 (Thread 0xb72d2b90 (LWP 31161)):   # ---- Processor thread.&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>0  0xb80da430 in __kernel_vsyscall ()&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>1  0xb7f7c07b in write () from /lib/tls/i686/cmov/libpthread.so.0&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>2  0xb7d212ea in ACE::send (handle=6, buf=0xb72cff34, n=8, timeout=0x8)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/ACE_wrappers/ace/OS_NS_unistd.inl:1200
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>3  0xb7d4da29 in ACE_Dev_Poll_Reactor_Notify::notify (this=0x91a3c10, eh=0x92095b0, mask=2,&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>timeout=0x0) at Dev_Poll_Reactor.cpp:165
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>4  0xb7d4bcbc in ACE_Dev_Poll_Reactor::notify (this=0x91a3980, eh=0x92095b0, mask=2,&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>timeout=0x0) at Dev_Poll_Reactor.cpp:2028
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>5  0xb7d9550e in ACE_Reactor::notify (this=0x91a38c0, event_handler=0x92095b0, mask=2, tv=0x0)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at Reactor.cpp:481
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>6  0xb7d95e76 in ACE_Reactor_Notification_Strategy::notify (this=0x9209638)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at Reactor_Notification_Strategy.cpp:28
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>7  0x08062d47 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::notify (this=0x9209660)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1998
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>8  0x080650cc in ACE_Message_Queue&lt;ACE_MT_SYNCH>::enqueue_tail (this=0x9209660,&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>new_item=0xb61bb3d8, timeout=0xb72d0064)
+</span><span class='line'>at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1888
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>9  0x08076c2c in ACE_Task&lt;ACE_MT_SYNCH>::putq (this=0x92095b0, mb=0xb61bb3d8, tv=0xb72d0064)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/ACE_wrappers/ace/Task_T.inl:36
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>10 0x08075653 in cm::RequestHandler::async_send (this=0x92095b0, mb=0xb61bb3d8)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/Dropbox/projects/ace_skel/src/RequestHandler.cpp:257
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>11 0x080746ef in cm::HttpTransaction::send_static_file (this=0x9209d10, uri=@0xb72d2288)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:98
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>12 0x08074c8b in cm::HttpTransaction::execute (this=0x9209d10)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:37
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>13 0x080712a0 in cm::Processor::svc (this=0x91aa128)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/Dropbox/projects/ace_skel/src/Processor.cpp:47
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>14 0xb7daae52 in ACE_Task_Base::svc_run (args=0x91aa128) at Task.cpp:275&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>15 0xb7dac2ed in ACE_Thread_Adapter::invoke_i (this=0x91aa330) at Thread_Adapter.cpp:149&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>16 0xb7dac366 in ACE_Thread_Adapter::invoke (this=0x91aa330) at Thread_Adapter.cpp:98&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>17 0xb7d33271 in ace_thread_adapter (args=0x91aa330) at Base_Thread_Adapter.cpp:124&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>18 0xb7f754ff in start_thread () from /lib/tls/i686/cmov/libpthread.so.0&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>19 0xb7ef049e in clone () from /lib/tls/i686/cmov/libc.so.6&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Thread 2 (Thread 0xb6ad1b90 (LWP 31162)):   # ---- Processor thread&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>0  0xb80da430 in __kernel_vsyscall ()&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>1  0xb7f7c07b in write () from /lib/tls/i686/cmov/libpthread.so.0&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>2  0xb7d212ea in ACE::send (handle=6, buf=0xb6acef34, n=8, timeout=0x8)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/ACE_wrappers/ace/OS_NS_unistd.inl:1200
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>3  0xb7d4da29 in ACE_Dev_Poll_Reactor_Notify::notify (this=0x91a3c10, eh=0x9209448, mask=2,&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>timeout=0x0) at Dev_Poll_Reactor.cpp:165
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>4  0xb7d4bcbc in ACE_Dev_Poll_Reactor::notify (this=0x91a3980, eh=0x9209448, mask=2,&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>timeout=0x0) at Dev_Poll_Reactor.cpp:2028
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>5  0xb7d9550e in ACE_Reactor::notify (this=0x91a38c0, event_handler=0x9209448, mask=2, tv=0x0)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at Reactor.cpp:481
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>6  0xb7d95e76 in ACE_Reactor_Notification_Strategy::notify (this=0x92094d0)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at Reactor_Notification_Strategy.cpp:28
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>7  0x08062d47 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::notify (this=0x92094f8)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1998
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>8  0x080650cc in ACE_Message_Queue&lt;ACE_MT_SYNCH>::enqueue_tail (this=0x92094f8,&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>new_item=0x92f5c38, timeout=0xb6acf064)
+</span><span class='line'>at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1888
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>9  0x08076c2c in ACE_Task&lt;ACE_MT_SYNCH>::putq (this=0x9209448, mb=0x92f5c38, tv=0xb6acf064)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/ACE_wrappers/ace/Task_T.inl:36
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>10 0x08075653 in cm::RequestHandler::async_send (this=0x9209448, mb=0x92f5c38)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/Dropbox/projects/ace_skel/src/RequestHandler.cpp:257
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>11 0x08074917 in cm::HttpTransaction::send_static_file (this=0x9209bc0, uri=@0xb6ad1288)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:110
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>12 0x08074c8b in cm::HttpTransaction::execute (this=0x9209bc0)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:37
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>13 0x080712a0 in cm::Processor::svc (this=0x91ac488)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/Dropbox/projects/ace_skel/src/Processor.cpp:47
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>14 0xb7daae52 in ACE_Task_Base::svc_run (args=0x91ac488) at Task.cpp:275&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>15 0xb7dac2ed in ACE_Thread_Adapter::invoke_i (this=0x91ac690) at Thread_Adapter.cpp:149&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>16 0xb7dac366 in ACE_Thread_Adapter::invoke (this=0x91ac690) at Thread_Adapter.cpp:98&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>17 0xb7d33271 in ace_thread_adapter (args=0x91ac690) at Base_Thread_Adapter.cpp:124&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>18 0xb7f754ff in start_thread () from /lib/tls/i686/cmov/libpthread.so.0&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>19 0xb7ef049e in clone () from /lib/tls/i686/cmov/libc.so.6&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Thread 1 (Thread 0xb7ad48e0 (LWP 31159)):  # ---- Reactor thread.&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>0  0xb80da430 in __kernel_vsyscall ()&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>1  0xb7f790e5 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/tls/i686/cmov/libpthread.so.0&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>2  0xb7d3c254 in ACE_Condition_Thread_Mutex::wait (this=0x91ae99c, mutex=@0x80, abstime=0x0)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p>---Type &lt;return> to continue, or q &lt;return> to quit---&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/ACE_wrappers/ace/OS_NS_Thread.inl:362
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>3  0xb7d3c2bb in ACE_Condition_Thread_Mutex::wait (this=0x91ae99c, abstime=0x0)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at Condition_Thread_Mutex.cpp:107
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>4  0x08063c90 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::wait_not_full_cond (this=0x91ae920,&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>timeout=0x0) at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1715
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>5  0x08064e38 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::enqueue_head (this=0x91ae920,&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>new_item=0xb6105610, timeout=0x0) at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1777
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>6  0x0807236a in ACE_Task&lt;ACE_MT_SYNCH>::ungetq (this=0x91ae870, mb=0xb6105610, tv=0x0)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/ACE_wrappers/ace/Task_T.inl:43
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>7  0x08071d5d in cm::HttpRequestHandler::handle_output (this=0x91ae870)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/Dropbox/projects/ace_skel/src/HttpRequestHandler.cpp:86
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>8  0xb7d4d982 in ACE_Dev_Poll_Reactor_Notify::dispatch_notify (this=0x91a3c10,&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>buffer=@0xbfaf5c04) at Dev_Poll_Reactor.cpp:365
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>9  0xb7d4c91b in ACE_Dev_Poll_Reactor_Notify::handle_input (this=0x91a3c10, handle=5)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at Dev_Poll_Reactor.cpp:297
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>10 0xb7d4f945 in ACE_Dev_Poll_Reactor::dispatch_io_event (this=0x91a3980, guard=@0xbfaf5d14)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/ACE_wrappers/ace/Dev_Poll_Reactor.inl:126
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>11 0xb7d4fb4c in ACE_Dev_Poll_Reactor::dispatch (this=0x91a3980, guard=@0xbfaf5d14)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at Dev_Poll_Reactor.cpp:1079
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>12 0xb7d4fca6 in ACE_Dev_Poll_Reactor::handle_events_i (this=0x91a3980, max_wait_time=0x0,&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>guard=@0xbfaf5d14) at Dev_Poll_Reactor.cpp:1056
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>13 0xb7d4fd7c in ACE_Dev_Poll_Reactor::handle_events (this=0x91a3980, max_wait_time=0x0)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at Dev_Poll_Reactor.cpp:1012
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>14 0xb7d94fc3 in ACE_Reactor::run_reactor_event_loop (this=0x91a38c0, eh=0) at Reactor.cpp:224&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>15 0x08062452 in main (argc=7, argv=0xbfaf5f04)&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>at /home/cm/Dropbox/projects/ace_skel/src/main.cpp:75
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>0  0xb80da430 in __kernel_vsyscall ()&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h2>规避方法</h2>
+
+<p>把<code>ACE_Message_Queue</code>的<code>high water level</code>设置为一个很高的值，
+避免队列满触发该bug。</p>
+
+<h2>参考</h2>
+
+<p><a href="http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/3575b21beae71683?pli=1">http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/3575b21beae71683?pli=1</a>
+<a href="http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/38fb11cf258f3eec">http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/38fb11cf258f3eec</a></p>
+]]></content>
+  </entry>
+  
+</feed>

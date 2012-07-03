@@ -1,0 +1,733 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: kernel | Ming's Blog]]></title>
+  <link href="http://blog.chenming.info/blog/categories/kernel/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-03T10:35:03+08:00</updated>
+  <id>http://blog.chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How to setup RHEL kdump]]></title>
+    <link href="http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump/"/>
+    <updated>2009-05-05T22:39:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump</id>
+    <content type="html"><![CDATA[<p><code>Kdump</code>是一种调试Linux内核的方法，
+用于在Linux内核出现<code>Oops</code>之后自动dump内核映像到指定位置的机制，
+便于我们的事后调试。</p>
+
+<p><blockquote><p>Kdump is a new kernel crash dumping mechanism and is very reliable.<br/>The crash dump is captured from the context of a freshly booted kernel<br/>and not from the context of the crashed kernel.<br/>Kdump uses kexec to boot into a second kernel whenever the system crashes.<br/>This second kernel, often called a capture kernel, boots with very little<br/>memory and captures the dump image.</p></blockquote></p>
+
+<ol>
+<li>Install <code>kexec-tools</code></li>
+</ol>
+
+
+<p>Install by <code>yum</code>:</p>
+
+<pre><code>yum install kexec-tools
+</code></pre>
+
+<ol>
+<li>write kdump config file <code>/etc/kdump.conf</code></li>
+</ol>
+
+
+<p>An example with following content.</p>
+
+<pre><code>path /var/crash
+core_collector makedumpfile -d 31 -c
+</code></pre>
+
+<ol>
+<li>change <code>/etc/grub.conf</code> append <code>crashkernel=128M@16M</code> to the end of kernel line.</li>
+</ol>
+
+
+<p>An example of <code>/etc/grub.conf</code></p>
+
+<pre><code>default=0
+timeout=5
+splashimage=(hd0,0)/grub/splash.xpm.gz
+hiddenmenu
+title Red Hat Enterprise Linux Server (2.6.18-128.el5)
+        root (hd0,0)
+        kernel /vmlinuz-2.6.18-128.el5 ro root=/dev/mapper/luks-10d5d533-38f6-482c-982d-bfb488adfbed
+ rhgb quiet crashkernel=128M@16M
+        initrd /initrd-2.6.18-128.el5.img
+</code></pre>
+
+<ol>
+<li>post config</li>
+</ol>
+
+
+<p>Set <code>kdump</code> service automatically start with system startup.</p>
+
+<pre><code>chkconfig kdump on
+service kdump start
+reboot
+</code></pre>
+
+<p>After system reboot, the kdump is ready. the kernel crash file is located at <code>/var/crash/</code>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[sys_call_table符号链接失败及如何替换系统调用]]></title>
+    <link href="http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall/"/>
+    <updated>2008-11-24T22:15:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall</id>
+    <content type="html"><![CDATA[<p>2.4的内核中可以通过修改<code>sys_call_table</code>来很轻松的替换系统调用，
+来完成很多trick，很多的<code>rootkit</code>就是基于这种手法来完成的。
+到了2.6的内核，事情就不是这么回事了，<code>sys_call_table</code>不再被export出来了。
+这样的话就不能简单通过修改<code>sys_call_table</code>来替换系统调用了。如果再继续使用<code>sys_call_table</code>的话，将会得到类似如下的警告：</p>
+
+<pre><code>WARNING: "sys_call_table" [/mnt/linux/km/lpp/src/lpp.ko] undefined!
+</code></pre>
+
+<p>当然，加载模块也会失败的:</p>
+
+<pre><code># insmod lpp.ko
+insmod: error inserting 'lpp.ko': -1 Unknown symbol in module
+# dmesg
+lpp: Unknown symbol sys_call_table
+</code></pre>
+
+<p>当然，虽然没有export出来，但我们还是有办法获取到<code>sys_call_table</code>的，
+在C语言中，<code>sys_call_table</code>也就是一个地址而已，我们的问题就是如何获取这个地址。</p>
+
+<p>有如下2种方法。</p>
+
+<p>方法1：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="nf">find_sys_call_table</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="n">sctable</span><span class="p">;</span>
+</span><span class='line'><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ptr</span><span class="p">;</span>
+</span><span class='line'><span class="k">extern</span> <span class="kt">int</span> <span class="n">loops_per_jiffy</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">sctable</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="n">ptr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="n">loops_per_jiffy</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">ptr</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="n">boot_cpu_data</span><span class="p">;</span> <span class="n">ptr</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)){</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="p">)</span><span class="n">ptr</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="n">__NR_close</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span> <span class="n">sys_close</span><span class="p">){</span>
+</span><span class='line'>        <span class="n">sctable</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="n">sctable</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="n">sys_call_table</span> <span class="o">=</span> <span class="n">find_sys_call_table</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>一个完整的示例：
+<a href="http://www.gnome.org/~lcolitti/gnome-startup/linux-iolog/readlog.c">http://www.gnome.org/~lcolitti/gnome-startup/linux-iolog/readlog.c</a></p>
+
+<p>注意，在最新的内核2.6.30的内核它不能编译，需要对第52行进行修改：</p>
+
+<pre><code>52c52
+&lt;         f = current-&gt;files-&gt;fd[fd];
+---
+&gt;         f = current-&gt;files-&gt;fd_array[fd];
+</code></pre>
+
+<p>方法2：去<code>System.map</code>中找。</p>
+
+<pre><code>grep sys_call_table /boot/System.map
+</code></pre>
+
+<p>方法3：当然你也可以直接修改内核代码，然后再重新编译内核。</p>
+
+<p>2.6的内核之所以不把<code>sys_call_table</code>给export出来，不仅仅是因为安全的原因，
+另外一个原因是我们真正的需要在内核去替换系统调用吗?</p>
+
+<p>在用户空间，我们照样也能完成系统调用的替换，为什么不在用户空间去做呢？
+使用Linux的<code>LD_PRELOAD</code>特性，Linux的man page对<code>LD_PRELOAD</code>的解释：</p>
+
+<p><blockquote><p>LD_PRELOAD</p></p><p><pre><code>  A whitespace-separated list of additional, user-specified, ELF<br/>  shared libraries to be loaded before all others. This can be<br/>  used to selectively  override  functions in other shared<br/>  libraries. For setuid/setgid  ELF binaries, only libraries in<br/>  the standard search directories that are also setgid will be<br/>  loaded.<br/></code></pre></p><p><p></p></blockquote></p>
+
+<p>借助LD_PRELOAD我们可以在用户空间轻松完成所有系统调用的替换。
+比如我们写一个动态库，源代码如下：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>演示如何截获系统调用 </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">include</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">stdio</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">include</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">stdlib</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">define</span> <span class="n">__USE_GNU</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">include</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">dlfcn</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kt">ssize_t</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">readfn</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">void</span><span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">size_t</span><span class="p">);</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">static</span> <span class="kt">void</span> <span class="n">init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">strong</span><span class="o">&gt;</span><span class="n">attribute</span><span class="o">&lt;/</span><span class="n">strong</span><span class="o">&gt;</span><span class="p">((</span><span class="n">constructor</span><span class="p">));</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">static</span> <span class="kt">void</span> <span class="n">init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Preloaded</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">readfn</span> <span class="o">=</span> <span class="n">dlsym</span><span class="p">(</span><span class="n">RTLD_NEXT</span><span class="p">,</span> <span class="s">&quot;read&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kt">ssize_t</span> <span class="n">read</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">nbytes</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;My read</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">readfn</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">);</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>编译：</p>
+
+<pre><code>gcc -shared -g -o libcm.so -ldl
+</code></pre>
+
+<p>然后再这样使用<code>LD_PRELOAD</code>：</p>
+
+<pre><code>LD_PRELOAD=./libcm.so ./a.out
+</code></pre>
+
+<p>这样a.out里面所有的read调用都会进入到我们read函数中去了。</p>
+
+<p>参考：</p>
+
+<ul>
+<li><a href="http://kerneltrap.org/node/5802">http://kerneltrap.org/node/5802</a></li>
+<li><a href="http://kerneltrap.org/node/5793">http://kerneltrap.org/node/5793</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Dynamic_linker">http://en.wikipedia.org/wiki/Dynamic_linker</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[找不到 tasklist_lock 的问题]]></title>
+    <link href="http://blog.chenming.info/blog/2007/10/18/linux-tasklist-lock-undefined-issue/"/>
+    <updated>2007-10-18T20:50:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2007/10/18/linux-tasklist-lock-undefined-issue</id>
+    <content type="html"><![CDATA[<p>在测试使用<code>for_each_process()</code>的时候需要获取<code>tasklist_lock</code>的读锁：</p>
+
+<pre><code>read_lock(&amp;tasklist_lock);
+</code></pre>
+
+<p><code>tasklist_lock</code>声明在<code>include/linux/sched.h</code>里。
+这样的代码可以编译，但是安装的模块的时候却遇到如下错误：</p>
+
+<pre><code># insmod mymod.ko
+insmod: error inserting 'mymod.ko': -1 Unknown symbol in module
+</code></pre>
+
+<p>查看<code>dmesg</code>信息得知其原因是找不到<code>tasklist_lock</code>这个符号：</p>
+
+<pre><code># dmesg
+mymod: Unknown symbol tasklist_lock
+</code></pre>
+
+<p>难道是<code>tasklist_lock</code>就没有被export了呢？
+在网上搜索了一番，总算是找到根源，果真如此啊。
+Kernel的变化就是快，又out一次。</p>
+
+<p><blockquote><p></p></p><p><h1>Index: linux-2.6/Documentation/feature-removal-schedule.txt</h1></p><p><p>--- linux-2.6.orig/Documentation/feature-removal-schedule.txt 2006-07-08 19:10:02.000000000 +0200<br/>+++ linux-2.6/Documentation/feature-removal-schedule.txt 2006-07-08 19:10:06.000000000 +0200<br/>@@ -166,17 +166,6 @@</p></p><p><hr /></p><p><p>-What: remove EXPORT_SYMBOL(tasklist_lock)<br/>-When: August 2006<br/>-Files: kernel/fork.c<br/>-Why: tasklist_lock protects the kernel internal task list. Modules have<br/>- no business looking at it, and all instances in drivers have been due<br/>- to use of too-lowlevel APIs. Having this symbol exported prevents<br/>- moving to more scalable locking schemes for the task list.<br/>-Who: Christoph Hellwig &lt;hch@xxxxxx></p></blockquote></p>
+
+<p>参考：</p>
+
+<p><a href="http://lkml.indiana.edu/hypermail/linux/kernel/0607.1/0149.html">http://lkml.indiana.edu/hypermail/linux/kernel/0607.1/0149.html</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[解读Linux内核的Oops]]></title>
+    <link href="http://blog.chenming.info/blog/2007/09/17/understand-linux-oops/"/>
+    <updated>2007-09-17T21:35:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2007/09/17/understand-linux-oops</id>
+    <content type="html"><![CDATA[<p>Oops是内核编程中比较容易遇到的问题，为了跟多的了解Oops来便于调试，我对Oops提供的信息进行一个总结，以及如何调试Oops。</p>
+
+<p>一个完整的Oops：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>BUG: unable to handle kernel paging request at 00316b01
+</span><span class='line'>IP: [&lt;c05dd045>] netif_receive_skb+0x335/0x377
+</span><span class='line'>*pde = 00000000
+</span><span class='line'>Thread overran stack, or stack corrupted
+</span><span class='line'>Oops: 0000 [#1] SMP
+</span><span class='line'>last sysfs file: /sys/block/hda/size
+</span><span class='line'>Modules linked in: mymod ipv6 autofs4 nls_utf8 cifs lockd sunrpc dm_multipath
+</span><span class='line'>scsi_dh video output sbs sbshc battery lp sg snd_ens1371 gameport ide_cd_mod
+</span><span class='line'>snd_rawmidi cdrom snd_ac97_codec ac97_bus snd_seq_dummy snd_seq_oss
+</span><span class='line'>snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss
+</span><span class='line'>parport_pc ac floppy serio_raw snd_pcm button parport rtc_cmos rtc_core
+</span><span class='line'>rtc_lib snd_timer snd pcnet32 mii soundcore snd_page_alloc i2c_piix4 i2c_core
+</span><span class='line'>pcspkr dm_snapshot dm_zero dm_mirror dm_region_hash dm_log dm_mod ata_piix
+</span><span class='line'>libata mptspi mptscsih mptbase scsi_transport_spi sd_mod scsi_mod ext3 jbd
+</span><span class='line'>uhci_hcd ohci_hcd ehci_hcd [last unloaded: mymod]&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Pid: 0, comm: swapper Not tainted (2.6.30.9 #1) VMware Virtual Platform
+</span><span class='line'>EIP: 0060:[&lt;c05dd045>] EFLAGS: 00010206 CPU: 0
+</span><span class='line'>EIP is at netif_receive_skb+0x335/0x377
+</span><span class='line'>EAX: 00316ae1 EBX: deb7d600 ECX: 00316ae1 EDX: e2f357c0
+</span><span class='line'>ESI: 00000008 EDI: de9a4800 EBP: c9403f40 ESP: c9403f10
+</span><span class='line'> DS: 007b ES: 007b FS: 00d8 GS: 0000 SS: 0068
+</span><span class='line'>Process swapper (pid: 0, ti=c9403000 task=c0737320 task.ti=c0779000)
+</span><span class='line'>Stack:
+</span><span class='line'> 00316ae1 c07777a0 e2f787c0 00000000 00000001 00000008 00000010 deb7d600
+</span><span class='line'> c9403f40 deb7d600 00000000 df5acc58 c9403fb0 e0e61db0 00000000 00000010
+</span><span class='line'> de9a4bb8 de9a4b40 de9a4800 00002000 00000001 00000000 1ea2c822 deb7d600
+</span><span class='line'>Call Trace:
+</span><span class='line'> [&lt;e0e61db0>] ? pcnet32_poll+0x347/0x66a [pcnet32]
+</span><span class='line'> [&lt;c041f984>] ? run_rebalance_domains+0x13d/0x3ed
+</span><span class='line'> [&lt;c05df364>] ? net_rx_action+0x6a/0xf4
+</span><span class='line'> [&lt;c0429e2a>] ? &lt;strong>do_softirq+0x94/0x138
+</span><span class='line'> [&lt;c0429d96>] ? &lt;/strong>do_softirq+0x0/0x138
+</span><span class='line'> &lt;IRQ> &lt;0> [&lt;c0429d94>] ? irq_exit+0x29/0x2b
+</span><span class='line'> [&lt;c040423b>] ? do_IRQ+0x6d/0x83
+</span><span class='line'> [&lt;c0402e89>] ? common_interrupt+0x29/0x30
+</span><span class='line'> [&lt;c040828a>] ? default_idle+0x5b/0x92
+</span><span class='line'> [&lt;c0401a92>] ? cpu_idle+0x3a/0x4e
+</span><span class='line'> [&lt;c063d84b>] ? rest_init+0x53/0x55
+</span><span class='line'> [&lt;c077f7df>] ? start_kernel+0x293/0x298
+</span><span class='line'> [&lt;c077f06a>] ? i386_start_kernel+0x6a/0x6f
+</span><span class='line'>Code: 74 14 f0 ff 83 a8 00 00 00 8b 4d d8 89 d8 8b 53 14 57 ff 51 08 58 8b 45
+</span><span class='line'>d0 89 45 d8 8b 55 d0 8b 42 20 83 e8 20 89 45 d0 8b 4d d0 &lt;8b> 41 20 0f 18 00
+</span><span class='line'>90 89 c8 83 c0 20 3b 45 d4 75 a4 83 7d d8 00
+</span><span class='line'>EIP: [&lt;c05dd045>] netif_receive_skb+0x335/0x377 SS:ESP 0068:c9403f10
+</span><span class='line'>CR2: 0000000000316b01
+</span><span class='line'>---[ end trace 0330855ac41edfb5 ]---
+</span><span class='line'>Kernel panic - not syncing: Fatal exception in interrupt
+</span><span class='line'>Pid: 0, comm: swapper Tainted: G      D    2.6.30.9 #1
+</span><span class='line'>Call Trace:
+</span><span class='line'> [&lt;c0425ff3>] panic+0x3f/0xdf
+</span><span class='line'> [&lt;c0405644>] oops_end+0x8c/0x9b
+</span><span class='line'> [&lt;c041673a>] no_context+0x10c/0x116
+</span><span class='line'> [&lt;c04168c7>] &lt;strong>bad_area_nosemaphore+0xe0/0xe8
+</span><span class='line'> [&lt;c0416933>] bad_area_nosemaphore+0xd/0x10
+</span><span class='line'> [&lt;c0416aa7>] do_page_fault+0xde/0x1e3
+</span><span class='line'> [&lt;c04169c9>] ? do_page_fault+0x0/0x1e3
+</span><span class='line'> [&lt;c064f38d>] error_code+0x6d/0x74
+</span><span class='line'> [&lt;c061007b>] ? tcp_v4_rcv+0x55b/0x600
+</span><span class='line'> [&lt;c04169c9>] ? do_page_fault+0x0/0x1e3
+</span><span class='line'> [&lt;c05dd045>] ? netif_receive_skb+0x335/0x377
+</span><span class='line'> [&lt;e0e61db0>] pcnet32_poll+0x347/0x66a [pcnet32]
+</span><span class='line'> [&lt;c041f984>] ? run_rebalance_domains+0x13d/0x3ed
+</span><span class='line'> [&lt;c05df364>] net_rx_action+0x6a/0xf4
+</span><span class='line'> [&lt;c0429e2a>] &lt;/strong>do_softirq+0x94/0x138
+</span><span class='line'> [&lt;c0429d96>] ? __do_softirq+0x0/0x138
+</span><span class='line'> &lt;IRQ>  [&lt;c0429d94>] ? irq_exit+0x29/0x2b
+</span><span class='line'> [&lt;c040423b>] ? do_IRQ+0x6d/0x83
+</span><span class='line'> [&lt;c0402e89>] ? common_interrupt+0x29/0x30
+</span><span class='line'> [&lt;c040828a>] ? default_idle+0x5b/0x92
+</span><span class='line'> [&lt;c0401a92>] ? cpu_idle+0x3a/0x4e
+</span><span class='line'> [&lt;c063d84b>] ? rest_init+0x53/0x55
+</span><span class='line'> [&lt;c077f7df>] ? start_kernel+0x293/0x298
+</span><span class='line'> [&lt;c077f06a>] ? i386_start_kernel+0x6a/0x6f</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>解析Oops的具体含义：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>BUG: unable to handle kernel paging request at 00316b01
+</span><span class='line'>IP: [&lt;c05dd045>] netif_receive_skb+0x335/0x377
+</span><span class='line'>*pde = 00000000
+</span><span class='line'>Thread overran stack, or stack corrupted
+</span><span class='line'>Oops: 0000 [#1] SMP
+</span><span class='line'>last sysfs file: /sys/block/hda/size
+</span><span class='line'>Modules linked in: mymod ipv6 autofs4 nls_utf8 cifs lockd sunrpc dm_multipath
+</span><span class='line'>scsi_dh video output sbs sbshc battery lp sg snd_ens1371 gameport ide_cd_mod
+</span><span class='line'>snd_rawmidi cdrom snd_ac97_codec ac97_bus snd_seq_dummy snd_seq_oss
+</span><span class='line'>snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss
+</span><span class='line'>parport_pc ac floppy serio_raw snd_pcm button parport rtc_cmos rtc_core
+</span><span class='line'>rtc_lib snd_timer snd pcnet32 mii soundcore snd_page_alloc i2c_piix4 i2c_core
+</span><span class='line'>pcspkr dm_snapshot dm_zero dm_mirror dm_region_hash dm_log dm_mod ata_piix
+</span><span class='line'>libata mptspi mptscsih mptbase scsi_transport_spi sd_mod scsi_mod ext3 jbd
+</span><span class='line'>uhci_hcd ohci_hcd ehci_hcd [last unloaded: mymod]</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>上面这段这个是载入的模块信息。</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Pid: 0, comm: swapper Not tainted (2.6.30.9 #1) VMware Virtual Platform
+</span><span class='line'>EIP: 0060:[&lt;c05dd045>] EFLAGS: 00010206 CPU: 0
+</span><span class='line'>EIP is at netif_receive_skb+0x335/0x377</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><code>EIP</code>这行指明发生Oops的具体位置，我们可以通过这个来找到出现Oops的源代码的具体行。
+具体方法如下：</p>
+
+<p>通过使用<code>objdump -S</code>反汇编<code>netif_receice_skb</code>所在的目标文件，
+然后找到偏移量为0x355的行，看看这行是有什么代码汇编来的，再结合寄存器的值就能分析这个Oops的原因了。</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>EAX: 00316ae1 EBX: deb7d600 ECX: 00316ae1 EDX: e2f357c0
+</span><span class='line'>ESI: 00000008 EDI: de9a4800 EBP: c9403f40 ESP: c9403f10
+</span><span class='line'> DS: 007b ES: 007b FS: 00d8 GS: 0000 SS: 0068
+</span><span class='line'>Process swapper (pid: 0, ti=c9403000 task=c0737320 task.ti=c0779000)
+</span><span class='line'>Stack:
+</span><span class='line'> 00316ae1 c07777a0 e2f787c0 00000000 00000001 00000008 00000010 deb7d600
+</span><span class='line'> c9403f40 deb7d600 00000000 df5acc58 c9403fb0 e0e61db0 00000000 00000010
+</span><span class='line'> de9a4bb8 de9a4b40 de9a4800 00002000 00000001 00000000 1ea2c822 deb7d600</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>上面这段是寄存器和栈的信息。</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Call Trace:
+</span><span class='line'> [&lt;e0e61db0>] ? pcnet32_poll+0x347/0x66a [pcnet32]
+</span><span class='line'> [&lt;c041f984>] ? run_rebalance_domains+0x13d/0x3ed
+</span><span class='line'> [&lt;c05df364>] ? net_rx_action+0x6a/0xf4
+</span><span class='line'> [&lt;c0429e2a>] ? &lt;strong>do_softirq+0x94/0x138
+</span><span class='line'> [&lt;c0429d96>] ? &lt;/strong>do_softirq+0x0/0x138
+</span><span class='line'> &lt;IRQ> &lt;0> [&lt;c0429d94>] ? irq_exit+0x29/0x2b
+</span><span class='line'> [&lt;c040423b>] ? do_IRQ+0x6d/0x83
+</span><span class='line'> [&lt;c0402e89>] ? common_interrupt+0x29/0x30
+</span><span class='line'> [&lt;c040828a>] ? default_idle+0x5b/0x92
+</span><span class='line'> [&lt;c0401a92>] ? cpu_idle+0x3a/0x4e
+</span><span class='line'> [&lt;c063d84b>] ? rest_init+0x53/0x55
+</span><span class='line'> [&lt;c077f7df>] ? start_kernel+0x293/0x298
+</span><span class='line'> [&lt;c077f06a>] ? i386_start_kernel+0x6a/0x6f</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>发生Oops的内核栈信息。</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Code: 74 14 f0 ff 83 a8 00 00 00 8b 4d d8 89 d8 8b 53 14 57 ff 51 08 58 8b 45
+</span><span class='line'>d0 89 45 d8 8b 55 d0 8b 42 20 83 e8 20 89 45 d0 8b 4d d0 &lt;8b> 41 20 0f 18 00
+</span><span class='line'>90 89 c8 83 c0 20 3b 45 d4 75 a4 83 7d d8 00
+</span><span class='line'>EIP: [&lt;c05dd045>] netif_receive_skb+0x335/0x377 SS:ESP 0068:c9403f10
+</span><span class='line'>CR2: 0000000000316b01
+</span><span class='line'>---[ end trace 0330855ac41edfb5 ]---
+</span><span class='line'>Kernel panic - not syncing: Fatal exception in interrupt
+</span><span class='line'>Pid: 0, comm: swapper Tainted: G      D    2.6.30.9 #1</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>如果kernel报告<code>Tainted</code>，说明kernel被损坏了，在“Trainted：”后面最多会有10个字符的提示信息来表示具体的信息。每一位上使用一个字母来表示，如下：</p>
+
+<p>1: 'G': 所有的模块都是GPL的License。如果有模块缺少MODULE_LICENSE()或者声明是Proprietary的，则为'P'。</p>
+
+<p>2: 'F': 如果有模块是使用 insmod -f 强制载入的。否则为空。</p>
+
+<p>3: 'S': 如果Oops发生在SMP的CPU上，但这个型号的CPU还没有被认为是SMP安全的。</p>
+
+<p>4: 'R': 如果有模块是使用 rmmod -f 强制卸载的。否则为空。</p>
+
+<p>5: 'M': 有CPU报告了Machine Check Exception，否则为空。</p>
+
+<p>6: 'B': 如果有page-release函数发现一个错误的page或未知的page标志。</p>
+
+<p>7: 'U': 来自用户空间的程序设置的这个标志位。</p>
+
+<p>8: 'D': 内核刚刚死掉，比如Oops或者是bug。</p>
+
+<p>9: 'A': ACPI表被覆盖。</p>
+
+<p>10: 'W': 之前kernel已经产生过警告。</p>
+
+<p>Tainted字符串主要的目的是告诉调试器这个kernel已经不是一个干净的kernel了。如果一个模块在加载了之后又卸载了，Tainted仍然会保持。</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Call Trace:
+</span><span class='line'> [&lt;c0425ff3>] panic+0x3f/0xdf
+</span><span class='line'> [&lt;c0405644>] oops_end+0x8c/0x9b
+</span><span class='line'> [&lt;c041673a>] no_context+0x10c/0x116
+</span><span class='line'> [&lt;c04168c7>] &lt;strong>bad_area_nosemaphore+0xe0/0xe8
+</span><span class='line'> [&lt;c0416933>] bad_area_nosemaphore+0xd/0x10
+</span><span class='line'> [&lt;c0416aa7>] do_page_fault+0xde/0x1e3
+</span><span class='line'> [&lt;c04169c9>] ? do_page_fault+0x0/0x1e3
+</span><span class='line'> [&lt;c064f38d>] error_code+0x6d/0x74
+</span><span class='line'> [&lt;c061007b>] ? tcp_v4_rcv+0x55b/0x600
+</span><span class='line'> [&lt;c04169c9>] ? do_page_fault+0x0/0x1e3
+</span><span class='line'> [&lt;c05dd045>] ? netif_receive_skb+0x335/0x377
+</span><span class='line'> [&lt;e0e61db0>] pcnet32_poll+0x347/0x66a [pcnet32]
+</span><span class='line'> [&lt;c041f984>] ? run_rebalance_domains+0x13d/0x3ed
+</span><span class='line'> [&lt;c05df364>] net_rx_action+0x6a/0xf4
+</span><span class='line'> [&lt;c0429e2a>] &lt;/strong>do_softirq+0x94/0x138
+</span><span class='line'> [&lt;c0429d96>] ? __do_softirq+0x0/0x138
+</span><span class='line'> &lt;IRQ>  [&lt;c0429d94>] ? irq_exit+0x29/0x2b
+</span><span class='line'> [&lt;c040423b>] ? do_IRQ+0x6d/0x83
+</span><span class='line'> [&lt;c0402e89>] ? common_interrupt+0x29/0x30
+</span><span class='line'> [&lt;c040828a>] ? default_idle+0x5b/0x92
+</span><span class='line'> [&lt;c0401a92>] ? cpu_idle+0x3a/0x4e
+</span><span class='line'> [&lt;c063d84b>] ? rest_init+0x53/0x55
+</span><span class='line'> [&lt;c077f7df>] ? start_kernel+0x293/0x298
+</span><span class='line'> [&lt;c077f06a>] ? i386_start_kernel+0x6a/0x6f</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>最后发现一篇调试Oops的专题：
+<a href="http://mail.nl.linux.org/kernelnewbies/2003-08/msg00347.html">paper on debugging kernel oops or hang</a>
+。
+虽然是针对2.4的，但还是值得一读。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[编译CentOS 5的内核]]></title>
+    <link href="http://blog.chenming.info/blog/2007/09/14/compile-centos-5-kernel/"/>
+    <updated>2007-09-14T22:52:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2007/09/14/compile-centos-5-kernel</id>
+    <content type="html"><![CDATA[<p>这段时间因为需要接触Linux内核，CentOS/RHEL的内核源代码缺省安装时并不会安装，
+需要单独的安装。</p>
+
+<p><code>CentOS 5</code>提供了自己的内核编译方法，详见 <a href="http://wiki.centos.org/HowTos/Custom_Kernel">http://wiki.centos.org/HowTos/Custom_Kernel</a>。
+但这只能编译CentOS 5的主流内核版本2.6.18，
+如果要编译其它版本的内核还是需要从<a href="http://www.kernel.org">http://www.kernel.org</a>下载后进行编译。</p>
+
+<p>第一步，获取内核源代码</p>
+
+<pre><code>$ mkdir linux
+$ cd linux
+$ wget http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.30.9.tar.bz2
+$ bzip2 -dc linux-2.6.30.9.tar.bz2 | tar xvf -
+</code></pre>
+
+<p>第二步，配置和编译内核</p>
+
+<pre><code>$ cd linux-2.6.30.9
+$ make config       # 创建一个缺省的配置文件
+$ make menuconfig   # 基于刚才创建的配置文件修改配置，在这一步可以定制内核
+$ make -j2
+</code></pre>
+
+<p>第三步，安装新的内核（需要root的身份）</p>
+
+<p>安装 mkinitrd 来获取 installkernel 这个脚本：</p>
+
+<pre><code># yum install mkinitrd
+</code></pre>
+
+<p>安装内核模块：</p>
+
+<pre><code># make modules_install
+</code></pre>
+
+<p>安装目标目录为<code>/lib/modules/kernel-version/</code>。
+<code>kernel-version</code>为要安装的内核版本，可以使用如下命令查看：</p>
+
+<pre><code># make kernelversion
+</code></pre>
+
+<p>如果这个目录不存在，它会自动创建。</p>
+
+<p>安装内核：</p>
+
+<pre><code># make install
+</code></pre>
+
+<p>它会自动添加新内核到Grub（Lilo也支持，不过估计现在用Lilo的人应该越来越少了）的引导菜单中的。</p>
+
+<p>然后重新启动就可以再Grub中选择新的内核进行启动了。</p>
+
+<p>参考</p>
+
+<ul>
+<li><a href="http://www.kroah.com/lkn/">Linux Kernel in a Nutshell</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

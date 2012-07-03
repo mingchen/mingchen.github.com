@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: nettl | Ming's Blog]]></title>
+  <link href="http://blog.chenming.info/blog/categories/nettl/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-03T10:35:03+08:00</updated>
+  <id>http://blog.chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[在HP-UX上使用nettl抓包]]></title>
+    <link href="http://blog.chenming.info/blog/2009/12/04/how-to-use-nettl-on-hpux/"/>
+    <updated>2009-12-04T10:16:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/12/04/how-to-use-nettl-on-hpux</id>
+    <content type="html"><![CDATA[<p>HP-UX 自己提供了抓包工具<code>nettl</code> 。
+在<code>tcpdump</code>不能用的时候它（比如<code>tcpdump</code>在HP-UX上就不能抓回环上的包）就派上用场了。</p>
+
+<p>总结一下<code>nettl</code>的主要用法，备查。</p>
+
+<h2>开始抓包</h2>
+
+<p>使用<code>nettl -tn</code>开始抓包，下面是一些常用的命令：</p>
+
+<pre><code># nettl -tn all -e all -maxtrace 99999 -f /tmp/tx
+# nettl -tn loopback -e ns_ls_tcp -maxtrace 99999 -f /tmp/tx
+# nettl -tn pduin pduout -e ns_ls_loopback -tm 100000 -f /tmp/local
+# nettl -tn pduin pduout -e ns_ls_loopback -m 56 -tm 100000 -f /tmp/local
+# nettl -tn pduin -e ns_ls_loopback -m 56 -tm 100000 -f /tmp/local
+</code></pre>
+
+<p>-m size 限制每个包的大小。我们不一定对所有的包都感兴趣，在只对包头干兴趣的时候这个选项就非常有效。
+比如某协议使用的包头为16个字节，再加上IP头的20个字节，TCP头的20个字节，
+也就是我们只需要总共56个字节就能确定一个包的基本信息了。</p>
+
+<p>-e subsytem 要抓包的类型，可以使用<code>nettl -status</code>来获取。</p>
+
+<pre><code>ns_ls_loopback
+ns_ls_ip
+ns_ls_tcp
+ns_ls_udp
+ns_ls_icmp
+</code></pre>
+
+<p>-tm maxsize 每个文件的最大大小，如果超过此大小，会使用下一个抓包文件。
+单位：KB。有效值：100~99999</p>
+
+<p>抓包的输出文件为 <code>/tmp/tx.xxxx</code>，使用<code>ls -l /tmp/tx.*</code>来检查</p>
+
+<p>说明：</p>
+
+<p>在<code>ns_ls_loopback</code>上抓包如果指定了<code>pduin</code>和<code>pduout</code>每个包会抓到2份，因为一进一出就是两份。
+如果指定<code>-tn all -e all</code>一个包也会抓到多份，因为一个包可能属于不同的<code>subsystem</code>，
+比如一个<code>tcp</code>包既属于<code>tcp</code>，也属于<code>ip</code>等。</p>
+
+<p>抓的包可以使用<code>wireshark</code>来直接打开并进行分析。也可以使用HP-UX自带的<code>netfmt</code>来分析。</p>
+
+<p>查看状态及<code>-entity</code>可用的信息：</p>
+
+<pre><code># nettl -status
+</code></pre>
+
+<h2>停止抓包</h2>
+
+<p>使用<code>nettl -tf</code>来停止抓包。</p>
+
+<pre><code># nettl -tf -e all
+</code></pre>
+
+<h2>对包的分析</h2>
+
+<p>我们可以使用netfmt来查看捕获的包：</p>
+
+<pre><code>netfmt -N -l -f /tmp/nettl_t* | more
+</code></pre>
+
+<p>可以过滤我们感兴趣的包，使用<code>-c</code>来传入过滤文件</p>
+
+<pre><code>netfmt -N -l -c filter -f /tmp/nettl_t* | more
+</code></pre>
+
+<p>filter 为过滤文件，文件内容的类似如下：</p>
+
+<pre><code>filter tcp_sport 1234
+filter tcp_dport 1234
+</code></pre>
+
+<p>每一行为一个过滤条件，行与行之间是或的关系。</p>
+
+<p>使用行模式来显示（这种模式下不会看到包的具体数据）</p>
+
+<pre><code>netfmt -N -n -l -1 -f /tmp/nettl_t* | more
+</code></pre>
+
+<p>在每行的显示前加上时间戳</p>
+
+<pre><code>netfmt -T -n -l -1 -f /tmp/nettl_t* | more
+</code></pre>
+
+<p>参考：</p>
+
+<ul>
+<li><a href="http://www.compute-aid.com/nettl.html">http://www.compute-aid.com/nettl.html</a></li>
+<li><a href="http://docs.hp.com/en/B2355-60105/nettl.1M.html">http://docs.hp.com/en/B2355-60105/nettl.1M.html</a></li>
+<li><a href="http://docs.hp.com/en/B2355-60105/netfmt.1M.html">http://docs.hp.com/en/B2355-60105/netfmt.1M.html</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

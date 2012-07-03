@@ -1,0 +1,342 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>编写安全的代码 Secure Coding - Ming's Blog</title>
+  <meta name="author" content="Ming">
+
+  
+  <meta name="description" content="今天又看了一下了安全编程的指南。看到对异常的处理部分，不由想到前两天在客户的环境中出现一个问题，
+由于在捕获异常后没有完全释放之前获得锁，导致在程序出现异常后，某些资源一直处于被锁定状态。
+最后只有重新启动应用才能释放资源。对异常的处理要非常的小心才是。 编写安全的代码的参考资料： [ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.chenming.info/blog/2009/11/06/write-secure-code/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Ming's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33056683-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ming's Blog</a></h1>
+  
+    <h2>trivial notes</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.chenming.info" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/categories">Categories</a></li>
+  <li><a href="/blog/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">编写安全的代码 Secure Coding</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-06T09:57:00+08:00" pubdate data-updated="true">Nov 6<span>th</span>, 2009</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>今天又看了一下了安全编程的指南。看到对异常的处理部分，不由想到前两天在客户的环境中出现一个问题，
+由于在捕获异常后没有完全释放之前获得锁，导致在程序出现异常后，某些资源一直处于被锁定状态。
+最后只有重新启动应用才能释放资源。对异常的处理要非常的小心才是。</p>
+
+<p>编写安全的代码的参考资料：</p>
+
+<ul>
+<li><p>[CERTSecCod] – CERT Secure Coding Standards
+  <a href="https://www.securecoding.cert.org/confluence/display/seccode/CERT+Secure+Coding+Standards">https://www.securecoding.cert.org/confluence/display/seccode/CERT+Secure+Coding+Standards</a></p></li>
+<li><p><a href="http://www.owasp.org/">http://www.owasp.org/</a> - Web Applications</p></li>
+<li><p>[Posix] – The Open Group Base Specifications Issue 7, IEEE Std 1003.1-2008
+  <a href="http://www.opengroup.org/onlinepubs/9699919799/nframe.html">http://www.opengroup.org/onlinepubs/9699919799/nframe.html</a></p></li>
+<li><p>[STRLCPY] – strlcpy and strlcat&#8211;Consistent, Safe, String Copy and Concatenation
+  <a href="http://www.usenix.org/events/usenix99/millert.html">http://www.usenix.org/events/usenix99/millert.html</a></p></li>
+<li><p>[CppStdLib] – C++ Library Reference
+  <a href="http://www.cplusplus.com/reference/">http://www.cplusplus.com/reference/</a></p></li>
+</ul>
+
+
+<p>Books:</p>
+
+<ul>
+<li>“The CERT C Secure Coding Standard”, Robert C. Seacord, Addison-Wesley Professional, 2008, ISBN-10: 0321563212, ISBN-13: 978-0321563217</li>
+<li>“Secure Coding in C and C++”, Robert C. Seacord, Addison-Wesley Professional, 2005, ISBN-10: 0321335724, ISBN-13: 978-0321335722</li>
+</ul>
+
+
+<p>Papers:</p>
+
+<ul>
+<li>ISO/IEC PDTR 24772, Information technology – Programming languages – Guidelines to avoiding vulnerabilities in language selection and use
+<a href="http://isotc.iso.org/livelink/livelink/SC22-N-4420.pdf?func=doc.Fetch&amp;nodeId=7716670&amp;docTitle=SC22-N-4420">http://isotc.iso.org/livelink/livelink/SC22-N-4420.pdf?func=doc.Fetch&amp;nodeId=7716670&amp;docTitle=SC22-N-4420</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ming</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-06T09:57:00+08:00" pubdate data-updated="true">Nov 6<span>th</span>, 2009</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/secure/'>secure</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+  <span>
+  <iframe 
+    width="86" 
+    scrolling="no" 
+    height="16" 
+    frameborder="0" 
+    src=
+      "http://hits.sinajs.cn/A1/weiboshare.html?url=http://blog.chenming.info/blog/2009/11/06/write-secure-code/&amp;type=6&amp;ralateUid=2036163762&amp;language=zh_cn" allowtransparency="true">
+  </iframe>
+  </span>
+  
+</div>
+
+<hr style="border-bottom:1px dotted #bdbabd;height:1px;border-top:0px;border-left:0px;border-right:0px;" />
+
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2009/10/24/the-2nd-chengdu-scrum-assemble/" title="Previous Post: The 2nd Chengdu Scrum Assemble">&laquo; The 2nd Chengdu Scrum Assemble</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2009/11/08/using-hill-climbing-algorithm-to-solve-n-queues-problem/" title="Next Post: N皇后问题 - 使用随机爬山法实现其快速解法">N皇后问题 - 使用随机爬山法实现其快速解法 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/13/install-wp7-sdk-on-xp/">在XP下安装WP7的SDK</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/02/how-to-use-wp7-as-usb-drive/">How to use WP7 as USB drive</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/28/jquery-revert-selection/">jQuery reverse selection</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/24/jquery-tree-filter/">实现jQuery的treeview的filter</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/22/linux-reset-terminal/">在Linux下清屏是clear还是reset</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/20/cookie-expries-issue-on-django-auth/">服务器时间不正确导致django的认证失败</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2009/12/04/how-to-use-nettl-on-hpux/">在HP-UX上使用nettl抓包</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>新浪微博</h1>
+  <ul id="weibo">
+    <li>
+      <iframe 
+        width="100%" 
+        height="550" 
+        class="share_self" 
+        frameborder="0" 
+        scrolling="no" 
+        src="http://widget.weibo.com/weiboshow/index.php?width=0&height=550&ptype=1&speed=0&skin=&isTitle=0&noborder=1&isWeibo=1&isFans=&uid=2036163762&verifier=bce5fd03">
+      </iframe>
+    </li>
+  </ul>
+</section>
+
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Ming -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'chenming';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.chenming.info/blog/2009/11/06/write-secure-code/';
+        var disqus_url = 'http://blog.chenming.info/blog/2009/11/06/write-secure-code/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

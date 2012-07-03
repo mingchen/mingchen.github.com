@@ -4,7 +4,7 @@
   <title><![CDATA[Category: linux | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/linux/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2012-07-01T18:39:57+08:00</updated>
+  <updated>2012-07-03T10:35:03+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -24,6 +24,417 @@
 <code>Ctrl+L</code>就没有效果了，这个时候需要使用<code>reset</code>命令。</p>
 
 <p><blockquote><p>There is garbage on the screen, or all your keystrokes are echoed as line drawing characters. What to do?</p></p><p><p>Many programs will redraw the screen when <code>Ctrl-L</code> is typed. This might help when there is some modem noise or broadcast<br/>message on your screen. The command <code>clear</code> will clear the screen.</p></p><p><p>The command <code>reset</code> will reset the console driver. This helps when the screen is full of funny graphic characters, and<br/>also if it is reduced to the bottom line.</p><footer><strong>Resetting your terminal</strong> <cite><a href='http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-4.html'>Linux Howto</a></cite></footer></blockquote></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How to setup RHEL kdump]]></title>
+    <link href="http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump/"/>
+    <updated>2009-05-05T22:39:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump</id>
+    <content type="html"><![CDATA[<p><code>Kdump</code>是一种调试Linux内核的方法，
+用于在Linux内核出现<code>Oops</code>之后自动dump内核映像到指定位置的机制，
+便于我们的事后调试。</p>
+
+<p><blockquote><p>Kdump is a new kernel crash dumping mechanism and is very reliable.<br/>The crash dump is captured from the context of a freshly booted kernel<br/>and not from the context of the crashed kernel.<br/>Kdump uses kexec to boot into a second kernel whenever the system crashes.<br/>This second kernel, often called a capture kernel, boots with very little<br/>memory and captures the dump image.</p></blockquote></p>
+
+<ol>
+<li>Install <code>kexec-tools</code></li>
+</ol>
+
+
+<p>Install by <code>yum</code>:</p>
+
+<pre><code>yum install kexec-tools
+</code></pre>
+
+<ol>
+<li>write kdump config file <code>/etc/kdump.conf</code></li>
+</ol>
+
+
+<p>An example with following content.</p>
+
+<pre><code>path /var/crash
+core_collector makedumpfile -d 31 -c
+</code></pre>
+
+<ol>
+<li>change <code>/etc/grub.conf</code> append <code>crashkernel=128M@16M</code> to the end of kernel line.</li>
+</ol>
+
+
+<p>An example of <code>/etc/grub.conf</code></p>
+
+<pre><code>default=0
+timeout=5
+splashimage=(hd0,0)/grub/splash.xpm.gz
+hiddenmenu
+title Red Hat Enterprise Linux Server (2.6.18-128.el5)
+        root (hd0,0)
+        kernel /vmlinuz-2.6.18-128.el5 ro root=/dev/mapper/luks-10d5d533-38f6-482c-982d-bfb488adfbed
+ rhgb quiet crashkernel=128M@16M
+        initrd /initrd-2.6.18-128.el5.img
+</code></pre>
+
+<ol>
+<li>post config</li>
+</ol>
+
+
+<p>Set <code>kdump</code> service automatically start with system startup.</p>
+
+<pre><code>chkconfig kdump on
+service kdump start
+reboot
+</code></pre>
+
+<p>After system reboot, the kdump is ready. the kernel crash file is located at <code>/var/crash/</code>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[DRBD实践]]></title>
+    <link href="http://blog.chenming.info/blog/2009/03/06/drbd/"/>
+    <updated>2009-03-06T22:31:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/03/06/drbd</id>
+    <content type="html"><![CDATA[<h2>实验环境</h2>
+
+<pre><code>OS：RHEL 5.2 64bit
+DRBD 8.2.6
+</code></pre>
+
+<h2>硬件配置：</h2>
+
+<ul>
+<li>三个物理网卡(注[1])（2个用于bonding，一个用于心跳。）</li>
+<li>在两台机器上分别分配一个4G的分区。</li>
+</ul>
+
+
+<h2>准备工作</h2>
+
+<p>为了测试方便，先划一个2G大小的逻辑分区出来。</p>
+
+<pre><code># lvcreate –L 2G –n lvol0 vg1
+</code></pre>
+
+<p>划一个分区来做<code>meta-disk</code></p>
+
+<pre><code># lvcreate –L 200M –n metadisk vg1
+</code></pre>
+
+<h2>编译</h2>
+
+<pre><code># tar zxvf drbd-8.2.6.tar.gz
+# cd drbd-8.2.6/drbd
+# make clean all
+# cd ../
+# make tools
+# make install
+</code></pre>
+
+<h2>配置</h2>
+
+<p>配置文件：<code>/etc/drbd.conf</code></p>
+
+<p>样例文件：</p>
+
+<p>使用scp把<code>/etc/drbd.conf</code>拷贝到另一台运行DBRD的机器上。</p>
+
+<pre><code># scp /etc/drbd.conf root@ssa-1:/etc/drbd.conf
+</code></pre>
+
+<p>创建DRBD记录信息数据块，分别在两台机器上执行如下命令：</p>
+
+<pre><code>ssa-0 # drbdadm create-md r0
+ssa-1 # drbdadm create-md r0
+</code></pre>
+
+<h2>启动DRBD</h2>
+
+<p>需要在两台机器上同时启动DRBD服务：</p>
+
+<pre><code>ssa-0#/etc/init.d/drbd start
+ssa-1#/etc/init.d/drbd start
+</code></pre>
+
+<h2>检查DBRD状态</h2>
+
+<pre><code># cat /proc/drbd
+</code></pre>
+
+<p><code>st</code>表示主备状态。</p>
+
+<h2>操作DRBD</h2>
+
+<p>把当前的主机设置主机</p>
+
+<pre><code>ssa-0# drbdsetup /dev/drbd1 primary -o
+</code></pre>
+
+<p>创建文件系统</p>
+
+<pre><code>mkfs.ext3 –j /dev/drbd1
+</code></pre>
+
+<p>把当前的主机设置为备机。需要先卸下挂载的DRBD设备：</p>
+
+<pre><code># umount /dev/drbd1
+</code></pre>
+
+<p>然后执行如下命令：</p>
+
+<pre><code># drbdadm secondary r0
+</code></pre>
+
+<p>把备机升级为主机：</p>
+
+<pre><code># drbdadm primary r0
+</code></pre>
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="http://www.drbd.org/docs">http://www.drbd.org/docs</a></li>
+<li>man drbd.conf</li>
+</ul>
+
+
+<p>注：[1] 也可以只使用2个网卡，把心跳合在bonding网卡上。建议把心跳的网卡单独出来。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[sys_call_table符号链接失败及如何替换系统调用]]></title>
+    <link href="http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall/"/>
+    <updated>2008-11-24T22:15:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall</id>
+    <content type="html"><![CDATA[<p>2.4的内核中可以通过修改<code>sys_call_table</code>来很轻松的替换系统调用，
+来完成很多trick，很多的<code>rootkit</code>就是基于这种手法来完成的。
+到了2.6的内核，事情就不是这么回事了，<code>sys_call_table</code>不再被export出来了。
+这样的话就不能简单通过修改<code>sys_call_table</code>来替换系统调用了。如果再继续使用<code>sys_call_table</code>的话，将会得到类似如下的警告：</p>
+
+<pre><code>WARNING: "sys_call_table" [/mnt/linux/km/lpp/src/lpp.ko] undefined!
+</code></pre>
+
+<p>当然，加载模块也会失败的:</p>
+
+<pre><code># insmod lpp.ko
+insmod: error inserting 'lpp.ko': -1 Unknown symbol in module
+# dmesg
+lpp: Unknown symbol sys_call_table
+</code></pre>
+
+<p>当然，虽然没有export出来，但我们还是有办法获取到<code>sys_call_table</code>的，
+在C语言中，<code>sys_call_table</code>也就是一个地址而已，我们的问题就是如何获取这个地址。</p>
+
+<p>有如下2种方法。</p>
+
+<p>方法1：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="nf">find_sys_call_table</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="n">sctable</span><span class="p">;</span>
+</span><span class='line'><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ptr</span><span class="p">;</span>
+</span><span class='line'><span class="k">extern</span> <span class="kt">int</span> <span class="n">loops_per_jiffy</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">sctable</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="n">ptr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="n">loops_per_jiffy</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">ptr</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="n">boot_cpu_data</span><span class="p">;</span> <span class="n">ptr</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)){</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="p">)</span><span class="n">ptr</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="n">__NR_close</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span> <span class="n">sys_close</span><span class="p">){</span>
+</span><span class='line'>        <span class="n">sctable</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="n">sctable</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="n">sys_call_table</span> <span class="o">=</span> <span class="n">find_sys_call_table</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>一个完整的示例：
+<a href="http://www.gnome.org/~lcolitti/gnome-startup/linux-iolog/readlog.c">http://www.gnome.org/~lcolitti/gnome-startup/linux-iolog/readlog.c</a></p>
+
+<p>注意，在最新的内核2.6.30的内核它不能编译，需要对第52行进行修改：</p>
+
+<pre><code>52c52
+&lt;         f = current-&gt;files-&gt;fd[fd];
+---
+&gt;         f = current-&gt;files-&gt;fd_array[fd];
+</code></pre>
+
+<p>方法2：去<code>System.map</code>中找。</p>
+
+<pre><code>grep sys_call_table /boot/System.map
+</code></pre>
+
+<p>方法3：当然你也可以直接修改内核代码，然后再重新编译内核。</p>
+
+<p>2.6的内核之所以不把<code>sys_call_table</code>给export出来，不仅仅是因为安全的原因，
+另外一个原因是我们真正的需要在内核去替换系统调用吗?</p>
+
+<p>在用户空间，我们照样也能完成系统调用的替换，为什么不在用户空间去做呢？
+使用Linux的<code>LD_PRELOAD</code>特性，Linux的man page对<code>LD_PRELOAD</code>的解释：</p>
+
+<p><blockquote><p>LD_PRELOAD</p></p><p><pre><code>  A whitespace-separated list of additional, user-specified, ELF<br/>  shared libraries to be loaded before all others. This can be<br/>  used to selectively  override  functions in other shared<br/>  libraries. For setuid/setgid  ELF binaries, only libraries in<br/>  the standard search directories that are also setgid will be<br/>  loaded.<br/></code></pre></p><p><p></p></blockquote></p>
+
+<p>借助LD_PRELOAD我们可以在用户空间轻松完成所有系统调用的替换。
+比如我们写一个动态库，源代码如下：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>演示如何截获系统调用 </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">include</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">stdio</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">include</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">stdlib</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">define</span> <span class="n">__USE_GNU</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">include</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">dlfcn</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kt">ssize_t</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">readfn</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">void</span><span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">size_t</span><span class="p">);</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">static</span> <span class="kt">void</span> <span class="n">init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">strong</span><span class="o">&gt;</span><span class="n">attribute</span><span class="o">&lt;/</span><span class="n">strong</span><span class="o">&gt;</span><span class="p">((</span><span class="n">constructor</span><span class="p">));</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">static</span> <span class="kt">void</span> <span class="n">init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Preloaded</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">readfn</span> <span class="o">=</span> <span class="n">dlsym</span><span class="p">(</span><span class="n">RTLD_NEXT</span><span class="p">,</span> <span class="s">&quot;read&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kt">ssize_t</span> <span class="n">read</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">nbytes</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;My read</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">readfn</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">);</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>编译：</p>
+
+<pre><code>gcc -shared -g -o libcm.so -ldl
+</code></pre>
+
+<p>然后再这样使用<code>LD_PRELOAD</code>：</p>
+
+<pre><code>LD_PRELOAD=./libcm.so ./a.out
+</code></pre>
+
+<p>这样a.out里面所有的read调用都会进入到我们read函数中去了。</p>
+
+<p>参考：</p>
+
+<ul>
+<li><a href="http://kerneltrap.org/node/5802">http://kerneltrap.org/node/5802</a></li>
+<li><a href="http://kerneltrap.org/node/5793">http://kerneltrap.org/node/5793</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Dynamic_linker">http://en.wikipedia.org/wiki/Dynamic_linker</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[RHEL下如何启用VNC服务]]></title>
+    <link href="http://blog.chenming.info/blog/2008/02/06/setup-vnc-on-rhel/"/>
+    <updated>2008-02-06T21:51:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2008/02/06/setup-vnc-on-rhel</id>
+    <content type="html"><![CDATA[<p>编辑vnc服务的配置文件，设定哪些用户能启用VNC</p>
+
+<pre><code>/etc/sysconfig/vncservers
+</code></pre>
+
+<p>比如允许mochen用户启动VNC服务</p>
+
+<pre><code>VNCSERVERS="1:mochen"
+VNCSERVERARGS[1]="-geometry 1024x768"
+</code></pre>
+
+<p>使用<code>su -</code>切换到VNC的用户下，修改该用户连接VNC时的密码，该密码可以与</p>
+
+<p>系统的登录密码不一致：</p>
+
+<pre><code>su - &lt;username&gt;
+vncpasswd
+</code></pre>
+
+<p>启动VNC服务：</p>
+
+<pre><code>service vncserver start
+</code></pre>
+
+<p>注：启动VNC服务前一定要先修改用户的VNC密码。</p>
+
+<p>让VNC服务默认启动：</p>
+
+<pre><code>chkconfig vncserver on
+</code></pre>
 ]]></content>
   </entry>
   

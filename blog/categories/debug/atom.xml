@@ -1,0 +1,755 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: debug | Ming's Blog]]></title>
+  <link href="http://blog.chenming.info/blog/categories/debug/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-03T10:35:03+08:00</updated>
+  <id>http://blog.chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How to setup RHEL kdump]]></title>
+    <link href="http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump/"/>
+    <updated>2009-05-05T22:39:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump</id>
+    <content type="html"><![CDATA[<p><code>Kdump</code>是一种调试Linux内核的方法，
+用于在Linux内核出现<code>Oops</code>之后自动dump内核映像到指定位置的机制，
+便于我们的事后调试。</p>
+
+<p><blockquote><p>Kdump is a new kernel crash dumping mechanism and is very reliable.<br/>The crash dump is captured from the context of a freshly booted kernel<br/>and not from the context of the crashed kernel.<br/>Kdump uses kexec to boot into a second kernel whenever the system crashes.<br/>This second kernel, often called a capture kernel, boots with very little<br/>memory and captures the dump image.</p></blockquote></p>
+
+<ol>
+<li>Install <code>kexec-tools</code></li>
+</ol>
+
+
+<p>Install by <code>yum</code>:</p>
+
+<pre><code>yum install kexec-tools
+</code></pre>
+
+<ol>
+<li>write kdump config file <code>/etc/kdump.conf</code></li>
+</ol>
+
+
+<p>An example with following content.</p>
+
+<pre><code>path /var/crash
+core_collector makedumpfile -d 31 -c
+</code></pre>
+
+<ol>
+<li>change <code>/etc/grub.conf</code> append <code>crashkernel=128M@16M</code> to the end of kernel line.</li>
+</ol>
+
+
+<p>An example of <code>/etc/grub.conf</code></p>
+
+<pre><code>default=0
+timeout=5
+splashimage=(hd0,0)/grub/splash.xpm.gz
+hiddenmenu
+title Red Hat Enterprise Linux Server (2.6.18-128.el5)
+        root (hd0,0)
+        kernel /vmlinuz-2.6.18-128.el5 ro root=/dev/mapper/luks-10d5d533-38f6-482c-982d-bfb488adfbed
+ rhgb quiet crashkernel=128M@16M
+        initrd /initrd-2.6.18-128.el5.img
+</code></pre>
+
+<ol>
+<li>post config</li>
+</ol>
+
+
+<p>Set <code>kdump</code> service automatically start with system startup.</p>
+
+<pre><code>chkconfig kdump on
+service kdump start
+reboot
+</code></pre>
+
+<p>After system reboot, the kdump is ready. the kernel crash file is located at <code>/var/crash/</code>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[使用gdb调试异常]]></title>
+    <link href="http://blog.chenming.info/blog/2008/04/16/handle-exception-in-gdb/"/>
+    <updated>2008-04-16T22:05:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2008/04/16/handle-exception-in-gdb</id>
+    <content type="html"><![CDATA[<p>有时程序中有未捕获的异常会导致程序异常的行为甚至导致程序的直接退出。
+这对服务器程序来说是不可接受的。</p>
+
+<p>可以使用<code>gdb</code>的<code>catch</code>命令来帮助我们调试异常。</p>
+
+<p>使用<code>gdb</code>捕获异常的扔出点（相当于在扔出异常的地方添加断点）：</p>
+
+<pre><code>catch throw
+</code></pre>
+
+<p>使用gdb捕获线程退出（相当于在线程退出的时候添加断点）：</p>
+
+<pre><code>catch pthread_exit
+</code></pre>
+
+<p>这样，如果相应的事件发生，<code>gdb</code>就会中断程序的执行，
+就可以使用<code>gdb</code>的<code>bt</code>命令来检查出现错误的调用栈了。</p>
+
+<p>更多信息：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>(gdb) help catch
+</span><span class='line'>Set catchpoints to catch events.
+</span><span class='line'>Raised signals may be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch signal              - all signals
+</span><span class='line'>catch signal &lt;signame&gt;    - a particular signal
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Raised exceptions may be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch throw               - all exceptions, when thrown
+</span><span class='line'>catch throw &lt;exceptname&gt;  - a particular exception, when thrown
+</span><span class='line'>catch catch               - all exceptions, when caught
+</span><span class='line'>catch catch &lt;exceptname&gt;  - a particular exception, when caught
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Thread or process events may be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch thread_start        - any threads, just after creation
+</span><span class='line'>catch thread_exit         - any threads, just before expiration
+</span><span class='line'>catch thread_join         - any threads, just after joins
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Process events may be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch start               - any processes, just after creation
+</span><span class='line'>catch exit                - any processes, just before expiration
+</span><span class='line'>catch fork                - calls to fork()
+</span><span class='line'>catch vfork               - calls to vfork()
+</span><span class='line'>catch exec                - calls to exec()
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Dynamically-linked library events may be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch load                - loads of any library
+</span><span class='line'>catch load &lt;libname&gt;      - loads of a particular library
+</span><span class='line'>catch unload              - unloads of any library
+</span><span class='line'>catch unload &lt;libname&gt;    - unloads of a particular library
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>The act of your program's execution stopping may also be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch stop
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>C++ exceptions may be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch throw               - all exceptions, when thrown
+</span><span class='line'>catch catch               - all exceptions, when caught
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Do "help set follow-fork-mode" for info on debugging your program
+</span><span class='line'>after a fork or vfork is caught.&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Do "help breakpoints" for info on other commands dealing with breakpoints.</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[解读Linux内核的Oops]]></title>
+    <link href="http://blog.chenming.info/blog/2007/09/17/understand-linux-oops/"/>
+    <updated>2007-09-17T21:35:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2007/09/17/understand-linux-oops</id>
+    <content type="html"><![CDATA[<p>Oops是内核编程中比较容易遇到的问题，为了跟多的了解Oops来便于调试，我对Oops提供的信息进行一个总结，以及如何调试Oops。</p>
+
+<p>一个完整的Oops：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>BUG: unable to handle kernel paging request at 00316b01
+</span><span class='line'>IP: [&lt;c05dd045>] netif_receive_skb+0x335/0x377
+</span><span class='line'>*pde = 00000000
+</span><span class='line'>Thread overran stack, or stack corrupted
+</span><span class='line'>Oops: 0000 [#1] SMP
+</span><span class='line'>last sysfs file: /sys/block/hda/size
+</span><span class='line'>Modules linked in: mymod ipv6 autofs4 nls_utf8 cifs lockd sunrpc dm_multipath
+</span><span class='line'>scsi_dh video output sbs sbshc battery lp sg snd_ens1371 gameport ide_cd_mod
+</span><span class='line'>snd_rawmidi cdrom snd_ac97_codec ac97_bus snd_seq_dummy snd_seq_oss
+</span><span class='line'>snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss
+</span><span class='line'>parport_pc ac floppy serio_raw snd_pcm button parport rtc_cmos rtc_core
+</span><span class='line'>rtc_lib snd_timer snd pcnet32 mii soundcore snd_page_alloc i2c_piix4 i2c_core
+</span><span class='line'>pcspkr dm_snapshot dm_zero dm_mirror dm_region_hash dm_log dm_mod ata_piix
+</span><span class='line'>libata mptspi mptscsih mptbase scsi_transport_spi sd_mod scsi_mod ext3 jbd
+</span><span class='line'>uhci_hcd ohci_hcd ehci_hcd [last unloaded: mymod]&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Pid: 0, comm: swapper Not tainted (2.6.30.9 #1) VMware Virtual Platform
+</span><span class='line'>EIP: 0060:[&lt;c05dd045>] EFLAGS: 00010206 CPU: 0
+</span><span class='line'>EIP is at netif_receive_skb+0x335/0x377
+</span><span class='line'>EAX: 00316ae1 EBX: deb7d600 ECX: 00316ae1 EDX: e2f357c0
+</span><span class='line'>ESI: 00000008 EDI: de9a4800 EBP: c9403f40 ESP: c9403f10
+</span><span class='line'> DS: 007b ES: 007b FS: 00d8 GS: 0000 SS: 0068
+</span><span class='line'>Process swapper (pid: 0, ti=c9403000 task=c0737320 task.ti=c0779000)
+</span><span class='line'>Stack:
+</span><span class='line'> 00316ae1 c07777a0 e2f787c0 00000000 00000001 00000008 00000010 deb7d600
+</span><span class='line'> c9403f40 deb7d600 00000000 df5acc58 c9403fb0 e0e61db0 00000000 00000010
+</span><span class='line'> de9a4bb8 de9a4b40 de9a4800 00002000 00000001 00000000 1ea2c822 deb7d600
+</span><span class='line'>Call Trace:
+</span><span class='line'> [&lt;e0e61db0>] ? pcnet32_poll+0x347/0x66a [pcnet32]
+</span><span class='line'> [&lt;c041f984>] ? run_rebalance_domains+0x13d/0x3ed
+</span><span class='line'> [&lt;c05df364>] ? net_rx_action+0x6a/0xf4
+</span><span class='line'> [&lt;c0429e2a>] ? &lt;strong>do_softirq+0x94/0x138
+</span><span class='line'> [&lt;c0429d96>] ? &lt;/strong>do_softirq+0x0/0x138
+</span><span class='line'> &lt;IRQ> &lt;0> [&lt;c0429d94>] ? irq_exit+0x29/0x2b
+</span><span class='line'> [&lt;c040423b>] ? do_IRQ+0x6d/0x83
+</span><span class='line'> [&lt;c0402e89>] ? common_interrupt+0x29/0x30
+</span><span class='line'> [&lt;c040828a>] ? default_idle+0x5b/0x92
+</span><span class='line'> [&lt;c0401a92>] ? cpu_idle+0x3a/0x4e
+</span><span class='line'> [&lt;c063d84b>] ? rest_init+0x53/0x55
+</span><span class='line'> [&lt;c077f7df>] ? start_kernel+0x293/0x298
+</span><span class='line'> [&lt;c077f06a>] ? i386_start_kernel+0x6a/0x6f
+</span><span class='line'>Code: 74 14 f0 ff 83 a8 00 00 00 8b 4d d8 89 d8 8b 53 14 57 ff 51 08 58 8b 45
+</span><span class='line'>d0 89 45 d8 8b 55 d0 8b 42 20 83 e8 20 89 45 d0 8b 4d d0 &lt;8b> 41 20 0f 18 00
+</span><span class='line'>90 89 c8 83 c0 20 3b 45 d4 75 a4 83 7d d8 00
+</span><span class='line'>EIP: [&lt;c05dd045>] netif_receive_skb+0x335/0x377 SS:ESP 0068:c9403f10
+</span><span class='line'>CR2: 0000000000316b01
+</span><span class='line'>---[ end trace 0330855ac41edfb5 ]---
+</span><span class='line'>Kernel panic - not syncing: Fatal exception in interrupt
+</span><span class='line'>Pid: 0, comm: swapper Tainted: G      D    2.6.30.9 #1
+</span><span class='line'>Call Trace:
+</span><span class='line'> [&lt;c0425ff3>] panic+0x3f/0xdf
+</span><span class='line'> [&lt;c0405644>] oops_end+0x8c/0x9b
+</span><span class='line'> [&lt;c041673a>] no_context+0x10c/0x116
+</span><span class='line'> [&lt;c04168c7>] &lt;strong>bad_area_nosemaphore+0xe0/0xe8
+</span><span class='line'> [&lt;c0416933>] bad_area_nosemaphore+0xd/0x10
+</span><span class='line'> [&lt;c0416aa7>] do_page_fault+0xde/0x1e3
+</span><span class='line'> [&lt;c04169c9>] ? do_page_fault+0x0/0x1e3
+</span><span class='line'> [&lt;c064f38d>] error_code+0x6d/0x74
+</span><span class='line'> [&lt;c061007b>] ? tcp_v4_rcv+0x55b/0x600
+</span><span class='line'> [&lt;c04169c9>] ? do_page_fault+0x0/0x1e3
+</span><span class='line'> [&lt;c05dd045>] ? netif_receive_skb+0x335/0x377
+</span><span class='line'> [&lt;e0e61db0>] pcnet32_poll+0x347/0x66a [pcnet32]
+</span><span class='line'> [&lt;c041f984>] ? run_rebalance_domains+0x13d/0x3ed
+</span><span class='line'> [&lt;c05df364>] net_rx_action+0x6a/0xf4
+</span><span class='line'> [&lt;c0429e2a>] &lt;/strong>do_softirq+0x94/0x138
+</span><span class='line'> [&lt;c0429d96>] ? __do_softirq+0x0/0x138
+</span><span class='line'> &lt;IRQ>  [&lt;c0429d94>] ? irq_exit+0x29/0x2b
+</span><span class='line'> [&lt;c040423b>] ? do_IRQ+0x6d/0x83
+</span><span class='line'> [&lt;c0402e89>] ? common_interrupt+0x29/0x30
+</span><span class='line'> [&lt;c040828a>] ? default_idle+0x5b/0x92
+</span><span class='line'> [&lt;c0401a92>] ? cpu_idle+0x3a/0x4e
+</span><span class='line'> [&lt;c063d84b>] ? rest_init+0x53/0x55
+</span><span class='line'> [&lt;c077f7df>] ? start_kernel+0x293/0x298
+</span><span class='line'> [&lt;c077f06a>] ? i386_start_kernel+0x6a/0x6f</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>解析Oops的具体含义：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>BUG: unable to handle kernel paging request at 00316b01
+</span><span class='line'>IP: [&lt;c05dd045>] netif_receive_skb+0x335/0x377
+</span><span class='line'>*pde = 00000000
+</span><span class='line'>Thread overran stack, or stack corrupted
+</span><span class='line'>Oops: 0000 [#1] SMP
+</span><span class='line'>last sysfs file: /sys/block/hda/size
+</span><span class='line'>Modules linked in: mymod ipv6 autofs4 nls_utf8 cifs lockd sunrpc dm_multipath
+</span><span class='line'>scsi_dh video output sbs sbshc battery lp sg snd_ens1371 gameport ide_cd_mod
+</span><span class='line'>snd_rawmidi cdrom snd_ac97_codec ac97_bus snd_seq_dummy snd_seq_oss
+</span><span class='line'>snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss
+</span><span class='line'>parport_pc ac floppy serio_raw snd_pcm button parport rtc_cmos rtc_core
+</span><span class='line'>rtc_lib snd_timer snd pcnet32 mii soundcore snd_page_alloc i2c_piix4 i2c_core
+</span><span class='line'>pcspkr dm_snapshot dm_zero dm_mirror dm_region_hash dm_log dm_mod ata_piix
+</span><span class='line'>libata mptspi mptscsih mptbase scsi_transport_spi sd_mod scsi_mod ext3 jbd
+</span><span class='line'>uhci_hcd ohci_hcd ehci_hcd [last unloaded: mymod]</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>上面这段这个是载入的模块信息。</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Pid: 0, comm: swapper Not tainted (2.6.30.9 #1) VMware Virtual Platform
+</span><span class='line'>EIP: 0060:[&lt;c05dd045>] EFLAGS: 00010206 CPU: 0
+</span><span class='line'>EIP is at netif_receive_skb+0x335/0x377</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><code>EIP</code>这行指明发生Oops的具体位置，我们可以通过这个来找到出现Oops的源代码的具体行。
+具体方法如下：</p>
+
+<p>通过使用<code>objdump -S</code>反汇编<code>netif_receice_skb</code>所在的目标文件，
+然后找到偏移量为0x355的行，看看这行是有什么代码汇编来的，再结合寄存器的值就能分析这个Oops的原因了。</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>EAX: 00316ae1 EBX: deb7d600 ECX: 00316ae1 EDX: e2f357c0
+</span><span class='line'>ESI: 00000008 EDI: de9a4800 EBP: c9403f40 ESP: c9403f10
+</span><span class='line'> DS: 007b ES: 007b FS: 00d8 GS: 0000 SS: 0068
+</span><span class='line'>Process swapper (pid: 0, ti=c9403000 task=c0737320 task.ti=c0779000)
+</span><span class='line'>Stack:
+</span><span class='line'> 00316ae1 c07777a0 e2f787c0 00000000 00000001 00000008 00000010 deb7d600
+</span><span class='line'> c9403f40 deb7d600 00000000 df5acc58 c9403fb0 e0e61db0 00000000 00000010
+</span><span class='line'> de9a4bb8 de9a4b40 de9a4800 00002000 00000001 00000000 1ea2c822 deb7d600</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>上面这段是寄存器和栈的信息。</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Call Trace:
+</span><span class='line'> [&lt;e0e61db0>] ? pcnet32_poll+0x347/0x66a [pcnet32]
+</span><span class='line'> [&lt;c041f984>] ? run_rebalance_domains+0x13d/0x3ed
+</span><span class='line'> [&lt;c05df364>] ? net_rx_action+0x6a/0xf4
+</span><span class='line'> [&lt;c0429e2a>] ? &lt;strong>do_softirq+0x94/0x138
+</span><span class='line'> [&lt;c0429d96>] ? &lt;/strong>do_softirq+0x0/0x138
+</span><span class='line'> &lt;IRQ> &lt;0> [&lt;c0429d94>] ? irq_exit+0x29/0x2b
+</span><span class='line'> [&lt;c040423b>] ? do_IRQ+0x6d/0x83
+</span><span class='line'> [&lt;c0402e89>] ? common_interrupt+0x29/0x30
+</span><span class='line'> [&lt;c040828a>] ? default_idle+0x5b/0x92
+</span><span class='line'> [&lt;c0401a92>] ? cpu_idle+0x3a/0x4e
+</span><span class='line'> [&lt;c063d84b>] ? rest_init+0x53/0x55
+</span><span class='line'> [&lt;c077f7df>] ? start_kernel+0x293/0x298
+</span><span class='line'> [&lt;c077f06a>] ? i386_start_kernel+0x6a/0x6f</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>发生Oops的内核栈信息。</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Code: 74 14 f0 ff 83 a8 00 00 00 8b 4d d8 89 d8 8b 53 14 57 ff 51 08 58 8b 45
+</span><span class='line'>d0 89 45 d8 8b 55 d0 8b 42 20 83 e8 20 89 45 d0 8b 4d d0 &lt;8b> 41 20 0f 18 00
+</span><span class='line'>90 89 c8 83 c0 20 3b 45 d4 75 a4 83 7d d8 00
+</span><span class='line'>EIP: [&lt;c05dd045>] netif_receive_skb+0x335/0x377 SS:ESP 0068:c9403f10
+</span><span class='line'>CR2: 0000000000316b01
+</span><span class='line'>---[ end trace 0330855ac41edfb5 ]---
+</span><span class='line'>Kernel panic - not syncing: Fatal exception in interrupt
+</span><span class='line'>Pid: 0, comm: swapper Tainted: G      D    2.6.30.9 #1</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>如果kernel报告<code>Tainted</code>，说明kernel被损坏了，在“Trainted：”后面最多会有10个字符的提示信息来表示具体的信息。每一位上使用一个字母来表示，如下：</p>
+
+<p>1: 'G': 所有的模块都是GPL的License。如果有模块缺少MODULE_LICENSE()或者声明是Proprietary的，则为'P'。</p>
+
+<p>2: 'F': 如果有模块是使用 insmod -f 强制载入的。否则为空。</p>
+
+<p>3: 'S': 如果Oops发生在SMP的CPU上，但这个型号的CPU还没有被认为是SMP安全的。</p>
+
+<p>4: 'R': 如果有模块是使用 rmmod -f 强制卸载的。否则为空。</p>
+
+<p>5: 'M': 有CPU报告了Machine Check Exception，否则为空。</p>
+
+<p>6: 'B': 如果有page-release函数发现一个错误的page或未知的page标志。</p>
+
+<p>7: 'U': 来自用户空间的程序设置的这个标志位。</p>
+
+<p>8: 'D': 内核刚刚死掉，比如Oops或者是bug。</p>
+
+<p>9: 'A': ACPI表被覆盖。</p>
+
+<p>10: 'W': 之前kernel已经产生过警告。</p>
+
+<p>Tainted字符串主要的目的是告诉调试器这个kernel已经不是一个干净的kernel了。如果一个模块在加载了之后又卸载了，Tainted仍然会保持。</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Call Trace:
+</span><span class='line'> [&lt;c0425ff3>] panic+0x3f/0xdf
+</span><span class='line'> [&lt;c0405644>] oops_end+0x8c/0x9b
+</span><span class='line'> [&lt;c041673a>] no_context+0x10c/0x116
+</span><span class='line'> [&lt;c04168c7>] &lt;strong>bad_area_nosemaphore+0xe0/0xe8
+</span><span class='line'> [&lt;c0416933>] bad_area_nosemaphore+0xd/0x10
+</span><span class='line'> [&lt;c0416aa7>] do_page_fault+0xde/0x1e3
+</span><span class='line'> [&lt;c04169c9>] ? do_page_fault+0x0/0x1e3
+</span><span class='line'> [&lt;c064f38d>] error_code+0x6d/0x74
+</span><span class='line'> [&lt;c061007b>] ? tcp_v4_rcv+0x55b/0x600
+</span><span class='line'> [&lt;c04169c9>] ? do_page_fault+0x0/0x1e3
+</span><span class='line'> [&lt;c05dd045>] ? netif_receive_skb+0x335/0x377
+</span><span class='line'> [&lt;e0e61db0>] pcnet32_poll+0x347/0x66a [pcnet32]
+</span><span class='line'> [&lt;c041f984>] ? run_rebalance_domains+0x13d/0x3ed
+</span><span class='line'> [&lt;c05df364>] net_rx_action+0x6a/0xf4
+</span><span class='line'> [&lt;c0429e2a>] &lt;/strong>do_softirq+0x94/0x138
+</span><span class='line'> [&lt;c0429d96>] ? __do_softirq+0x0/0x138
+</span><span class='line'> &lt;IRQ>  [&lt;c0429d94>] ? irq_exit+0x29/0x2b
+</span><span class='line'> [&lt;c040423b>] ? do_IRQ+0x6d/0x83
+</span><span class='line'> [&lt;c0402e89>] ? common_interrupt+0x29/0x30
+</span><span class='line'> [&lt;c040828a>] ? default_idle+0x5b/0x92
+</span><span class='line'> [&lt;c0401a92>] ? cpu_idle+0x3a/0x4e
+</span><span class='line'> [&lt;c063d84b>] ? rest_init+0x53/0x55
+</span><span class='line'> [&lt;c077f7df>] ? start_kernel+0x293/0x298
+</span><span class='line'> [&lt;c077f06a>] ? i386_start_kernel+0x6a/0x6f</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>最后发现一篇调试Oops的专题：
+<a href="http://mail.nl.linux.org/kernelnewbies/2003-08/msg00347.html">paper on debugging kernel oops or hang</a>
+。
+虽然是针对2.4的，但还是值得一读。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[使用VMware捕获Linux的串口输出来调试内核的Oops]]></title>
+    <link href="http://blog.chenming.info/blog/2007/08/15/use-vmware-debug-linux-oops/"/>
+    <updated>2007-08-15T20:19:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2007/08/15/use-vmware-debug-linux-oops</id>
+    <content type="html"><![CDATA[<p>Linux的Kernel在产生Oops后会默认情况下把Oops的相关信息打印在控制台上，只有通过控制台才能看到Oops的信息，而且因为受到控制台行数限制，不能完整的看到Oops的信息，这样对调试Oops很麻烦，一种方法是使用虚拟机，把串口输出指定到文件，然后再的Linux的控制台消息重定向到串口，这样可以很方便的捕获串口输出，方便调试Oops。</p>
+
+<p>第一步，在VMware中设置串口输出：</p>
+
+<pre><code>Settings -&gt; Hardware -&gt; Add... 添加一个新的串口设备，指定使用文件输出。
+</code></pre>
+
+<p>第二步，在Linux中对串口进行重定向。修改 /etc/grub.conf 的kernel 行，在行尾加入如下参数：</p>
+
+<pre><code>console=ttyS0,115200 console=tty0
+</code></pre>
+
+<p>重启，然后测试一下产生一个Oops，看看串口文件，如下，已经有完整的Oops的信息了：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sd 0:0:0:0: [sda] Assuming drive cache: write through
+</span><span class='line'>sd 0:0:0:0: [sda] Assuming drive cache: write through
+</span><span class='line'>BUG: unable to handle kernel paging request at 00316b01
+</span><span class='line'>IP: [&lt;c05dd045>] netif_receive_skb+0x335/0x377
+</span><span class='line'>*pde = 00000000
+</span><span class='line'>Thread overran stack, or stack corrupted
+</span><span class='line'>Oops: 0000 [#1] SMP
+</span><span class='line'>last sysfs file: /sys/block/hda/size
+</span><span class='line'>Modules linked in: mymod ipv6 autofs4 nls_utf8 cifs lockd
+</span><span class='line'>sunrpc dm_multipath scsi_dh video output sbs sbshc battery
+</span><span class='line'>lp sg snd_ens1371 gameport ide_cd_mod snd_rawmidi cdrom snd_ac97_codec ac97_bus snd_seq_dummy snd_seq_oss
+</span><span class='line'>snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss
+</span><span class='line'>snd_mixer_oss parport_pc ac floppy serio_raw snd_pcm
+</span><span class='line'>button parport rtc_cmos rtc_core rtc_lib snd_timer snd
+</span><span class='line'>pcnet32 mii soundcore snd_page_alloc i2c_piix4 i2c_core
+</span><span class='line'>pcspkr dm_snapshot dm_zero dm_mirror dm_region_hash
+</span><span class='line'>dm_log dm_mod ata_piix libata mptspi mptscsih mptbase
+</span><span class='line'>scsi_transport_spi sd_mod scsi_mod ext3 jbd uhci_hcd
+</span><span class='line'>ohci_hcd ehci_hcd [last unloaded: mymod]&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Pid: 0, comm: swapper Not tainted (2.6.30.9 #1) VMware Virtual Platform
+</span><span class='line'>EIP: 0060:[&lt;c05dd045>] EFLAGS: 00010206 CPU: 0
+</span><span class='line'>EIP is at netif_receive_skb+0x335/0x377
+</span><span class='line'>EAX: 00316ae1 EBX: deb7d600 ECX: 00316ae1 EDX: e2f357c0
+</span><span class='line'>ESI: 00000008 EDI: de9a4800 EBP: c9403f40 ESP: c9403f10
+</span><span class='line'> DS: 007b ES: 007b FS: 00d8 GS: 0000 SS: 0068
+</span><span class='line'>Process swapper (pid: 0, ti=c9403000 task=c0737320 task.ti=c0779000)
+</span><span class='line'>Stack:
+</span><span class='line'> 00316ae1 c07777a0 e2f787c0 00000000 00000001 00000008 00000010 deb7d600
+</span><span class='line'> c9403f40 deb7d600 00000000 df5acc58 c9403fb0 e0e61db0 00000000 00000010
+</span><span class='line'> de9a4bb8 de9a4b40 de9a4800 00002000 00000001 00000000 1ea2c822 deb7d600
+</span><span class='line'>Call Trace:
+</span><span class='line'> [&lt;e0e61db0>] ? pcnet32_poll+0x347/0x66a [pcnet32]
+</span><span class='line'> [&lt;c041f984>] ? run_rebalance_domains+0x13d/0x3ed
+</span><span class='line'> [&lt;c05df364>] ? net_rx_action+0x6a/0xf4
+</span><span class='line'> [&lt;c0429e2a>] ? &lt;strong>do_softirq+0x94/0x138
+</span><span class='line'> [&lt;c0429d96>] ? &lt;/strong>do_softirq+0x0/0x138
+</span><span class='line'> &lt;IRQ> &lt;0> [&lt;c0429d94>] ? irq_exit+0x29/0x2b
+</span><span class='line'> [&lt;c040423b>] ? do_IRQ+0x6d/0x83
+</span><span class='line'> [&lt;c0402e89>] ? common_interrupt+0x29/0x30
+</span><span class='line'> [&lt;c040828a>] ? default_idle+0x5b/0x92
+</span><span class='line'> [&lt;c0401a92>] ? cpu_idle+0x3a/0x4e
+</span><span class='line'> [&lt;c063d84b>] ? rest_init+0x53/0x55
+</span><span class='line'> [&lt;c077f7df>] ? start_kernel+0x293/0x298
+</span><span class='line'> [&lt;c077f06a>] ? i386_start_kernel+0x6a/0x6f
+</span><span class='line'>Code: 74 14 f0 ff 83 a8 00 00 00 8b 4d d8 89 d8 8b 53 14 57 ff
+</span><span class='line'>51 08 58 8b 45 d0 89 45 d8 8b 55 d0 8b 42 20 83 e8 20 89 45 d0
+</span><span class='line'>8b 4d d0 &lt;8b> 41 20 0f 18 00 90 89 c8 83 c0 20 3b 45 d4 75 a4
+</span><span class='line'>83 7d d8 00
+</span><span class='line'>EIP: [&lt;c05dd045>] netif_receive_skb+0x335/0x377 SS:ESP 0068:c9403f10
+</span><span class='line'>CR2: 0000000000316b01
+</span><span class='line'>---[ end trace 0330855ac41edfb5 ]---
+</span><span class='line'>Kernel panic - not syncing: Fatal exception in interrupt
+</span><span class='line'>Pid: 0, comm: swapper Tainted: G      D    2.6.30.9 #1
+</span><span class='line'>Call Trace:
+</span><span class='line'> [&lt;c0425ff3>] panic+0x3f/0xdf
+</span><span class='line'> [&lt;c0405644>] oops_end+0x8c/0x9b
+</span><span class='line'> [&lt;c041673a>] no_context+0x10c/0x116
+</span><span class='line'> [&lt;c04168c7>] &lt;strong>bad_area_nosemaphore+0xe0/0xe8
+</span><span class='line'> [&lt;c0416933>] bad_area_nosemaphore+0xd/0x10
+</span><span class='line'> [&lt;c0416aa7>] do_page_fault+0xde/0x1e3
+</span><span class='line'> [&lt;c04169c9>] ? do_page_fault+0x0/0x1e3
+</span><span class='line'> [&lt;c064f38d>] error_code+0x6d/0x74
+</span><span class='line'> [&lt;c061007b>] ? tcp_v4_rcv+0x55b/0x600
+</span><span class='line'> [&lt;c04169c9>] ? do_page_fault+0x0/0x1e3
+</span><span class='line'> [&lt;c05dd045>] ? netif_receive_skb+0x335/0x377
+</span><span class='line'> [&lt;e0e61db0>] pcnet32_poll+0x347/0x66a [pcnet32]
+</span><span class='line'> [&lt;c041f984>] ? run_rebalance_domains+0x13d/0x3ed
+</span><span class='line'> [&lt;c05df364>] net_rx_action+0x6a/0xf4
+</span><span class='line'> [&lt;c0429e2a>] &lt;/strong>do_softirq+0x94/0x138
+</span><span class='line'> [&lt;c0429d96>] ? __do_softirq+0x0/0x138
+</span><span class='line'> &lt;IRQ>  [&lt;c0429d94>] ? irq_exit+0x29/0x2b
+</span><span class='line'> [&lt;c040423b>] ? do_IRQ+0x6d/0x83
+</span><span class='line'> [&lt;c0402e89>] ? common_interrupt+0x29/0x30
+</span><span class='line'> [&lt;c040828a>] ? default_idle+0x5b/0x92
+</span><span class='line'> [&lt;c0401a92>] ? cpu_idle+0x3a/0x4e
+</span><span class='line'> [&lt;c063d84b>] ? rest_init+0x53/0x55
+</span><span class='line'> [&lt;c077f7df>] ? start_kernel+0x293/0x298
+</span><span class='line'> [&lt;c077f06a>] ? i386_start_kernel+0x6a/0x6f</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+]]></content>
+  </entry>
+  
+</feed>

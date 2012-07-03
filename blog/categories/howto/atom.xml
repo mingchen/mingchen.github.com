@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: howto | Ming's Blog]]></title>
+  <link href="http://blog.chenming.info/blog/categories/howto/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-03T10:35:03+08:00</updated>
+  <id>http://blog.chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How to setup RHEL kdump]]></title>
+    <link href="http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump/"/>
+    <updated>2009-05-05T22:39:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump</id>
+    <content type="html"><![CDATA[<p><code>Kdump</code>是一种调试Linux内核的方法，
+用于在Linux内核出现<code>Oops</code>之后自动dump内核映像到指定位置的机制，
+便于我们的事后调试。</p>
+
+<p><blockquote><p>Kdump is a new kernel crash dumping mechanism and is very reliable.<br/>The crash dump is captured from the context of a freshly booted kernel<br/>and not from the context of the crashed kernel.<br/>Kdump uses kexec to boot into a second kernel whenever the system crashes.<br/>This second kernel, often called a capture kernel, boots with very little<br/>memory and captures the dump image.</p></blockquote></p>
+
+<ol>
+<li>Install <code>kexec-tools</code></li>
+</ol>
+
+
+<p>Install by <code>yum</code>:</p>
+
+<pre><code>yum install kexec-tools
+</code></pre>
+
+<ol>
+<li>write kdump config file <code>/etc/kdump.conf</code></li>
+</ol>
+
+
+<p>An example with following content.</p>
+
+<pre><code>path /var/crash
+core_collector makedumpfile -d 31 -c
+</code></pre>
+
+<ol>
+<li>change <code>/etc/grub.conf</code> append <code>crashkernel=128M@16M</code> to the end of kernel line.</li>
+</ol>
+
+
+<p>An example of <code>/etc/grub.conf</code></p>
+
+<pre><code>default=0
+timeout=5
+splashimage=(hd0,0)/grub/splash.xpm.gz
+hiddenmenu
+title Red Hat Enterprise Linux Server (2.6.18-128.el5)
+        root (hd0,0)
+        kernel /vmlinuz-2.6.18-128.el5 ro root=/dev/mapper/luks-10d5d533-38f6-482c-982d-bfb488adfbed
+ rhgb quiet crashkernel=128M@16M
+        initrd /initrd-2.6.18-128.el5.img
+</code></pre>
+
+<ol>
+<li>post config</li>
+</ol>
+
+
+<p>Set <code>kdump</code> service automatically start with system startup.</p>
+
+<pre><code>chkconfig kdump on
+service kdump start
+reboot
+</code></pre>
+
+<p>After system reboot, the kdump is ready. the kernel crash file is located at <code>/var/crash/</code>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[NTP MINI HOWTO]]></title>
+    <link href="http://blog.chenming.info/blog/2007/04/14/ntp-mini-howto/"/>
+    <updated>2007-04-14T19:51:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2007/04/14/ntp-mini-howto</id>
+    <content type="html"><![CDATA[<p>我的计算机需要一个准确的时间, 所以我选择了NTP</p>
+
+<h2>安装ntp (Debian Linux)</h2>
+
+<pre><code># apt-get install ntp
+# apt-get install ntp-server
+# apt-get install ntpdate
+</code></pre>
+
+<h2>配置</h2>
+
+<p>配置文件：<code>/etc/ntp.conf</code></p>
+
+<p>可用的NTP服务器：可以到<a href="http://www.pool.ntp.org">http://www.pool.ntp.org</a>上面去找。我用的如下</p>
+
+<pre><code>server 0.asia.pool.ntp.org
+server 1.asia.pool.ntp.org
+server 2.asia.pool.ntp.org
+server 3.asia.pool.ntp.org
+time.nist.gov
+</code></pre>
+
+<p>把<code>ntpdate</code>加入到root的<code>cron</code>里面去，让它每小时运行一次:</p>
+
+<pre><code># crontab -e
+</code></pre>
+
+<p>加入下面的一行</p>
+
+<pre><code>0 * * * * ntpdate time.nist.gov pool.ntp.org cn.pool.ntp.org
+</code></pre>
+
+<p>后台进程名:</p>
+
+<pre><code>ntpd
+</code></pre>
+
+<h2>实用程序<code>ntpq</code></h2>
+
+<p><code>ntpq</code>可以用来查询NTP服务器的状态</p>
+
+<p>示例：</p>
+
+<pre><code>ntpq -q time.nist.gov
+</code></pre>
+
+<p>更多信息:</p>
+
+<ul>
+<li><a href="http://www.linuxdevcenter.com/pub/a/linux/2003/01/02/ntp.html">Synchronizing Networks with NTP</a></li>
+<li><a href="http://www.pool.ntp.org/">Public ntp time server for everyone</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

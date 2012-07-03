@@ -1,0 +1,448 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Debian 的 apt-get 系列命令 - Ming's Blog</title>
+  <meta name="author" content="Ming">
+
+  
+  <meta name="description" content="配置文件 APT的主配置文件为/etc/apt/sources.list 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+# See sources.list(5) for more information, especially # Remember that you can only &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.chenming.info/blog/2007/04/17/debian-apt-commands/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Ming's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33056683-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ming's Blog</a></h1>
+  
+    <h2>trivial notes</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.chenming.info" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/categories">Categories</a></li>
+  <li><a href="/blog/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Debian 的 Apt-get 系列命令</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-04-17T08:51:00+08:00" pubdate data-updated="true">Apr 17<span>th</span>, 2007</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h3>配置文件</h3>
+
+<p>APT的主配置文件为<code>/etc/apt/sources.list</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># See sources.list(5) for more information, especially
+</span><span class='line'>     # Remember that you can only use http, ftp or file URIs
+</span><span class='line'>     # CDROMs are managed through the apt-cdrom tool.
+</span><span class='line'>     deb ftp://ftp.linuxforum.net/debian stable main contrib non-free
+</span><span class='line'>     deb http://debian.cn99.com/debian stable main contrib non-free
+</span><span class='line'>     deb http://http.us.debian.org/debian stable main contrib non-free
+</span><span class='line'>     deb http://non-us.debian.org/debian-non-US stable/non-US main contrib non-free
+</span><span class='line'>     deb http://security.debian.org stable/updates main contrib non-free
+</span><span class='line'>
+</span><span class='line'>     # Uncomment if you want the apt-get source function to work
+</span><span class='line'>     #deb-src http://http.us.debian.org/debian stable main contrib non-free
+</span><span class='line'>     #deb-src http://non-us.debian.org/debian-non-US stable/non-US main contrib non-free</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>更新数据库</h3>
+
+<pre><code>apt-get update
+</code></pre>
+
+<p>  如果出现下面的错误：</p>
+
+<pre><code>E: Dynamic MMap ran out of room
+</code></pre>
+
+<p>  把下面这行加入到/etc/apt/apt.conf里面去就可以了。</p>
+
+<pre><code>APT::Cache-Limit "10000000";
+</code></pre>
+
+<h3>搜索软件</h3>
+
+<pre><code>apt-cache search pkgname
+</code></pre>
+
+<p>  示例：</p>
+
+<pre><code>apt-cache search kernel-image
+</code></pre>
+
+<h3>安装软件</h3>
+
+<pre><code>apt-get install pkgname
+</code></pre>
+
+<p>  示例：</p>
+
+<pre><code>apt-get install kernel-image-2.6-686
+apt-get install python lynx wget ntp ntp-server ntpdate
+</code></pre>
+
+<h3>升级软件</h3>
+
+<pre><code>apt-get upgrade pkgname
+</code></pre>
+
+<p>  示例:</p>
+
+<pre><code>apt-get upgrade glibc6
+</code></pre>
+
+<h3>删除软件</h3>
+
+<pre><code>apt-get remove pkgname
+</code></pre>
+
+<h3>清理下载的安装文件</h3>
+
+<pre><code>apt-get clean
+</code></pre>
+
+<p>  这条命会释放硬盘空间，把这两个文件夹下的文件删除掉啦：</p>
+
+<pre><code>/var/cache/apt/archives/
+/var/cache/apt/archives/partial/
+</code></pre>
+
+<h3>最后的招数</h3>
+
+<pre><code>/usr/sbin/base-config
+</code></pre>
+
+<h3>附：一次升级过程(升级到2.6的内核)</h3>
+
+<pre><code>apt-get dist-upgrade
+apt-get install kernel-image-2.6-686
+apt-get install ssh ftp vsftpd wget ntp ntp-server ntpdate vim \
+    cdecl ctags gcc g++ gcc-4.1-base gdb make flex bison python \
+    lynx  perl subversion cvs openssl manpages-posix manpages-posix-dev bzip2
+</code></pre>
+
+<p>如果遇到下面的错误：</p>
+
+<pre><code>E: This installation run will require temporarily removing the essential package e2fsprogs
+due to a Conflicts/Pre-Depends loop. This is often bad, but if you really want to do it,
+
+activate the APT::Force-LoopBreak option.
+E: Internal Error, Could not early remove e2fsprogs
+</code></pre>
+
+<p>解决方法：</p>
+
+<pre><code>apt-get -o APT::Force-LoopBreak=yes install e2fsprogs
+apt-get -f install # 一路回车就行了
+</code></pre>
+
+<p>然后再重新执行遇到错误的命令</p>
+
+<p>升级内核过程中的重要提示：</p>
+
+<pre><code>configure LILO, you need to add an 'initrd=/initrd.img' to the
+image=/vmlinuz stanza of your /etc/lilo.conf
+
+I repeat, You need to configure your boot loader
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ming</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-04-17T08:51:00+08:00" pubdate data-updated="true">Apr 17<span>th</span>, 2007</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/apt/'>apt</a>, <a class='category' href='/blog/categories/debian/'>debian</a>, <a class='category' href='/blog/categories/linux/'>linux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+  <span>
+  <iframe 
+    width="86" 
+    scrolling="no" 
+    height="16" 
+    frameborder="0" 
+    src=
+      "http://hits.sinajs.cn/A1/weiboshare.html?url=http://blog.chenming.info/blog/2007/04/17/debian-apt-commands/&amp;type=6&amp;ralateUid=2036163762&amp;language=zh_cn" allowtransparency="true">
+  </iframe>
+  </span>
+  
+</div>
+
+<hr style="border-bottom:1px dotted #bdbabd;height:1px;border-top:0px;border-left:0px;border-right:0px;" />
+
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2007/04/15/make-putty-pretty/" title="Previous Post: 让Putty在Windows上好看点">&laquo; 让Putty在Windows上好看点</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2007/04/24/using_windbg/" title="Next Post: 使用windbg来调试程序">使用windbg来调试程序 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/13/install-wp7-sdk-on-xp/">在XP下安装WP7的SDK</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/02/how-to-use-wp7-as-usb-drive/">How to use WP7 as USB drive</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/28/jquery-revert-selection/">jQuery reverse selection</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/24/jquery-tree-filter/">实现jQuery的treeview的filter</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/22/linux-reset-terminal/">在Linux下清屏是clear还是reset</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/20/cookie-expries-issue-on-django-auth/">服务器时间不正确导致django的认证失败</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2009/12/04/how-to-use-nettl-on-hpux/">在HP-UX上使用nettl抓包</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>新浪微博</h1>
+  <ul id="weibo">
+    <li>
+      <iframe 
+        width="100%" 
+        height="550" 
+        class="share_self" 
+        frameborder="0" 
+        scrolling="no" 
+        src="http://widget.weibo.com/weiboshow/index.php?width=0&height=550&ptype=1&speed=0&skin=&isTitle=0&noborder=1&isWeibo=1&isFans=&uid=2036163762&verifier=bce5fd03">
+      </iframe>
+    </li>
+  </ul>
+</section>
+
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Ming -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'chenming';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.chenming.info/blog/2007/04/17/debian-apt-commands/';
+        var disqus_url = 'http://blog.chenming.info/blog/2007/04/17/debian-apt-commands/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

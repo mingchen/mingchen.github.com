@@ -4,7 +4,7 @@
   <title><![CDATA[Ming's Blog]]></title>
   <link href="http://blog.chenming.info/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2012-07-01T18:39:57+08:00</updated>
+  <updated>2012-07-03T10:35:03+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -437,6 +437,1592 @@ django的认证是借助cookie来实现的。</p>
 而在仔细看之前的http请求和响应，发现登录时服务器返回的Set-Cookie的超时时间是去年的时间，这就导致了IE认为这个Cookie已经过期，在后续的请求中就没有把这个Cookie带上，导致了认证的失败。再到服务器上看，服务器的时间居然被人改成去年的时间了。</p>
 
 <p>解决方法很简单了，就是把服务器的时间修改正确。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[在HP-UX上使用nettl抓包]]></title>
+    <link href="http://blog.chenming.info/blog/2009/12/04/how-to-use-nettl-on-hpux/"/>
+    <updated>2009-12-04T10:16:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/12/04/how-to-use-nettl-on-hpux</id>
+    <content type="html"><![CDATA[<p>HP-UX 自己提供了抓包工具<code>nettl</code> 。
+在<code>tcpdump</code>不能用的时候它（比如<code>tcpdump</code>在HP-UX上就不能抓回环上的包）就派上用场了。</p>
+
+<p>总结一下<code>nettl</code>的主要用法，备查。</p>
+
+<h2>开始抓包</h2>
+
+<p>使用<code>nettl -tn</code>开始抓包，下面是一些常用的命令：</p>
+
+<pre><code># nettl -tn all -e all -maxtrace 99999 -f /tmp/tx
+# nettl -tn loopback -e ns_ls_tcp -maxtrace 99999 -f /tmp/tx
+# nettl -tn pduin pduout -e ns_ls_loopback -tm 100000 -f /tmp/local
+# nettl -tn pduin pduout -e ns_ls_loopback -m 56 -tm 100000 -f /tmp/local
+# nettl -tn pduin -e ns_ls_loopback -m 56 -tm 100000 -f /tmp/local
+</code></pre>
+
+<p>-m size 限制每个包的大小。我们不一定对所有的包都感兴趣，在只对包头干兴趣的时候这个选项就非常有效。
+比如某协议使用的包头为16个字节，再加上IP头的20个字节，TCP头的20个字节，
+也就是我们只需要总共56个字节就能确定一个包的基本信息了。</p>
+
+<p>-e subsytem 要抓包的类型，可以使用<code>nettl -status</code>来获取。</p>
+
+<pre><code>ns_ls_loopback
+ns_ls_ip
+ns_ls_tcp
+ns_ls_udp
+ns_ls_icmp
+</code></pre>
+
+<p>-tm maxsize 每个文件的最大大小，如果超过此大小，会使用下一个抓包文件。
+单位：KB。有效值：100~99999</p>
+
+<p>抓包的输出文件为 <code>/tmp/tx.xxxx</code>，使用<code>ls -l /tmp/tx.*</code>来检查</p>
+
+<p>说明：</p>
+
+<p>在<code>ns_ls_loopback</code>上抓包如果指定了<code>pduin</code>和<code>pduout</code>每个包会抓到2份，因为一进一出就是两份。
+如果指定<code>-tn all -e all</code>一个包也会抓到多份，因为一个包可能属于不同的<code>subsystem</code>，
+比如一个<code>tcp</code>包既属于<code>tcp</code>，也属于<code>ip</code>等。</p>
+
+<p>抓的包可以使用<code>wireshark</code>来直接打开并进行分析。也可以使用HP-UX自带的<code>netfmt</code>来分析。</p>
+
+<p>查看状态及<code>-entity</code>可用的信息：</p>
+
+<pre><code># nettl -status
+</code></pre>
+
+<h2>停止抓包</h2>
+
+<p>使用<code>nettl -tf</code>来停止抓包。</p>
+
+<pre><code># nettl -tf -e all
+</code></pre>
+
+<h2>对包的分析</h2>
+
+<p>我们可以使用netfmt来查看捕获的包：</p>
+
+<pre><code>netfmt -N -l -f /tmp/nettl_t* | more
+</code></pre>
+
+<p>可以过滤我们感兴趣的包，使用<code>-c</code>来传入过滤文件</p>
+
+<pre><code>netfmt -N -l -c filter -f /tmp/nettl_t* | more
+</code></pre>
+
+<p>filter 为过滤文件，文件内容的类似如下：</p>
+
+<pre><code>filter tcp_sport 1234
+filter tcp_dport 1234
+</code></pre>
+
+<p>每一行为一个过滤条件，行与行之间是或的关系。</p>
+
+<p>使用行模式来显示（这种模式下不会看到包的具体数据）</p>
+
+<pre><code>netfmt -N -n -l -1 -f /tmp/nettl_t* | more
+</code></pre>
+
+<p>在每行的显示前加上时间戳</p>
+
+<pre><code>netfmt -T -n -l -1 -f /tmp/nettl_t* | more
+</code></pre>
+
+<p>参考：</p>
+
+<ul>
+<li><a href="http://www.compute-aid.com/nettl.html">http://www.compute-aid.com/nettl.html</a></li>
+<li><a href="http://docs.hp.com/en/B2355-60105/nettl.1M.html">http://docs.hp.com/en/B2355-60105/nettl.1M.html</a></li>
+<li><a href="http://docs.hp.com/en/B2355-60105/netfmt.1M.html">http://docs.hp.com/en/B2355-60105/netfmt.1M.html</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[N皇后问题 - 使用随机爬山法实现其快速解法]]></title>
+    <link href="http://blog.chenming.info/blog/2009/11/08/using-hill-climbing-algorithm-to-solve-n-queues-problem/"/>
+    <updated>2009-11-08T10:11:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/11/08/using-hill-climbing-algorithm-to-solve-n-queues-problem</id>
+    <content type="html"><![CDATA[<p>N皇后问题是一个经典的问题，在很多地方都有讨论过。
+回溯法是经典的解法，但是随着N的增大，其复杂度的增加呈指数增长，
+如果N=100使用回溯解法的话，回溯要运行的时间估计你可以去喝一壶茶了。</p>
+
+<p>这段时间在看《人工智能》，里面也有对其的讨论，介绍了爬山法在N皇后问题中的应用。
+爬山法是一种向值增加的方向持续移动到简单循环过程，它将会在到达一个“峰顶”时终止，
+此时相邻状态中没有比该它更高的值。这个算法不维护搜索树。</p>
+
+<p>最基本的爬上搜索算法(节选自《人工智能》第二版)：</p>
+
+<figure class='code'><figcaption><span>随机爬山算法 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>function HILL-CLIMBING(problem) return a state thate is a locak maximum
+</span><span class='line'>    inputs: problem
+</span><span class='line'>    local variables: current, a node
+</span><span class='line'>                         neighbor,a node
+</span><span class='line'>    current = MakeNode(INITAL-STATE(problem));
+</span><span class='line'>    loop do
+</span><span class='line'>        neighbor = a highest-valued successor of current ;
+</span><span class='line'>        if VALUE[neighbor] &lt;= VALUE[current] then return STATE[current];
+</span><span class='line'>        current = neighbor ;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>爬山法属于一种局部的贪婪搜索方法，当它在搜索过程中遇到了局部最大值就很难继续向下搜索了。因此产生了爬山法的变种如随机爬山法及其变种如随机爬山法，随机重新开始的爬山法，
+模拟退火搜索能够非常有效的解决N皇后问题。</p>
+
+<p>结合实际，我使用了随机爬山法的一个测试程序，不试不知道，测试发现速度果然是非常的快，
+对于100皇后都是瞬间秒杀。不过这个程序要实现百万皇后的问题秒杀，估计还是一项很艰巨的工作。
+不过随机爬山法这种方法是一种很有效的解决复杂搜索问题的方法之一。</p>
+
+<p>程序如下，供以后参考：</p>
+
+<figure class='code'><figcaption><span>使用随机爬山法解决N皇后问题 </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;iterator&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;vector&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">CollisionList_t</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="n">print_row_mark</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;+---&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;+&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="n">print_row</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="kt">int</span> <span class="n">fill</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;| &quot;</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="n">i</span><span class="o">==</span><span class="n">fill</span><span class="p">)</span> <span class="o">?</span> <span class="sc">&#39;X&#39;</span> <span class="o">:</span> <span class="sc">&#39; &#39;</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;|&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">print_row_mark</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 皇后位置的表示方法:</span>
+</span><span class='line'><span class="c1">// 使用数组chessman[N]来表示N个皇后的位置</span>
+</span><span class='line'><span class="c1">// 第i个皇后chessman[i]的下标i表示其行所在的位置，</span>
+</span><span class='line'><span class="c1">// chessman[i]表示其列的位置。</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// 一个四皇后问题的表示方法如下所示：</span>
+</span><span class='line'><span class="c1">// (0, 1) (1, 3) (2, 0) (3, 2)</span>
+</span><span class='line'><span class="c1">// +---+---+---+---+</span>
+</span><span class='line'><span class="c1">// |   | X |   |   |</span>
+</span><span class='line'><span class="c1">// +---+---+---+---+</span>
+</span><span class='line'><span class="c1">// |   |   |   | X |</span>
+</span><span class='line'><span class="c1">// +---+---+---+---+</span>
+</span><span class='line'><span class="c1">// | X |   |   |   |</span>
+</span><span class='line'><span class="c1">// +---+---+---+---+</span>
+</span><span class='line'><span class="c1">// |   |   | X |   |</span>
+</span><span class='line'><span class="c1">// +---+---+---+---+</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="kt">void</span> <span class="n">print_chessboard</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;(&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;, &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;) &quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">print_row_mark</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">print_row</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 随机生成一个初始化状态，在每行每列上放置一个皇后</span>
+</span><span class='line'><span class="kt">void</span> <span class="n">generate_init_state</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">r</span> <span class="o">=</span> <span class="n">rand</span><span class="p">();</span>
+</span><span class='line'>    <span class="n">r</span> <span class="o">=</span> <span class="n">r</span> <span class="o">%</span> <span class="n">N</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">chessman</span><span class="p">[</span><span class="n">r</span><span class="p">],</span> <span class="n">chessman</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="n">r</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 返回冲突的皇后个数</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">h</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="n">CollisionList_t</span><span class="o">&amp;</span> <span class="n">collision_list</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">collision_list</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">collision</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">row</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="n">row</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="n">row</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">((</span><span class="n">chessman</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">==</span> <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">row</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span>
+</span><span class='line'>          <span class="o">||</span> <span class="p">(</span><span class="n">chessman</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">==</span> <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">row</span> <span class="o">-</span> <span class="n">i</span><span class="p">)))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">collision_list</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">row</span><span class="p">);</span>
+</span><span class='line'>        <span class="o">++</span><span class="n">collision</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">collision</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 如果交换后冲突不比原来的大，就进行交换</span>
+</span><span class='line'><span class="c1">// 只有交换成功后才改变cl为新的冲突列表</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">try_exchange</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="kt">int</span> <span class="n">row1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">row2</span><span class="p">,</span> <span class="n">CollisionList_t</span><span class="o">&amp;</span> <span class="n">cl</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">CollisionList_t</span> <span class="n">new_cl</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// 交换两行的皇后的位置</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">chessman</span><span class="p">[</span><span class="n">row1</span><span class="p">],</span> <span class="n">chessman</span><span class="p">[</span><span class="n">row2</span><span class="p">]);</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">new_collision</span> <span class="o">=</span> <span class="n">h</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">new_cl</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">new_collision</span> <span class="o">&gt;</span> <span class="n">cl</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// 取消之前的交换</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">chessman</span><span class="p">[</span><span class="n">row1</span><span class="p">],</span> <span class="n">chessman</span><span class="p">[</span><span class="n">row2</span><span class="p">]);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">cl</span> <span class="o">=</span> <span class="n">new_cl</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">new_cl</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">choose_next_state</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="n">CollisionList_t</span><span class="o">&amp;</span> <span class="n">cl</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">old_collision</span> <span class="o">=</span> <span class="n">cl</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">new_collision</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">row1</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">row2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// 优化最后只有一个冲突的解</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">cl</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">cl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">try_exchange</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">cl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="p">,</span> <span class="n">cl</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">do</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// 最后的选择，随机的选择两个皇后调换其位置</span>
+</span><span class='line'>    <span class="n">row1</span> <span class="o">=</span> <span class="n">rand</span><span class="p">()</span> <span class="o">%</span> <span class="n">N</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">do</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">row2</span> <span class="o">=</span> <span class="n">rand</span><span class="p">()</span> <span class="o">%</span> <span class="n">N</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">row1</span> <span class="o">==</span> <span class="n">row2</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">new_collision</span> <span class="o">=</span> <span class="n">try_exchange</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">row1</span><span class="p">,</span> <span class="n">row2</span><span class="p">,</span> <span class="n">cl</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">new_collision</span> <span class="o">&gt;</span> <span class="n">old_collision</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">new_collision</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 使用随机爬山法寻找一个N皇后问题的解</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">queue_solution</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="p">[</span><span class="n">N</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">max_tries</span> <span class="o">=</span> <span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">max_steps</span> <span class="o">=</span> <span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">tries</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">while</span> <span class="p">(</span><span class="n">tries</span> <span class="o">&lt;</span> <span class="n">max_tries</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="o">++</span><span class="n">tries</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kt">int</span> <span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="kt">int</span> <span class="n">collision</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">CollisionList_t</span> <span class="n">collision_list</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">srand</span><span class="p">(</span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">+</span> <span class="n">tries</span> <span class="o">*</span> <span class="n">collision</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">generate_init_state</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">collision</span> <span class="o">=</span> <span class="n">h</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span>  <span class="n">N</span><span class="p">,</span> <span class="n">collision_list</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">while</span> <span class="p">((</span><span class="n">collision</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">steps</span><span class="o">&lt;</span><span class="n">max_steps</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">collision</span> <span class="o">=</span> <span class="n">choose_next_state</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">collision_list</span><span class="p">);</span>
+</span><span class='line'>        <span class="o">++</span><span class="n">steps</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">collision</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Found a solution. Tries: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">tries</span>
+</span><span class='line'>            <span class="o">&lt;&lt;</span> <span class="s">&quot; Steps: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">steps</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>          <span class="n">print_chessboard</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">);</span>
+</span><span class='line'>          <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 接受一个命令行参数，要求为整数N，表示要寻找的解是N皇后问题。</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>    <span class="c1">// 缺省为寻找8皇后问题的一个解</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">N</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;N: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">N</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">N</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Input error: parameter must be a postive integer&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">srand</span><span class="p">(</span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">));</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">queue_solution</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Failed, please try re-run to get a solution.&quot;</span>
+</span><span class='line'>      <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>TODO：在选择下一步的时候还有改进空间，比如优先从冲突的皇后中随机选择皇后进行下一次的位置调换等。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[编写安全的代码 Secure Coding]]></title>
+    <link href="http://blog.chenming.info/blog/2009/11/06/write-secure-code/"/>
+    <updated>2009-11-06T09:57:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/11/06/write-secure-code</id>
+    <content type="html"><![CDATA[<p>今天又看了一下了安全编程的指南。看到对异常的处理部分，不由想到前两天在客户的环境中出现一个问题，
+由于在捕获异常后没有完全释放之前获得锁，导致在程序出现异常后，某些资源一直处于被锁定状态。
+最后只有重新启动应用才能释放资源。对异常的处理要非常的小心才是。</p>
+
+<p>编写安全的代码的参考资料：</p>
+
+<ul>
+<li><p>[CERTSecCod] – CERT Secure Coding Standards
+  <a href="https://www.securecoding.cert.org/confluence/display/seccode/CERT+Secure+Coding+Standards">https://www.securecoding.cert.org/confluence/display/seccode/CERT+Secure+Coding+Standards</a></p></li>
+<li><p><a href="http://www.owasp.org/">http://www.owasp.org/</a> - Web Applications</p></li>
+<li><p>[Posix] – The Open Group Base Specifications Issue 7, IEEE Std 1003.1-2008
+  <a href="http://www.opengroup.org/onlinepubs/9699919799/nframe.html">http://www.opengroup.org/onlinepubs/9699919799/nframe.html</a></p></li>
+<li><p>[STRLCPY] – strlcpy and strlcat&#8211;Consistent, Safe, String Copy and Concatenation
+  <a href="http://www.usenix.org/events/usenix99/millert.html">http://www.usenix.org/events/usenix99/millert.html</a></p></li>
+<li><p>[CppStdLib] – C++ Library Reference
+  <a href="http://www.cplusplus.com/reference/">http://www.cplusplus.com/reference/</a></p></li>
+</ul>
+
+
+<p>Books:</p>
+
+<ul>
+<li>“The CERT C Secure Coding Standard”, Robert C. Seacord, Addison-Wesley Professional, 2008, ISBN-10: 0321563212, ISBN-13: 978-0321563217</li>
+<li>“Secure Coding in C and C++”, Robert C. Seacord, Addison-Wesley Professional, 2005, ISBN-10: 0321335724, ISBN-13: 978-0321335722</li>
+</ul>
+
+
+<p>Papers:</p>
+
+<ul>
+<li>ISO/IEC PDTR 24772, Information technology – Programming languages – Guidelines to avoiding vulnerabilities in language selection and use
+<a href="http://isotc.iso.org/livelink/livelink/SC22-N-4420.pdf?func=doc.Fetch&amp;nodeId=7716670&amp;docTitle=SC22-N-4420">http://isotc.iso.org/livelink/livelink/SC22-N-4420.pdf?func=doc.Fetch&amp;nodeId=7716670&amp;docTitle=SC22-N-4420</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[The 2nd Chengdu Scrum Assemble]]></title>
+    <link href="http://blog.chenming.info/blog/2009/10/24/the-2nd-chengdu-scrum-assemble/"/>
+    <updated>2009-10-24T09:50:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/10/24/the-2nd-chengdu-scrum-assemble</id>
+    <content type="html"><![CDATA[<p>今天参加了第二次的成都Scrum聚会，听到了一些新的Agile工具，在此列出以作备忘：</p>
+
+<ul>
+<li>Hudson，持续集成的工具。CruiseControl并不是唯一的选择。</li>
+<li>NetBean，Eclipse的竞争者。</li>
+<li>Mercurial，一个分布式的版本控制工具</li>
+<li>xUnit</li>
+<li>Sonar</li>
+<li>Review Board</li>
+<li>Maven</li>
+<li>&#8230;</li>
+</ul>
+
+
+<p>大家有很多共识，软件开发中最关键的还是人。我认为软件开发需要做到的是 选择正确的人做正确的事。</p>
+
+<blockquote><p>It all about people。</p></blockquote>
+
+
+<p>关于<code>Self organization</code>，是有一个boundary的，
+还记得ScrumMaster培训的时候那个小游戏在地上画的线吗？</p>
+
+<p>在会上的抽奖节目中还有幸抽到了一本Scrum的书（虽然我看过它的英文版），也对组织者表示一下感谢。</p>
+
+<p>我们的讨论组：<a href="http://groups.google.com/group/scrumcd">http://groups.google.com/group/scrumcd</a></p>
+
+<p><a href="http://groups.google.com/group/scrumcd/browse_thread/thread/9f61abd1b9137125?hl=en">Presentation material from Agile Tour 2009 Chengdu</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[使用Python实现HTTP的digest认证算法]]></title>
+    <link href="http://blog.chenming.info/blog/2009/10/15/http-digest-auth-with-python/"/>
+    <updated>2009-10-15T09:39:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/10/15/http-digest-auth-with-python</id>
+    <content type="html"><![CDATA[<p>因为测试需要，使用Python实现的的一个HTTP的digest认证算法。</p>
+
+<p>关于HTTP的digest算法参考
+<a href="http://www.ietf.org/rfc/rfc2617.txt">RFC 2617 - HTTP Authentication: Basic and Digest Access Authentication</a></p>
+
+<p>代码如下：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c">#!/usr/bin/env python</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># Author: Chen Ming</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># HTTP authentication: RFC 2671</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">hashlib</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+</span><span class='line'>  <span class="n">m</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
+</span><span class='line'>  <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">KD</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">H</span><span class="p">(</span><span class="n">secret</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">data</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c">#def auth_response(method, realm, username, password, uri, algorithm, nonce,</span>
+</span><span class='line'><span class="c">#                  qop=&quot;&quot;, nc=&quot;&quot;, cnonce=&quot;&quot;, entity_body=&quot;&quot;):</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">auth_response</span><span class="p">(</span><span class="n">authinfo</span><span class="p">):</span>
+</span><span class='line'>  <span class="sd">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="sd">    method should be &#39;REGISTER&#39;</span>
+</span><span class='line'><span class="sd">    realm should be &#39;PoC Service C1.0&#39;</span>
+</span><span class='line'><span class="sd">  &quot;&quot;&quot;</span>
+</span><span class='line'>  <span class="n">method</span> <span class="o">=</span> <span class="s">&#39;REGISTER&#39;</span>
+</span><span class='line'>  <span class="n">username</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_username&#39;</span><span class="p">]</span>
+</span><span class='line'>  <span class="n">realm</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_realm&#39;</span><span class="p">]</span>
+</span><span class='line'>  <span class="n">password</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_password&#39;</span><span class="p">]</span>
+</span><span class='line'>  <span class="n">uri</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_uri&#39;</span><span class="p">]</span>
+</span><span class='line'>  <span class="n">qop</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_qop&#39;</span><span class="p">]</span>
+</span><span class='line'>  <span class="n">body</span><span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_body&#39;</span><span class="p">]</span>
+</span><span class='line'>  <span class="n">nonce</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_nonce&#39;</span><span class="p">]</span>
+</span><span class='line'>  <span class="n">nc</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_nc&#39;</span><span class="p">]</span>
+</span><span class='line'>  <span class="n">cnonce</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_cnonce&#39;</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">A1</span> <span class="o">=</span> <span class="n">username</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">realm</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">password</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">qop</span> <span class="o">==</span> <span class="s">&quot;auth-int&quot;</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">A2</span> <span class="o">=</span> <span class="n">method</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">uri</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">H</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>    <span class="c"># &quot;qop&quot; directive&#39;s value is &quot;auth&quot; or is unspecified</span>
+</span><span class='line'>    <span class="n">A2</span> <span class="o">=</span> <span class="n">method</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">uri</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c">#print &quot;A1: %s\nA2:%s&quot; % (A1, A2)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">qop</span> <span class="o">==</span> <span class="s">&#39;auth&#39;</span> <span class="ow">or</span> <span class="n">qop</span> <span class="o">==</span> <span class="s">&#39;auth-int&#39;</span><span class="p">:</span>
+</span><span class='line'>    <span class="c"># OMA</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">KD</span><span class="p">(</span><span class="n">H</span><span class="p">(</span><span class="n">A1</span><span class="p">),</span> <span class="n">nonce</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">nc</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">cnonce</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">qop</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">H</span><span class="p">(</span><span class="n">A2</span><span class="p">))</span>
+</span><span class='line'>  <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>    <span class="c"># &quot;qop&quot; directive is not present (Ph0+)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">KD</span><span class="p">(</span><span class="n">H</span><span class="p">(</span><span class="n">A1</span><span class="p">),</span> <span class="n">nonce</span><span class="o">+</span><span class="s">&#39;:&#39;</span><span class="o">+</span><span class="n">H</span><span class="p">(</span><span class="n">A2</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">test_auth_response</span><span class="p">():</span>
+</span><span class='line'>  <span class="c"># Ph0+</span>
+</span><span class='line'>  <span class="c"># test auth</span>
+</span><span class='line'>  <span class="n">response</span> <span class="o">=</span> <span class="n">auth_response</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">auth_realm</span> <span class="o">=</span> <span class="s">&#39;PoC Service C1.0&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_username</span> <span class="o">=</span> <span class="s">&#39;user100801@henry.poc.com&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_password</span> <span class="o">=</span> <span class="s">&#39;password&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_uri</span> <span class="o">=</span> <span class="s">&#39;sip:henry.poc.com&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_algorithm</span> <span class="o">=</span> <span class="s">&#39;MD5&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_nonce</span> <span class="o">=</span> <span class="s">&#39;b2c015055a88faed30bae04fb2d600ba&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_qop</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_nc</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_cnonce</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_body</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+</span><span class='line'>                          <span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c">#print response</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">expect_response</span> <span class="o">=</span> <span class="s">&#39;5249e6261d8d8268176230c9aea6bb69&#39;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">response</span> <span class="o">==</span> <span class="n">expect_response</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;auth - OK&quot;</span>
+</span><span class='line'>  <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;auth - Failed&quot;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># OMA</span>
+</span><span class='line'>  <span class="c"># test auth-int</span>
+</span><span class='line'>  <span class="n">response</span> <span class="o">=</span> <span class="n">auth_response</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">auth_realm</span> <span class="o">=</span> <span class="s">&#39;PoC Service C1.0&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_username</span> <span class="o">=</span> <span class="s">&#39;user100802@henry.poc.com&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_password</span> <span class="o">=</span> <span class="s">&#39;password&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_uri</span> <span class="o">=</span> <span class="s">&#39;sip:henry.poc.com;transport=UDP&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_algorithm</span> <span class="o">=</span> <span class="s">&#39;MD5&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_nonce</span> <span class="o">=</span> <span class="s">&#39;N0h9zqzvTnkAADgZVsBplA==&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_qop</span> <span class="o">=</span> <span class="s">&#39;auth-int&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_nc</span> <span class="o">=</span> <span class="s">&#39;00000001&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_cnonce</span> <span class="o">=</span> <span class="s">&#39;14d4043e584b63d901366cd5a64d8f66&#39;</span><span class="p">,</span>
+</span><span class='line'>                           <span class="n">auth_body</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+</span><span class='line'>                          <span class="p">))</span>
+</span><span class='line'>  <span class="n">expect_response</span> <span class="o">=</span> <span class="s">&#39;76f8201f832b94e8120daaab94b55a63&#39;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">response</span> <span class="o">==</span> <span class="n">expect_response</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;auth-int - OK&quot;</span>
+</span><span class='line'>  <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;auth-int - Failed&quot;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+</span><span class='line'>  <span class="n">test_auth_response</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[ACE中register_handler()的调用时机]]></title>
+    <link href="http://blog.chenming.info/blog/2009/09/11/when-call-register-handle-in-ace/"/>
+    <updated>2009-09-11T09:36:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/09/11/when-call-register-handle-in-ace</id>
+    <content type="html"><![CDATA[<p>这个问题源自ACE邮件列表中使用Reactor来进行串口通信的问题，
+最后的根因时因为调用<code>register_handler()</code>的时机不对，
+还没有调用<code>connect()</code>，就调用了<code>register_handler()</code>，
+这个时候要注册的句柄因为没有建立连接，值还是-1，注册会失败，导致后续不能获得串口上的数据是理所当然的了。</p>
+
+<p>总结一下Reactor中<code>register_handler()</code>/<code>remove_handler()</code>的调用顺序就是：</p>
+
+<pre><code>connect()/accept()   -&gt;  register_handler()
+remove_handler() -&gt; close()
+</code></pre>
+
+<p>附讨论的原始信息：</p>
+
+<blockquote><p>Great news :)  Also, don&#8217;t forget to do the reverse when cleaning up:  Call remove_handler() *before* closing the port or you&#8217;ll see a fault on shutdown.  Basically, the sequence is &#8220;connect port -> register_handler() -> (do serial stuff) -> remove_handler() -> close port&#8221;.  Finally, don&#8217;t try this on Win32 platforms :)</p><p>- Bob</p><p><br/> &#8212;&#8212;<br/>Hi Bob,</p><p>that´s the error. When I&#8217;d started I had in the right order, but cause it wasn´t running (due to some further errors) I tried some things and totally forgot to change it back. Thank you so much^^.</p><p>Greetings,<br/>Daniel</p><p>@Andreas: I didn´t need to try your version.^^ But thx anyway&#8230;</p><p>&#8212;&#8212;&#8211; Original-Nachricht &#8212;&#8212;&#8211;<br/>> Datum: Fri, 6 Nov 2009 08:19:09 -0500<br/>> Von: robert.ciora@us.transport.bombardier.com<br/>> An: &#8220;Daniel Kempcke&#8221; <Daniel.Kempcke@gmx.net><br/>> CC: ace-users@list.isis.vanderbilt.edu, ace-users-bounces@list.isis.vanderbilt.edu<br/>> Betreff: Re: [ace-users] Problem reactor used with serial interface</p><p>> Daniel,<br/>><br/>> Another quick one:  You&#8217;re calling &#8220;reactor()->register_handler(&#8230;)&#8221;<br/>> before calling &#8220;connector->connect(&#8230;)&#8221;.  The register_handler() will use<br/>> your get_handle() to determine which handle to register.  Since you<br/>> haven&#8217;t connected the port yet, your get_handle() (which calls<br/>> peer_.get_handle()) is returning ACE_INVALID_HANDLE.  It&#8217;s in the<br/>> connect() call where the peer&#8217;s handle gets set to something valid.<br/>><br/>> Try calling register_handler() *after* calling connect().<br/>><br/>> - Bob<br/>><br/>><br/>><br/>> Please consider the environment before you print / Antes de imprimir,<br/>> piense en el medio ambiente<br/>><br/>> &#8220;Daniel Kempcke&#8221; <Daniel.Kempcke@gmx.net><br/>> Sent by: ace-users-bounces@list.isis.vanderbilt.edu<br/>> 11/06/2009 04:06 AM<br/>><br/>> To<br/>> ace-users@list.isis.vanderbilt.edu<br/>> cc<br/>><br/>> Subject<br/>> Re: [ace-users] Problem reactor used with serial interface<br/>><br/>><br/>> Hi Bob,<br/>><br/>> I tried it with -1 (and also with some other values). But the behaviour<br/>> didn&#8217;t change.<br/>> But anyway - thx for your response&#8230;<br/>><br/>> Daniel<br/>><br/>> &#8212;&#8212;&#8211; Original-Nachricht &#8212;&#8212;&#8211;<br/>> > Datum: Thu, 5 Nov 2009 10:41:30 -0500<br/>> > Von: robert.ciora@us.transport.bombardier.com<br/>> > An: &#8220;Daniel Kempcke&#8221; <Daniel.Kempcke@gmx.net><br/>> > CC: ace-users@list.isis.vanderbilt.edu,<br/>> ace-users-bounces@list.isis.vanderbilt.edu<br/>> > Betreff: Re: [ace-users] Problem reactor used with serial interface<br/>><br/>> > Daniel,<br/>> ><br/>> > As a quick guess: try setting your serial parameters&#8217; &#8220;readtimeoutmsec&#8221;<br/>> > field to -1.  This *should* cause the reactor (select() call) to<br/>> correctly<br/>> > block on the handle.<br/>> ><br/>> > - Bob<br/>> ><br/>> ><br/>> > Please consider the environment before you print / Antes de imprimir,<br/>> > piense en el medio ambiente<br/>> ><br/>> ><br/>> > &#8220;Daniel Kempcke&#8221; <Daniel.Kempcke@gmx.net><br/>> > Sent by: ace-users-bounces@list.isis.vanderbilt.edu<br/>> > 11/05/2009 10:21 AM<br/>> ><br/>> > To<br/>> > ace-users@list.isis.vanderbilt.edu<br/>> > cc<br/>> ><br/>> > Subject<br/>> > [ace-users] Problem reactor used with serial interface<br/>> ><br/>> > To: ace-bugs@cs.wustl.edu<br/>> > Subject: [area]: [synopsis]<br/>> ><br/>> >     ACE VERSION: 5.6.3<br/>> ><br/>> >     HOST MACHINE and OPERATING SYSTEM:<br/>> >     - Linux - Ubuntu 9.04 - Kernel 2.6.28<br/>> ><br/>> ><br/>> ><br/>> >     TARGET MACHINE and OPERATING SYSTEM, if different from HOST:<br/>> >     -<br/>> >     COMPILER NAME AND VERSION (AND PATCHLEVEL):<br/>> >     - g++ Version 4.3.3<br/>> ><br/>> ><br/>> >     BUILD METHOD USED:<br/>> > [Experimental ./configure or traditional makefile/project file?]<br/>> >     - makefile/project file<br/>> ><br/>> ><br/>> >     AREA/CLASS/EXAMPLE AFFECTED:<br/>> > [What example failed?  What module failed to compile?]<br/>> ><br/>> > Example for using the Reactor with a serial device and not with TCP/IP<br/>> as<br/>> > a data source. Compiling didn´t fail.<br/>> ><br/>> ><br/>> >     DOES THE PROBLEM AFFECT:<br/>> >         COMPILATION? -<br/>> >         LINKING? -<br/>> >             On Unix systems, did you run make realclean first?<br/>> >             - yes<br/>> >         EXECUTION?<br/>> >         - fails (no signal, caused by data input from the serial device,<br/>><br/>> > occurs)<br/>> ><br/>> ><br/>> >     DESCRIPTION:<br/>> ><br/>> >     The application uses the reactor. There is a serial device on which<br/>> > constantly data arrives. The applic just opens the serial connection and<br/>><br/>> > registers a handler to it. Then it starts the run_reactor_event_loop -<br/>> in<br/>> > this case without an exit conditions.<br/>> ><br/>> ><br/>> > The application uses the standard reactor methods:<br/>> ><br/>> > The &#8220;open()&#8221; method registers a handler, makes a connect to the serial<br/>> > device and sets the serial parameters.<br/>> > The &#8220;handle_input()&#8221; method doesn´t have to do anythng special. In this<br/>> > example it shall only dislay the received data.<br/>> > &#8220;Handle_close()&#8221; just removes the handler, closes the serial connection<br/>> > and deletes the object.<br/>> ><br/>> ><br/>> > Normally I would expect, that the reactor would get signals - cause of<br/>> the<br/>> > incoming data on the serial interface - from the OS, which causes calls<br/>> of<br/>> > the &#8220;handle_input()&#8221; method.<br/>> > But nothing happens - the &#8220;handle_input()&#8221; routine&#8217;s never been called,<br/>> > despite there´s always data arriving on the serial interface.<br/>> ><br/>> > I tried also other examples, which were available online. They are<br/>> similar<br/>> > structured and also never reach the &#8220;handle_input()&#8221;.<br/>> ><br/>> ><br/>> > here´s the code example:<br/>> ><br/>> ><br/>> > #include &#8220;ace/DEV_Connector.h&#8221;<br/>> > #include &#8220;ace/TTY_IO.h&#8221;<br/>> > #include &#8220;ace/Time_Value.h&#8221;<br/>> > #include &#8220;ace/Reactor.h&#8221;<br/>> ><br/>> > #include <iostream><br/>> ><br/>> > class Service : public ACE_Event_Handler{<br/>> > public:<br/>> >                  Service();<br/>> >                  virtual ~Service();<br/>> ><br/>> >                  int open(const char *, ACE_TTY_IO::Serial_Params&<br/>> > sSerialParams);<br/>> ><br/>> >                  virtual ACE_HANDLE get_handle(void) const<br/>> >                  {<br/>> >                                  return this->peer_.get_handle();<br/>> >                  }<br/>> ><br/>> >                  virtual int handle_input(ACE_HANDLE fd =<br/>> > ACE_INVALID_HANDLE);<br/>> ><br/>> >                  virtual int handle_close(ACE_HANDLE handle,<br/>> > ACE_Reactor_Mask close_mask);<br/>> ><br/>> > protected:<br/>> >                  ACE_DEV_Connector connector_;<br/>> >                  //ACE_Message_Queue<ACE_NULL_SYNC> output_queue;<br/>> ><br/>> > private:<br/>> >                  ACE_TTY_IO peer_;<br/>> > };<br/>> ><br/>> ><br/>> > int open(const char* name, ACE_TTY_IO::Serial_Params& sSerialParams) {<br/>> ><br/>> >                  int nResult = 0;<br/>> ><br/>> >                  ACE_Reactor::instance()->register_handler(this,<br/>> >  ACE_Event_Handler::READ_MASK);<br/>> > // Set our I/O handle to that of the peer_ object handling our<br/>> connection<br/>> > if (this->connector_.connect(peer_, ACE_DEV_Addr(name), 0,<br/>> >                                                  ACE_Addr::sap_any, 0,<br/>> > //reuse<br/>> >                                                  O_RDWR |<br/>> > FILE_FLAG_OVERLAPPED) != 0) {<br/>> >                                  ACE_ERROR((LM_ERROR, ACE_TEXT(&#8220;%p\n&#8221;),<br/>> >                  ACE_TEXT(&#8220;&#8212; SerialIOHandler connect\n&#8221;)));<br/>> >                                  nResult = -1;<br/>> >                  }<br/>> ><br/>> >                  if (peer_.control(ACE_TTY_IO::SETPARAMS,<br/>> &sSerialParams)<br/>> > != 0) {<br/>> >                                  ACE_ERROR((LM_ERROR, ACE_TEXT(&#8220;%p<br/>> > control\n&#8221;), name));<br/>> >                                  nResult = -1;<br/>> >                  }<br/>> ><br/>> ><br/>> >                  return nResult;<br/>> > }<br/>> ><br/>> > int handle_input(ACE_HANDLE) {<br/>> >                  char *readBack;<br/>> >                  peer_.recv((void *) &readBack, 1);<br/>> ><br/>> >                  cout << readBack << endl;<br/>> ><br/>> >                  return 0;<br/>> > }<br/>> ><br/>> > int handle_close(ACE_HANDLE handle, ACE_Reactor_Mask close_mask) {<br/>> ><br/>> >                  if (this->peer_.get_handle() != ACE_INVALID_HANDLE) {<br/>> >                                  ACE_Reactor_Mask m =<br/>> > ACE_Event_Handler::ACCEPT_MASK<br/>> >                                                                  |<br/>> > ACE_Event_Handler::DONT_CALL;<br/>> ><br/>> >                                  this->reactor()->remove_handler(this,<br/>> m);<br/>> >                                  this->peer_.close();<br/>> ><br/>> >                                  delete this;<br/>> >                                  return 0;<br/>> >                  }<br/>> >                  return 0;<br/>> > }<br/>> ><br/>> ><br/>> > int ACE_TMAIN(int, ACE_TCHAR *[]) {<br/>> ><br/>> >                  Service SerialIO0;<br/>> >                  Service SerialIO1;<br/>> ><br/>> >                  ACE_TTY_IO::Serial_Params sSerialParams;<br/>> >            sSerialPortParams.baudrate = 115200;<br/>> >                     sSerialPortParams.xonlim = 0;<br/>> >                     sSerialPortParams.xofflim = 0;<br/>> >                     sSerialPortParams.readmincharacters = 0;<br/>> >                     sSerialPortParams.readtimeoutmsec = 1000; // 1<br/>> second<br/>> >                     sSerialPortParams.paritymode = &#8220;none&#8221;;<br/>> >                     sSerialPortParams.ctsenb = false;<br/>> >                     sSerialPortParams.rtsenb = 0;<br/>> >                     sSerialPortParams.xinenb = false;<br/>> >                     sSerialPortParams.xoutenb = false;<br/>> >                     sSerialPortParams.modem = false;<br/>> >                     sSerialPortParams.rcvenb = true;<br/>> >                     sSerialPortParams.dsrenb = false;<br/>> >                     sSerialPortParams.dtrdisable = false;<br/>> >                     sSerialPortParams.databits = 8;<br/>> >                     sSerialPortParams.stopbits = 1;<br/>> ><br/>> ><br/>> >                  const char * serName0 = &#8220;/dev/ttyUSB0&#8221;;<br/>> >                  const char * serName1 = &#8220;/dev/ttyUSB1&#8221;;<br/>> ><br/>> ><br/>> >                  if (SerialIO0.open(serName0, sSerialParams) == -1)<br/>> >                  {<br/>> >                                  cout << "could not connect to: " <<<br/>> > serName0 << endl;<br/>> >                                  return 1;<br/>> >                  }<br/>> ><br/>> >                  if (SerialIO1.open(serName1, sSerialParams) == -1)<br/>> >                  {<br/>> >                                  cout << "could not connect to: " <<<br/>> > serName1 << endl;<br/>> >                                  return 1;<br/>> >                  }<br/>> ><br/>> >                  cout << "connected to: " << serName0 << " " << serName1<br/>><br/>> > << endl;<br/>> ><br/>> ><br/>> >                  ACE_Reactor::instance()->run_reactor_event_loop();<br/>> ><br/>> >                  return 0;<br/>> > }<br/>> ><br/>> > Would be great if somebody could give me a little help. Thanks a lot in<br/>> > advance.<br/>> > Best regards,<br/>> > Daniel<br/>> ></p></blockquote>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How to setup RHEL kdump]]></title>
+    <link href="http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump/"/>
+    <updated>2009-05-05T22:39:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump</id>
+    <content type="html"><![CDATA[<p><code>Kdump</code>是一种调试Linux内核的方法，
+用于在Linux内核出现<code>Oops</code>之后自动dump内核映像到指定位置的机制，
+便于我们的事后调试。</p>
+
+<blockquote><p>Kdump is a new kernel crash dumping mechanism and is very reliable.<br/>The crash dump is captured from the context of a freshly booted kernel<br/>and not from the context of the crashed kernel.<br/>Kdump uses kexec to boot into a second kernel whenever the system crashes.<br/>This second kernel, often called a capture kernel, boots with very little<br/>memory and captures the dump image.</p></blockquote>
+
+
+<ol>
+<li>Install <code>kexec-tools</code></li>
+</ol>
+
+
+<p>Install by <code>yum</code>:</p>
+
+<pre><code>yum install kexec-tools
+</code></pre>
+
+<ol>
+<li>write kdump config file <code>/etc/kdump.conf</code></li>
+</ol>
+
+
+<p>An example with following content.</p>
+
+<pre><code>path /var/crash
+core_collector makedumpfile -d 31 -c
+</code></pre>
+
+<ol>
+<li>change <code>/etc/grub.conf</code> append <code>crashkernel=128M@16M</code> to the end of kernel line.</li>
+</ol>
+
+
+<p>An example of <code>/etc/grub.conf</code></p>
+
+<pre><code>default=0
+timeout=5
+splashimage=(hd0,0)/grub/splash.xpm.gz
+hiddenmenu
+title Red Hat Enterprise Linux Server (2.6.18-128.el5)
+        root (hd0,0)
+        kernel /vmlinuz-2.6.18-128.el5 ro root=/dev/mapper/luks-10d5d533-38f6-482c-982d-bfb488adfbed
+ rhgb quiet crashkernel=128M@16M
+        initrd /initrd-2.6.18-128.el5.img
+</code></pre>
+
+<ol>
+<li>post config</li>
+</ol>
+
+
+<p>Set <code>kdump</code> service automatically start with system startup.</p>
+
+<pre><code>chkconfig kdump on
+service kdump start
+reboot
+</code></pre>
+
+<p>After system reboot, the kdump is ready. the kernel crash file is located at <code>/var/crash/</code>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[DRBD实践]]></title>
+    <link href="http://blog.chenming.info/blog/2009/03/06/drbd/"/>
+    <updated>2009-03-06T22:31:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/03/06/drbd</id>
+    <content type="html"><![CDATA[<h2>实验环境</h2>
+
+<pre><code>OS：RHEL 5.2 64bit
+DRBD 8.2.6
+</code></pre>
+
+<h2>硬件配置：</h2>
+
+<ul>
+<li>三个物理网卡(注[1])（2个用于bonding，一个用于心跳。）</li>
+<li>在两台机器上分别分配一个4G的分区。</li>
+</ul>
+
+
+<h2>准备工作</h2>
+
+<p>为了测试方便，先划一个2G大小的逻辑分区出来。</p>
+
+<pre><code># lvcreate –L 2G –n lvol0 vg1
+</code></pre>
+
+<p>划一个分区来做<code>meta-disk</code></p>
+
+<pre><code># lvcreate –L 200M –n metadisk vg1
+</code></pre>
+
+<h2>编译</h2>
+
+<pre><code># tar zxvf drbd-8.2.6.tar.gz
+# cd drbd-8.2.6/drbd
+# make clean all
+# cd ../
+# make tools
+# make install
+</code></pre>
+
+<h2>配置</h2>
+
+<p>配置文件：<code>/etc/drbd.conf</code></p>
+
+<p>样例文件：</p>
+
+<p>使用scp把<code>/etc/drbd.conf</code>拷贝到另一台运行DBRD的机器上。</p>
+
+<pre><code># scp /etc/drbd.conf root@ssa-1:/etc/drbd.conf
+</code></pre>
+
+<p>创建DRBD记录信息数据块，分别在两台机器上执行如下命令：</p>
+
+<pre><code>ssa-0 # drbdadm create-md r0
+ssa-1 # drbdadm create-md r0
+</code></pre>
+
+<h2>启动DRBD</h2>
+
+<p>需要在两台机器上同时启动DRBD服务：</p>
+
+<pre><code>ssa-0#/etc/init.d/drbd start
+ssa-1#/etc/init.d/drbd start
+</code></pre>
+
+<h2>检查DBRD状态</h2>
+
+<pre><code># cat /proc/drbd
+</code></pre>
+
+<p><code>st</code>表示主备状态。</p>
+
+<h2>操作DRBD</h2>
+
+<p>把当前的主机设置主机</p>
+
+<pre><code>ssa-0# drbdsetup /dev/drbd1 primary -o
+</code></pre>
+
+<p>创建文件系统</p>
+
+<pre><code>mkfs.ext3 –j /dev/drbd1
+</code></pre>
+
+<p>把当前的主机设置为备机。需要先卸下挂载的DRBD设备：</p>
+
+<pre><code># umount /dev/drbd1
+</code></pre>
+
+<p>然后执行如下命令：</p>
+
+<pre><code># drbdadm secondary r0
+</code></pre>
+
+<p>把备机升级为主机：</p>
+
+<pre><code># drbdadm primary r0
+</code></pre>
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="http://www.drbd.org/docs">http://www.drbd.org/docs</a></li>
+<li>man drbd.conf</li>
+</ul>
+
+
+<p>注：[1] 也可以只使用2个网卡，把心跳合在bonding网卡上。建议把心跳的网卡单独出来。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[sys_call_table符号链接失败及如何替换系统调用]]></title>
+    <link href="http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall/"/>
+    <updated>2008-11-24T22:15:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall</id>
+    <content type="html"><![CDATA[<p>2.4的内核中可以通过修改<code>sys_call_table</code>来很轻松的替换系统调用，
+来完成很多trick，很多的<code>rootkit</code>就是基于这种手法来完成的。
+到了2.6的内核，事情就不是这么回事了，<code>sys_call_table</code>不再被export出来了。
+这样的话就不能简单通过修改<code>sys_call_table</code>来替换系统调用了。如果再继续使用<code>sys_call_table</code>的话，将会得到类似如下的警告：</p>
+
+<pre><code>WARNING: "sys_call_table" [/mnt/linux/km/lpp/src/lpp.ko] undefined!
+</code></pre>
+
+<p>当然，加载模块也会失败的:</p>
+
+<pre><code># insmod lpp.ko
+insmod: error inserting 'lpp.ko': -1 Unknown symbol in module
+# dmesg
+lpp: Unknown symbol sys_call_table
+</code></pre>
+
+<p>当然，虽然没有export出来，但我们还是有办法获取到<code>sys_call_table</code>的，
+在C语言中，<code>sys_call_table</code>也就是一个地址而已，我们的问题就是如何获取这个地址。</p>
+
+<p>有如下2种方法。</p>
+
+<p>方法1：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="nf">find_sys_call_table</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="n">sctable</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ptr</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">extern</span> <span class="kt">int</span> <span class="n">loops_per_jiffy</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">sctable</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="n">ptr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="o">&amp;</span><span class="n">loops_per_jiffy</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">ptr</span> <span class="o">&lt;</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="o">&amp;</span><span class="n">boot_cpu_data</span><span class="p">;</span> <span class="n">ptr</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)){</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="p">)</span><span class="n">ptr</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="n">__NR_close</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span> <span class="n">sys_close</span><span class="p">){</span>
+</span><span class='line'>            <span class="n">sctable</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">&amp;</span><span class="n">sctable</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="n">sys_call_table</span> <span class="o">=</span> <span class="n">find_sys_call_table</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>一个完整的示例：
+<a href="http://www.gnome.org/~lcolitti/gnome-startup/linux-iolog/readlog.c">http://www.gnome.org/~lcolitti/gnome-startup/linux-iolog/readlog.c</a></p>
+
+<p>注意，在最新的内核2.6.30的内核它不能编译，需要对第52行进行修改：</p>
+
+<pre><code>52c52
+&lt;         f = current-&gt;files-&gt;fd[fd];
+---
+&gt;         f = current-&gt;files-&gt;fd_array[fd];
+</code></pre>
+
+<p>方法2：去<code>System.map</code>中找。</p>
+
+<pre><code>grep sys_call_table /boot/System.map
+</code></pre>
+
+<p>方法3：当然你也可以直接修改内核代码，然后再重新编译内核。</p>
+
+<p>2.6的内核之所以不把<code>sys_call_table</code>给export出来，不仅仅是因为安全的原因，
+另外一个原因是我们真正的需要在内核去替换系统调用吗?</p>
+
+<p>在用户空间，我们照样也能完成系统调用的替换，为什么不在用户空间去做呢？
+使用Linux的<code>LD_PRELOAD</code>特性，Linux的man page对<code>LD_PRELOAD</code>的解释：</p>
+
+<blockquote><p>LD_PRELOAD<br/>      A whitespace-separated list of additional, user-specified, ELF<br/>      shared libraries to be loaded before all others. This can be<br/>      used to selectively  override  functions in other shared<br/>      libraries. For setuid/setgid  ELF binaries, only libraries in<br/>      the standard search directories that are also setgid will be<br/>      loaded.</p></blockquote>
+
+
+<p>借助LD_PRELOAD我们可以在用户空间轻松完成所有系统调用的替换。
+比如我们写一个动态库，源代码如下：</p>
+
+<figure class='code'><figcaption><span>演示如何截获系统调用 </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#define __USE_GNU</span>
+</span><span class='line'><span class="cp">#include &lt;dlfcn.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">ssize_t</span> <span class="p">(</span><span class="o">*</span><span class="n">readfn</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span><span class="p">,</span> <span class="kt">size_t</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="n">init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">__attribute__</span><span class="p">((</span><span class="n">constructor</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="nf">init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Preloaded</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">readfn</span> <span class="o">=</span> <span class="n">dlsym</span><span class="p">(</span><span class="n">RTLD_NEXT</span><span class="p">,</span> <span class="s">&quot;read&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">ssize_t</span> <span class="nf">read</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">nbytes</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;My read</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">readfn</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>编译：</p>
+
+<pre><code>gcc -shared -g -o libcm.so -ldl
+</code></pre>
+
+<p>然后再这样使用<code>LD_PRELOAD</code>：</p>
+
+<pre><code>LD_PRELOAD=./libcm.so ./a.out
+</code></pre>
+
+<p>这样a.out里面所有的read调用都会进入到我们read函数中去了。</p>
+
+<p>参考：</p>
+
+<ul>
+<li><a href="http://kerneltrap.org/node/5802">http://kerneltrap.org/node/5802</a></li>
+<li><a href="http://kerneltrap.org/node/5793">http://kerneltrap.org/node/5793</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Dynamic_linker">http://en.wikipedia.org/wiki/Dynamic_linker</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[使用gdb调试异常]]></title>
+    <link href="http://blog.chenming.info/blog/2008/04/16/handle-exception-in-gdb/"/>
+    <updated>2008-04-16T22:05:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2008/04/16/handle-exception-in-gdb</id>
+    <content type="html"><![CDATA[<p>有时程序中有未捕获的异常会导致程序异常的行为甚至导致程序的直接退出。
+这对服务器程序来说是不可接受的。</p>
+
+<p>可以使用<code>gdb</code>的<code>catch</code>命令来帮助我们调试异常。</p>
+
+<p>使用<code>gdb</code>捕获异常的扔出点（相当于在扔出异常的地方添加断点）：</p>
+
+<pre><code>catch throw
+</code></pre>
+
+<p>使用gdb捕获线程退出（相当于在线程退出的时候添加断点）：</p>
+
+<pre><code>catch pthread_exit
+</code></pre>
+
+<p>这样，如果相应的事件发生，<code>gdb</code>就会中断程序的执行，
+就可以使用<code>gdb</code>的<code>bt</code>命令来检查出现错误的调用栈了。</p>
+
+<p>更多信息：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>(gdb) help catch
+</span><span class='line'>Set catchpoints to catch events.
+</span><span class='line'>Raised signals may be caught:
+</span><span class='line'>  catch signal              - all signals
+</span><span class='line'>  catch signal &lt;signame>    - a particular signal
+</span><span class='line'>Raised exceptions may be caught:
+</span><span class='line'>  catch throw               - all exceptions, when thrown
+</span><span class='line'>  catch throw &lt;exceptname>  - a particular exception, when thrown
+</span><span class='line'>  catch catch               - all exceptions, when caught
+</span><span class='line'>  catch catch &lt;exceptname>  - a particular exception, when caught
+</span><span class='line'>Thread or process events may be caught:
+</span><span class='line'>  catch thread_start        - any threads, just after creation
+</span><span class='line'>  catch thread_exit         - any threads, just before expiration
+</span><span class='line'>  catch thread_join         - any threads, just after joins
+</span><span class='line'>Process events may be caught:
+</span><span class='line'>  catch start               - any processes, just after creation
+</span><span class='line'>  catch exit                - any processes, just before expiration
+</span><span class='line'>  catch fork                - calls to fork()
+</span><span class='line'>  catch vfork               - calls to vfork()
+</span><span class='line'>  catch exec                - calls to exec()
+</span><span class='line'>Dynamically-linked library events may be caught:
+</span><span class='line'>  catch load                - loads of any library
+</span><span class='line'>  catch load &lt;libname>      - loads of a particular library
+</span><span class='line'>  catch unload              - unloads of any library
+</span><span class='line'>  catch unload &lt;libname>    - unloads of a particular library
+</span><span class='line'>The act of your program's execution stopping may also be caught:
+</span><span class='line'>  catch stop
+</span><span class='line'>
+</span><span class='line'>C++ exceptions may be caught:
+</span><span class='line'>  catch throw               - all exceptions, when thrown
+</span><span class='line'>  catch catch               - all exceptions, when caught
+</span><span class='line'>
+</span><span class='line'>Do "help set follow-fork-mode" for info on debugging your program
+</span><span class='line'>after a fork or vfork is caught.
+</span><span class='line'>
+</span><span class='line'>Do "help breakpoints" for info on other commands dealing with breakpoints.</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[ACE_Message_Queue的notify和Reactor结合使用时会导致死锁]]></title>
+    <link href="http://blog.chenming.info/blog/2008/03/08/ace-message-queue-notify-deadlock-in-reactor/"/>
+    <updated>2008-03-08T22:00:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2008/03/08/ace-message-queue-notify-deadlock-in-reactor</id>
+    <content type="html"><![CDATA[<h2>现象</h2>
+
+<p>设置了Queue的通知策略之后，在<code>putq</code>之后会调用Reactor的<code>notify</code>方法，
+Reactor内部使用一个管道来传输通知事件，导致在写入通知事件时阻塞在该管道上，
+从而导致程序挂起。</p>
+
+<p>这是一个很早就发现的bug，但是一直没有被修正。一方面是它不好修正，
+从邮件列表里得到的信息是ACE的维护者缺乏资金解决这个问题。</p>
+
+<h2>一个示例的调用栈</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>(gdb) thr app all bt
+</span><span class='line'>
+</span><span class='line'>Thread 4 (Thread 0xb7ad3b90 (LWP 31160)):   # ---- Scheduler thread.
+</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()
+</span><span class='line'>#1  0xb7f790e5 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#2  0x08070c59 in ACE_OS::cond_wait (cv=0x91a7cbc, external_mutex=0x91a7ca0)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/OS_NS_Thread.inl:329
+</span><span class='line'>#3  0x08070c9f in ACE_Condition&lt;ACE_Thread_Mutex>::wait (this=0x91a7cbc)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Condition_T.cpp:90
+</span><span class='line'>#4  0x0807020a in cm::Scheduler::choose_processor (this=0x91a7c54)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/Scheduler.cpp:94
+</span><span class='line'>#5  0x080705ad in cm::Scheduler::svc (this=0x91a7c54)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/Scheduler.cpp:80
+</span><span class='line'>#6  0xb7daae52 in ACE_Task_Base::svc_run (args=0x91a7c54) at Task.cpp:275
+</span><span class='line'>#7  0xb7dac2ed in ACE_Thread_Adapter::invoke_i (this=0x91a7fa0) at Thread_Adapter.cpp:149
+</span><span class='line'>#8  0xb7dac366 in ACE_Thread_Adapter::invoke (this=0x91a7fa0) at Thread_Adapter.cpp:98
+</span><span class='line'>#9  0xb7d33271 in ace_thread_adapter (args=0x91a7fa0) at Base_Thread_Adapter.cpp:124
+</span><span class='line'>#10 0xb7f754ff in start_thread () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#11 0xb7ef049e in clone () from /lib/tls/i686/cmov/libc.so.6
+</span><span class='line'>
+</span><span class='line'>Thread 3 (Thread 0xb72d2b90 (LWP 31161)):   # ---- Processor thread.
+</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()
+</span><span class='line'>#1  0xb7f7c07b in write () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#2  0xb7d212ea in ACE::send (handle=6, buf=0xb72cff34, n=8, timeout=0x8)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/OS_NS_unistd.inl:1200
+</span><span class='line'>#3  0xb7d4da29 in ACE_Dev_Poll_Reactor_Notify::notify (this=0x91a3c10, eh=0x92095b0, mask=2,
+</span><span class='line'>    timeout=0x0) at Dev_Poll_Reactor.cpp:165
+</span><span class='line'>#4  0xb7d4bcbc in ACE_Dev_Poll_Reactor::notify (this=0x91a3980, eh=0x92095b0, mask=2,
+</span><span class='line'>    timeout=0x0) at Dev_Poll_Reactor.cpp:2028
+</span><span class='line'>#5  0xb7d9550e in ACE_Reactor::notify (this=0x91a38c0, event_handler=0x92095b0, mask=2, tv=0x0)
+</span><span class='line'>    at Reactor.cpp:481
+</span><span class='line'>#6  0xb7d95e76 in ACE_Reactor_Notification_Strategy::notify (this=0x9209638)
+</span><span class='line'>    at Reactor_Notification_Strategy.cpp:28
+</span><span class='line'>#7  0x08062d47 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::notify (this=0x9209660)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1998
+</span><span class='line'>#8  0x080650cc in ACE_Message_Queue&lt;ACE_MT_SYNCH>::enqueue_tail (this=0x9209660,
+</span><span class='line'>    new_item=0xb61bb3d8, timeout=0xb72d0064)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1888
+</span><span class='line'>#9  0x08076c2c in ACE_Task&lt;ACE_MT_SYNCH>::putq (this=0x92095b0, mb=0xb61bb3d8, tv=0xb72d0064)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Task_T.inl:36
+</span><span class='line'>#10 0x08075653 in cm::RequestHandler::async_send (this=0x92095b0, mb=0xb61bb3d8)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/RequestHandler.cpp:257
+</span><span class='line'>#11 0x080746ef in cm::HttpTransaction::send_static_file (this=0x9209d10, uri=@0xb72d2288)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:98
+</span><span class='line'>#12 0x08074c8b in cm::HttpTransaction::execute (this=0x9209d10)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:37
+</span><span class='line'>#13 0x080712a0 in cm::Processor::svc (this=0x91aa128)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/Processor.cpp:47
+</span><span class='line'>#14 0xb7daae52 in ACE_Task_Base::svc_run (args=0x91aa128) at Task.cpp:275
+</span><span class='line'>#15 0xb7dac2ed in ACE_Thread_Adapter::invoke_i (this=0x91aa330) at Thread_Adapter.cpp:149
+</span><span class='line'>#16 0xb7dac366 in ACE_Thread_Adapter::invoke (this=0x91aa330) at Thread_Adapter.cpp:98
+</span><span class='line'>#17 0xb7d33271 in ace_thread_adapter (args=0x91aa330) at Base_Thread_Adapter.cpp:124
+</span><span class='line'>#18 0xb7f754ff in start_thread () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#19 0xb7ef049e in clone () from /lib/tls/i686/cmov/libc.so.6
+</span><span class='line'>
+</span><span class='line'>Thread 2 (Thread 0xb6ad1b90 (LWP 31162)):   # ---- Processor thread
+</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()
+</span><span class='line'>#1  0xb7f7c07b in write () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#2  0xb7d212ea in ACE::send (handle=6, buf=0xb6acef34, n=8, timeout=0x8)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/OS_NS_unistd.inl:1200
+</span><span class='line'>#3  0xb7d4da29 in ACE_Dev_Poll_Reactor_Notify::notify (this=0x91a3c10, eh=0x9209448, mask=2,
+</span><span class='line'>    timeout=0x0) at Dev_Poll_Reactor.cpp:165
+</span><span class='line'>#4  0xb7d4bcbc in ACE_Dev_Poll_Reactor::notify (this=0x91a3980, eh=0x9209448, mask=2,
+</span><span class='line'>    timeout=0x0) at Dev_Poll_Reactor.cpp:2028
+</span><span class='line'>#5  0xb7d9550e in ACE_Reactor::notify (this=0x91a38c0, event_handler=0x9209448, mask=2, tv=0x0)
+</span><span class='line'>    at Reactor.cpp:481
+</span><span class='line'>#6  0xb7d95e76 in ACE_Reactor_Notification_Strategy::notify (this=0x92094d0)
+</span><span class='line'>    at Reactor_Notification_Strategy.cpp:28
+</span><span class='line'>#7  0x08062d47 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::notify (this=0x92094f8)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1998
+</span><span class='line'>#8  0x080650cc in ACE_Message_Queue&lt;ACE_MT_SYNCH>::enqueue_tail (this=0x92094f8,
+</span><span class='line'>    new_item=0x92f5c38, timeout=0xb6acf064)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1888
+</span><span class='line'>#9  0x08076c2c in ACE_Task&lt;ACE_MT_SYNCH>::putq (this=0x9209448, mb=0x92f5c38, tv=0xb6acf064)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Task_T.inl:36
+</span><span class='line'>#10 0x08075653 in cm::RequestHandler::async_send (this=0x9209448, mb=0x92f5c38)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/RequestHandler.cpp:257
+</span><span class='line'>#11 0x08074917 in cm::HttpTransaction::send_static_file (this=0x9209bc0, uri=@0xb6ad1288)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:110
+</span><span class='line'>#12 0x08074c8b in cm::HttpTransaction::execute (this=0x9209bc0)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:37
+</span><span class='line'>#13 0x080712a0 in cm::Processor::svc (this=0x91ac488)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/Processor.cpp:47
+</span><span class='line'>#14 0xb7daae52 in ACE_Task_Base::svc_run (args=0x91ac488) at Task.cpp:275
+</span><span class='line'>#15 0xb7dac2ed in ACE_Thread_Adapter::invoke_i (this=0x91ac690) at Thread_Adapter.cpp:149
+</span><span class='line'>#16 0xb7dac366 in ACE_Thread_Adapter::invoke (this=0x91ac690) at Thread_Adapter.cpp:98
+</span><span class='line'>#17 0xb7d33271 in ace_thread_adapter (args=0x91ac690) at Base_Thread_Adapter.cpp:124
+</span><span class='line'>#18 0xb7f754ff in start_thread () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#19 0xb7ef049e in clone () from /lib/tls/i686/cmov/libc.so.6
+</span><span class='line'>
+</span><span class='line'>Thread 1 (Thread 0xb7ad48e0 (LWP 31159)):  # ---- Reactor thread.
+</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()
+</span><span class='line'>#1  0xb7f790e5 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#2  0xb7d3c254 in ACE_Condition_Thread_Mutex::wait (this=0x91ae99c, mutex=@0x80, abstime=0x0)
+</span><span class='line'>---Type &lt;return> to continue, or q &lt;return> to quit---
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/OS_NS_Thread.inl:362
+</span><span class='line'>#3  0xb7d3c2bb in ACE_Condition_Thread_Mutex::wait (this=0x91ae99c, abstime=0x0)
+</span><span class='line'>    at Condition_Thread_Mutex.cpp:107
+</span><span class='line'>#4  0x08063c90 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::wait_not_full_cond (this=0x91ae920,
+</span><span class='line'>    timeout=0x0) at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1715
+</span><span class='line'>#5  0x08064e38 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::enqueue_head (this=0x91ae920,
+</span><span class='line'>    new_item=0xb6105610, timeout=0x0) at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1777
+</span><span class='line'>#6  0x0807236a in ACE_Task&lt;ACE_MT_SYNCH>::ungetq (this=0x91ae870, mb=0xb6105610, tv=0x0)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Task_T.inl:43
+</span><span class='line'>#7  0x08071d5d in cm::HttpRequestHandler::handle_output (this=0x91ae870)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpRequestHandler.cpp:86
+</span><span class='line'>#8  0xb7d4d982 in ACE_Dev_Poll_Reactor_Notify::dispatch_notify (this=0x91a3c10,
+</span><span class='line'>    buffer=@0xbfaf5c04) at Dev_Poll_Reactor.cpp:365
+</span><span class='line'>#9  0xb7d4c91b in ACE_Dev_Poll_Reactor_Notify::handle_input (this=0x91a3c10, handle=5)
+</span><span class='line'>    at Dev_Poll_Reactor.cpp:297
+</span><span class='line'>#10 0xb7d4f945 in ACE_Dev_Poll_Reactor::dispatch_io_event (this=0x91a3980, guard=@0xbfaf5d14)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Dev_Poll_Reactor.inl:126
+</span><span class='line'>#11 0xb7d4fb4c in ACE_Dev_Poll_Reactor::dispatch (this=0x91a3980, guard=@0xbfaf5d14)
+</span><span class='line'>    at Dev_Poll_Reactor.cpp:1079
+</span><span class='line'>#12 0xb7d4fca6 in ACE_Dev_Poll_Reactor::handle_events_i (this=0x91a3980, max_wait_time=0x0,
+</span><span class='line'>    guard=@0xbfaf5d14) at Dev_Poll_Reactor.cpp:1056
+</span><span class='line'>#13 0xb7d4fd7c in ACE_Dev_Poll_Reactor::handle_events (this=0x91a3980, max_wait_time=0x0)
+</span><span class='line'>    at Dev_Poll_Reactor.cpp:1012
+</span><span class='line'>#14 0xb7d94fc3 in ACE_Reactor::run_reactor_event_loop (this=0x91a38c0, eh=0) at Reactor.cpp:224
+</span><span class='line'>#15 0x08062452 in main (argc=7, argv=0xbfaf5f04)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/main.cpp:75
+</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>规避方法</h2>
+
+<p>把<code>ACE_Message_Queue</code>的<code>high water level</code>设置为一个很高的值，
+避免队列满触发该bug。</p>
+
+<h2>参考</h2>
+
+<p><a href="http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/3575b21beae71683?pli=1">http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/3575b21beae71683?pli=1</a>
+<a href="http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/38fb11cf258f3eec">http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/38fb11cf258f3eec</a></p>
 ]]></content>
   </entry>
   

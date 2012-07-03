@@ -1,0 +1,366 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>编译CentOS 5的内核 - Ming's Blog</title>
+  <meta name="author" content="Ming">
+
+  
+  <meta name="description" content="这段时间因为需要接触Linux内核，CentOS/RHEL的内核源代码缺省安装时并不会安装，
+需要单独的安装。 CentOS 5提供了自己的内核编译方法，详见 http://wiki.centos.org/HowTos/Custom_Kernel。
+但这只能编译CentOS 5的主流内核版本2.6 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.chenming.info/blog/2007/09/14/compile-centos-5-kernel/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Ming's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33056683-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ming's Blog</a></h1>
+  
+    <h2>trivial notes</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.chenming.info" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/categories">Categories</a></li>
+  <li><a href="/blog/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">编译CentOS 5的内核</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-09-14T22:52:00+08:00" pubdate data-updated="true">Sep 14<span>th</span>, 2007</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>这段时间因为需要接触Linux内核，CentOS/RHEL的内核源代码缺省安装时并不会安装，
+需要单独的安装。</p>
+
+<p><code>CentOS 5</code>提供了自己的内核编译方法，详见 <a href="http://wiki.centos.org/HowTos/Custom_Kernel">http://wiki.centos.org/HowTos/Custom_Kernel</a>。
+但这只能编译CentOS 5的主流内核版本2.6.18，
+如果要编译其它版本的内核还是需要从<a href="http://www.kernel.org">http://www.kernel.org</a>下载后进行编译。</p>
+
+<p>第一步，获取内核源代码</p>
+
+<pre><code>$ mkdir linux
+$ cd linux
+$ wget http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.30.9.tar.bz2
+$ bzip2 -dc linux-2.6.30.9.tar.bz2 | tar xvf -
+</code></pre>
+
+<p>第二步，配置和编译内核</p>
+
+<pre><code>$ cd linux-2.6.30.9
+$ make config       # 创建一个缺省的配置文件
+$ make menuconfig   # 基于刚才创建的配置文件修改配置，在这一步可以定制内核
+$ make -j2
+</code></pre>
+
+<p>第三步，安装新的内核（需要root的身份）</p>
+
+<p>安装 mkinitrd 来获取 installkernel 这个脚本：</p>
+
+<pre><code># yum install mkinitrd
+</code></pre>
+
+<p>安装内核模块：</p>
+
+<pre><code># make modules_install
+</code></pre>
+
+<p>安装目标目录为<code>/lib/modules/kernel-version/</code>。
+<code>kernel-version</code>为要安装的内核版本，可以使用如下命令查看：</p>
+
+<pre><code># make kernelversion
+</code></pre>
+
+<p>如果这个目录不存在，它会自动创建。</p>
+
+<p>安装内核：</p>
+
+<pre><code># make install
+</code></pre>
+
+<p>它会自动添加新内核到Grub（Lilo也支持，不过估计现在用Lilo的人应该越来越少了）的引导菜单中的。</p>
+
+<p>然后重新启动就可以再Grub中选择新的内核进行启动了。</p>
+
+<p>参考</p>
+
+<ul>
+<li><a href="http://www.kroah.com/lkn/">Linux Kernel in a Nutshell</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ming</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-09-14T22:52:00+08:00" pubdate data-updated="true">Sep 14<span>th</span>, 2007</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/kernel/'>kernel</a>, <a class='category' href='/blog/categories/linux/'>linux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+  <span>
+  <iframe 
+    width="86" 
+    scrolling="no" 
+    height="16" 
+    frameborder="0" 
+    src=
+      "http://hits.sinajs.cn/A1/weiboshare.html?url=http://blog.chenming.info/blog/2007/09/14/compile-centos-5-kernel/&amp;type=6&amp;ralateUid=2036163762&amp;language=zh_cn" allowtransparency="true">
+  </iframe>
+  </span>
+  
+</div>
+
+<hr style="border-bottom:1px dotted #bdbabd;height:1px;border-top:0px;border-left:0px;border-right:0px;" />
+
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2007/08/15/use-vmware-debug-linux-oops/" title="Previous Post: 使用VMware捕获Linux的串口输出来调试内核的Oops">&laquo; 使用VMware捕获Linux的串口输出来调试内核的Oops</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2007/09/17/understand-linux-oops/" title="Next Post: 解读Linux内核的Oops">解读Linux内核的Oops &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/13/install-wp7-sdk-on-xp/">在XP下安装WP7的SDK</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/02/how-to-use-wp7-as-usb-drive/">How to use WP7 as USB drive</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/28/jquery-revert-selection/">jQuery reverse selection</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/24/jquery-tree-filter/">实现jQuery的treeview的filter</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/22/linux-reset-terminal/">在Linux下清屏是clear还是reset</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/20/cookie-expries-issue-on-django-auth/">服务器时间不正确导致django的认证失败</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2009/12/04/how-to-use-nettl-on-hpux/">在HP-UX上使用nettl抓包</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>新浪微博</h1>
+  <ul id="weibo">
+    <li>
+      <iframe 
+        width="100%" 
+        height="550" 
+        class="share_self" 
+        frameborder="0" 
+        scrolling="no" 
+        src="http://widget.weibo.com/weiboshow/index.php?width=0&height=550&ptype=1&speed=0&skin=&isTitle=0&noborder=1&isWeibo=1&isFans=&uid=2036163762&verifier=bce5fd03">
+      </iframe>
+    </li>
+  </ul>
+</section>
+
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Ming -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'chenming';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.chenming.info/blog/2007/09/14/compile-centos-5-kernel/';
+        var disqus_url = 'http://blog.chenming.info/blog/2007/09/14/compile-centos-5-kernel/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

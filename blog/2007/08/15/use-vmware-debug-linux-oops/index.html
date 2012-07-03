@@ -1,0 +1,481 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>使用VMware捕获Linux的串口输出来调试内核的Oops - Ming's Blog</title>
+  <meta name="author" content="Ming">
+
+  
+  <meta name="description" content="Linux的Kernel在产生Oops后会默认情况下把Oops的相关信息打印在控制台上，只有通过控制台才能看到Oops的信息，而且因为受到控制台行数限制，不能完整的看到Oops的信息，这样对调试Oops很麻烦，一种方法是使用虚拟机，把串口输出指定到文件，然后再的Linux的控制台消息重定向到串口， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.chenming.info/blog/2007/08/15/use-vmware-debug-linux-oops/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Ming's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33056683-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ming's Blog</a></h1>
+  
+    <h2>trivial notes</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.chenming.info" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/categories">Categories</a></li>
+  <li><a href="/blog/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">使用VMware捕获Linux的串口输出来调试内核的Oops</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-08-15T20:19:00+08:00" pubdate data-updated="true">Aug 15<span>th</span>, 2007</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Linux的Kernel在产生Oops后会默认情况下把Oops的相关信息打印在控制台上，只有通过控制台才能看到Oops的信息，而且因为受到控制台行数限制，不能完整的看到Oops的信息，这样对调试Oops很麻烦，一种方法是使用虚拟机，把串口输出指定到文件，然后再的Linux的控制台消息重定向到串口，这样可以很方便的捕获串口输出，方便调试Oops。</p>
+
+<p>第一步，在VMware中设置串口输出：</p>
+
+<pre><code>Settings -&gt; Hardware -&gt; Add... 添加一个新的串口设备，指定使用文件输出。
+</code></pre>
+
+<p>第二步，在Linux中对串口进行重定向。修改 /etc/grub.conf 的kernel 行，在行尾加入如下参数：</p>
+
+<pre><code>console=ttyS0,115200 console=tty0
+</code></pre>
+
+<p>重启，然后测试一下产生一个Oops，看看串口文件，如下，已经有完整的Oops的信息了：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sd 0:0:0:0: [sda] Assuming drive cache: write through
+</span><span class='line'>sd 0:0:0:0: [sda] Assuming drive cache: write through
+</span><span class='line'>BUG: unable to handle kernel paging request at 00316b01
+</span><span class='line'>IP: [&lt;c05dd045>] netif_receive_skb+0x335/0x377
+</span><span class='line'>*pde = 00000000
+</span><span class='line'>Thread overran stack, or stack corrupted
+</span><span class='line'>Oops: 0000 [#1] SMP
+</span><span class='line'>last sysfs file: /sys/block/hda/size
+</span><span class='line'>Modules linked in: mymod ipv6 autofs4 nls_utf8 cifs lockd
+</span><span class='line'>sunrpc dm_multipath scsi_dh video output sbs sbshc battery
+</span><span class='line'>lp sg snd_ens1371 gameport ide_cd_mod snd_rawmidi cdrom snd_ac97_codec ac97_bus snd_seq_dummy snd_seq_oss
+</span><span class='line'>snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss
+</span><span class='line'>snd_mixer_oss parport_pc ac floppy serio_raw snd_pcm
+</span><span class='line'>button parport rtc_cmos rtc_core rtc_lib snd_timer snd
+</span><span class='line'>pcnet32 mii soundcore snd_page_alloc i2c_piix4 i2c_core
+</span><span class='line'>pcspkr dm_snapshot dm_zero dm_mirror dm_region_hash
+</span><span class='line'>dm_log dm_mod ata_piix libata mptspi mptscsih mptbase
+</span><span class='line'>scsi_transport_spi sd_mod scsi_mod ext3 jbd uhci_hcd
+</span><span class='line'>ohci_hcd ehci_hcd [last unloaded: mymod]
+</span><span class='line'>
+</span><span class='line'>Pid: 0, comm: swapper Not tainted (2.6.30.9 #1) VMware Virtual Platform
+</span><span class='line'>EIP: 0060:[&lt;c05dd045>] EFLAGS: 00010206 CPU: 0
+</span><span class='line'>EIP is at netif_receive_skb+0x335/0x377
+</span><span class='line'>EAX: 00316ae1 EBX: deb7d600 ECX: 00316ae1 EDX: e2f357c0
+</span><span class='line'>ESI: 00000008 EDI: de9a4800 EBP: c9403f40 ESP: c9403f10
+</span><span class='line'> DS: 007b ES: 007b FS: 00d8 GS: 0000 SS: 0068
+</span><span class='line'>Process swapper (pid: 0, ti=c9403000 task=c0737320 task.ti=c0779000)
+</span><span class='line'>Stack:
+</span><span class='line'> 00316ae1 c07777a0 e2f787c0 00000000 00000001 00000008 00000010 deb7d600
+</span><span class='line'> c9403f40 deb7d600 00000000 df5acc58 c9403fb0 e0e61db0 00000000 00000010
+</span><span class='line'> de9a4bb8 de9a4b40 de9a4800 00002000 00000001 00000000 1ea2c822 deb7d600
+</span><span class='line'>Call Trace:
+</span><span class='line'> [&lt;e0e61db0>] ? pcnet32_poll+0x347/0x66a [pcnet32]
+</span><span class='line'> [&lt;c041f984>] ? run_rebalance_domains+0x13d/0x3ed
+</span><span class='line'> [&lt;c05df364>] ? net_rx_action+0x6a/0xf4
+</span><span class='line'> [&lt;c0429e2a>] ? __do_softirq+0x94/0x138
+</span><span class='line'> [&lt;c0429d96>] ? __do_softirq+0x0/0x138
+</span><span class='line'> &lt;IRQ> &lt;0> [&lt;c0429d94>] ? irq_exit+0x29/0x2b
+</span><span class='line'> [&lt;c040423b>] ? do_IRQ+0x6d/0x83
+</span><span class='line'> [&lt;c0402e89>] ? common_interrupt+0x29/0x30
+</span><span class='line'> [&lt;c040828a>] ? default_idle+0x5b/0x92
+</span><span class='line'> [&lt;c0401a92>] ? cpu_idle+0x3a/0x4e
+</span><span class='line'> [&lt;c063d84b>] ? rest_init+0x53/0x55
+</span><span class='line'> [&lt;c077f7df>] ? start_kernel+0x293/0x298
+</span><span class='line'> [&lt;c077f06a>] ? i386_start_kernel+0x6a/0x6f
+</span><span class='line'>Code: 74 14 f0 ff 83 a8 00 00 00 8b 4d d8 89 d8 8b 53 14 57 ff
+</span><span class='line'>51 08 58 8b 45 d0 89 45 d8 8b 55 d0 8b 42 20 83 e8 20 89 45 d0
+</span><span class='line'>8b 4d d0 &lt;8b> 41 20 0f 18 00 90 89 c8 83 c0 20 3b 45 d4 75 a4
+</span><span class='line'>83 7d d8 00
+</span><span class='line'>EIP: [&lt;c05dd045>] netif_receive_skb+0x335/0x377 SS:ESP 0068:c9403f10
+</span><span class='line'>CR2: 0000000000316b01
+</span><span class='line'>---[ end trace 0330855ac41edfb5 ]---
+</span><span class='line'>Kernel panic - not syncing: Fatal exception in interrupt
+</span><span class='line'>Pid: 0, comm: swapper Tainted: G      D    2.6.30.9 #1
+</span><span class='line'>Call Trace:
+</span><span class='line'> [&lt;c0425ff3>] panic+0x3f/0xdf
+</span><span class='line'> [&lt;c0405644>] oops_end+0x8c/0x9b
+</span><span class='line'> [&lt;c041673a>] no_context+0x10c/0x116
+</span><span class='line'> [&lt;c04168c7>] __bad_area_nosemaphore+0xe0/0xe8
+</span><span class='line'> [&lt;c0416933>] bad_area_nosemaphore+0xd/0x10
+</span><span class='line'> [&lt;c0416aa7>] do_page_fault+0xde/0x1e3
+</span><span class='line'> [&lt;c04169c9>] ? do_page_fault+0x0/0x1e3
+</span><span class='line'> [&lt;c064f38d>] error_code+0x6d/0x74
+</span><span class='line'> [&lt;c061007b>] ? tcp_v4_rcv+0x55b/0x600
+</span><span class='line'> [&lt;c04169c9>] ? do_page_fault+0x0/0x1e3
+</span><span class='line'> [&lt;c05dd045>] ? netif_receive_skb+0x335/0x377
+</span><span class='line'> [&lt;e0e61db0>] pcnet32_poll+0x347/0x66a [pcnet32]
+</span><span class='line'> [&lt;c041f984>] ? run_rebalance_domains+0x13d/0x3ed
+</span><span class='line'> [&lt;c05df364>] net_rx_action+0x6a/0xf4
+</span><span class='line'> [&lt;c0429e2a>] __do_softirq+0x94/0x138
+</span><span class='line'> [&lt;c0429d96>] ? __do_softirq+0x0/0x138
+</span><span class='line'> &lt;IRQ>  [&lt;c0429d94>] ? irq_exit+0x29/0x2b
+</span><span class='line'> [&lt;c040423b>] ? do_IRQ+0x6d/0x83
+</span><span class='line'> [&lt;c0402e89>] ? common_interrupt+0x29/0x30
+</span><span class='line'> [&lt;c040828a>] ? default_idle+0x5b/0x92
+</span><span class='line'> [&lt;c0401a92>] ? cpu_idle+0x3a/0x4e
+</span><span class='line'> [&lt;c063d84b>] ? rest_init+0x53/0x55
+</span><span class='line'> [&lt;c077f7df>] ? start_kernel+0x293/0x298
+</span><span class='line'> [&lt;c077f06a>] ? i386_start_kernel+0x6a/0x6f</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ming</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-08-15T20:19:00+08:00" pubdate data-updated="true">Aug 15<span>th</span>, 2007</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/debug/'>debug</a>, <a class='category' href='/blog/categories/kernel/'>kernel</a>, <a class='category' href='/blog/categories/linux/'>linux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+  <span>
+  <iframe 
+    width="86" 
+    scrolling="no" 
+    height="16" 
+    frameborder="0" 
+    src=
+      "http://hits.sinajs.cn/A1/weiboshare.html?url=http://blog.chenming.info/blog/2007/08/15/use-vmware-debug-linux-oops/&amp;type=6&amp;ralateUid=2036163762&amp;language=zh_cn" allowtransparency="true">
+  </iframe>
+  </span>
+  
+</div>
+
+<hr style="border-bottom:1px dotted #bdbabd;height:1px;border-top:0px;border-left:0px;border-right:0px;" />
+
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2007/05/15/rbtree/" title="Previous Post: 红黑树的C++实现">&laquo; 红黑树的C++实现</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2007/09/14/compile-centos-5-kernel/" title="Next Post: 编译CentOS 5的内核">编译CentOS 5的内核 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/13/install-wp7-sdk-on-xp/">在XP下安装WP7的SDK</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/02/how-to-use-wp7-as-usb-drive/">How to use WP7 as USB drive</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/28/jquery-revert-selection/">jQuery reverse selection</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/24/jquery-tree-filter/">实现jQuery的treeview的filter</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/22/linux-reset-terminal/">在Linux下清屏是clear还是reset</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/20/cookie-expries-issue-on-django-auth/">服务器时间不正确导致django的认证失败</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2009/12/04/how-to-use-nettl-on-hpux/">在HP-UX上使用nettl抓包</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>新浪微博</h1>
+  <ul id="weibo">
+    <li>
+      <iframe 
+        width="100%" 
+        height="550" 
+        class="share_self" 
+        frameborder="0" 
+        scrolling="no" 
+        src="http://widget.weibo.com/weiboshow/index.php?width=0&height=550&ptype=1&speed=0&skin=&isTitle=0&noborder=1&isWeibo=1&isFans=&uid=2036163762&verifier=bce5fd03">
+      </iframe>
+    </li>
+  </ul>
+</section>
+
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Ming -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'chenming';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.chenming.info/blog/2007/08/15/use-vmware-debug-linux-oops/';
+        var disqus_url = 'http://blog.chenming.info/blog/2007/08/15/use-vmware-debug-linux-oops/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

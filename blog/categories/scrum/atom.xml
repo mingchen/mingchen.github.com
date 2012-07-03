@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: scrum | Ming's Blog]]></title>
+  <link href="http://blog.chenming.info/blog/categories/scrum/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-03T10:35:03+08:00</updated>
+  <id>http://blog.chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[The 2nd Chengdu Scrum Assemble]]></title>
+    <link href="http://blog.chenming.info/blog/2009/10/24/the-2nd-chengdu-scrum-assemble/"/>
+    <updated>2009-10-24T09:50:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2009/10/24/the-2nd-chengdu-scrum-assemble</id>
+    <content type="html"><![CDATA[<p>今天参加了第二次的成都Scrum聚会，听到了一些新的Agile工具，在此列出以作备忘：</p>
+
+<ul>
+<li>Hudson，持续集成的工具。CruiseControl并不是唯一的选择。</li>
+<li>NetBean，Eclipse的竞争者。</li>
+<li>Mercurial，一个分布式的版本控制工具</li>
+<li>xUnit</li>
+<li>Sonar</li>
+<li>Review Board</li>
+<li>Maven</li>
+<li>...</li>
+</ul>
+
+
+<p>大家有很多共识，软件开发中最关键的还是人。我认为软件开发需要做到的是 选择正确的人做正确的事。</p>
+
+<p><blockquote><p>It all about people。</p></blockquote></p>
+
+<p>关于<code>Self organization</code>，是有一个boundary的，
+还记得ScrumMaster培训的时候那个小游戏在地上画的线吗？</p>
+
+<p>在会上的抽奖节目中还有幸抽到了一本Scrum的书（虽然我看过它的英文版），也对组织者表示一下感谢。</p>
+
+<p>我们的讨论组：<a href="http://groups.google.com/group/scrumcd">http://groups.google.com/group/scrumcd</a></p>
+
+<p><a href="http://groups.google.com/group/scrumcd/browse_thread/thread/9f61abd1b9137125?hl=en">Presentation material from Agile Tour 2009 Chengdu</a></p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,470 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>sys_call_table符号链接失败及如何替换系统调用 - Ming's Blog</title>
+  <meta name="author" content="Ming">
+
+  
+  <meta name="description" content="2.4的内核中可以通过修改sys_call_table来很轻松的替换系统调用，
+来完成很多trick，很多的rootkit就是基于这种手法来完成的。
+到了2.6的内核，事情就不是这么回事了，sys_call_table不再被export出来了。 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Ming's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33056683-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ming's Blog</a></h1>
+  
+    <h2>trivial notes</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.chenming.info" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/categories">Categories</a></li>
+  <li><a href="/blog/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Sys_call_table符号链接失败及如何替换系统调用</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-11-24T22:15:00+08:00" pubdate data-updated="true">Nov 24<span>th</span>, 2008</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>2.4的内核中可以通过修改<code>sys_call_table</code>来很轻松的替换系统调用，
+来完成很多trick，很多的<code>rootkit</code>就是基于这种手法来完成的。
+到了2.6的内核，事情就不是这么回事了，<code>sys_call_table</code>不再被export出来了。
+这样的话就不能简单通过修改<code>sys_call_table</code>来替换系统调用了。如果再继续使用<code>sys_call_table</code>的话，将会得到类似如下的警告：</p>
+
+<pre><code>WARNING: "sys_call_table" [/mnt/linux/km/lpp/src/lpp.ko] undefined!
+</code></pre>
+
+<p>当然，加载模块也会失败的:</p>
+
+<pre><code># insmod lpp.ko
+insmod: error inserting 'lpp.ko': -1 Unknown symbol in module
+# dmesg
+lpp: Unknown symbol sys_call_table
+</code></pre>
+
+<p>当然，虽然没有export出来，但我们还是有办法获取到<code>sys_call_table</code>的，
+在C语言中，<code>sys_call_table</code>也就是一个地址而已，我们的问题就是如何获取这个地址。</p>
+
+<p>有如下2种方法。</p>
+
+<p>方法1：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="nf">find_sys_call_table</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="n">sctable</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ptr</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">extern</span> <span class="kt">int</span> <span class="n">loops_per_jiffy</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">sctable</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="n">ptr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="o">&amp;</span><span class="n">loops_per_jiffy</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">ptr</span> <span class="o">&lt;</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="o">&amp;</span><span class="n">boot_cpu_data</span><span class="p">;</span> <span class="n">ptr</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)){</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="p">)</span><span class="n">ptr</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="n">__NR_close</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span> <span class="n">sys_close</span><span class="p">){</span>
+</span><span class='line'>            <span class="n">sctable</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">&amp;</span><span class="n">sctable</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="n">sys_call_table</span> <span class="o">=</span> <span class="n">find_sys_call_table</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>一个完整的示例：
+<a href="http://www.gnome.org/~lcolitti/gnome-startup/linux-iolog/readlog.c">http://www.gnome.org/~lcolitti/gnome-startup/linux-iolog/readlog.c</a></p>
+
+<p>注意，在最新的内核2.6.30的内核它不能编译，需要对第52行进行修改：</p>
+
+<pre><code>52c52
+&lt;         f = current-&gt;files-&gt;fd[fd];
+---
+&gt;         f = current-&gt;files-&gt;fd_array[fd];
+</code></pre>
+
+<p>方法2：去<code>System.map</code>中找。</p>
+
+<pre><code>grep sys_call_table /boot/System.map
+</code></pre>
+
+<p>方法3：当然你也可以直接修改内核代码，然后再重新编译内核。</p>
+
+<p>2.6的内核之所以不把<code>sys_call_table</code>给export出来，不仅仅是因为安全的原因，
+另外一个原因是我们真正的需要在内核去替换系统调用吗?</p>
+
+<p>在用户空间，我们照样也能完成系统调用的替换，为什么不在用户空间去做呢？
+使用Linux的<code>LD_PRELOAD</code>特性，Linux的man page对<code>LD_PRELOAD</code>的解释：</p>
+
+<blockquote><p>LD_PRELOAD<br/>      A whitespace-separated list of additional, user-specified, ELF<br/>      shared libraries to be loaded before all others. This can be<br/>      used to selectively  override  functions in other shared<br/>      libraries. For setuid/setgid  ELF binaries, only libraries in<br/>      the standard search directories that are also setgid will be<br/>      loaded.</p></blockquote>
+
+
+<p>借助LD_PRELOAD我们可以在用户空间轻松完成所有系统调用的替换。
+比如我们写一个动态库，源代码如下：</p>
+
+<figure class='code'><figcaption><span>演示如何截获系统调用 </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#define __USE_GNU</span>
+</span><span class='line'><span class="cp">#include &lt;dlfcn.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">ssize_t</span> <span class="p">(</span><span class="o">*</span><span class="n">readfn</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span><span class="p">,</span> <span class="kt">size_t</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="n">init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">__attribute__</span><span class="p">((</span><span class="n">constructor</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="nf">init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Preloaded</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">readfn</span> <span class="o">=</span> <span class="n">dlsym</span><span class="p">(</span><span class="n">RTLD_NEXT</span><span class="p">,</span> <span class="s">&quot;read&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">ssize_t</span> <span class="nf">read</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">nbytes</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;My read</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">readfn</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>编译：</p>
+
+<pre><code>gcc -shared -g -o libcm.so -ldl
+</code></pre>
+
+<p>然后再这样使用<code>LD_PRELOAD</code>：</p>
+
+<pre><code>LD_PRELOAD=./libcm.so ./a.out
+</code></pre>
+
+<p>这样a.out里面所有的read调用都会进入到我们read函数中去了。</p>
+
+<p>参考：</p>
+
+<ul>
+<li><a href="http://kerneltrap.org/node/5802">http://kerneltrap.org/node/5802</a></li>
+<li><a href="http://kerneltrap.org/node/5793">http://kerneltrap.org/node/5793</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Dynamic_linker">http://en.wikipedia.org/wiki/Dynamic_linker</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ming</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-11-24T22:15:00+08:00" pubdate data-updated="true">Nov 24<span>th</span>, 2008</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/kernel/'>kernel</a>, <a class='category' href='/blog/categories/linux/'>linux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+  <span>
+  <iframe 
+    width="86" 
+    scrolling="no" 
+    height="16" 
+    frameborder="0" 
+    src=
+      "http://hits.sinajs.cn/A1/weiboshare.html?url=http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall/&amp;type=6&amp;ralateUid=2036163762&amp;language=zh_cn" allowtransparency="true">
+  </iframe>
+  </span>
+  
+</div>
+
+<hr style="border-bottom:1px dotted #bdbabd;height:1px;border-top:0px;border-left:0px;border-right:0px;" />
+
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2008/04/16/handle-exception-in-gdb/" title="Previous Post: 使用gdb调试异常">&laquo; 使用gdb调试异常</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2009/03/06/drbd/" title="Next Post: DRBD实践">DRBD实践 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/13/install-wp7-sdk-on-xp/">在XP下安装WP7的SDK</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/02/how-to-use-wp7-as-usb-drive/">How to use WP7 as USB drive</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/28/jquery-revert-selection/">jQuery reverse selection</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/24/jquery-tree-filter/">实现jQuery的treeview的filter</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/22/linux-reset-terminal/">在Linux下清屏是clear还是reset</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/20/cookie-expries-issue-on-django-auth/">服务器时间不正确导致django的认证失败</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2009/12/04/how-to-use-nettl-on-hpux/">在HP-UX上使用nettl抓包</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>新浪微博</h1>
+  <ul id="weibo">
+    <li>
+      <iframe 
+        width="100%" 
+        height="550" 
+        class="share_self" 
+        frameborder="0" 
+        scrolling="no" 
+        src="http://widget.weibo.com/weiboshow/index.php?width=0&height=550&ptype=1&speed=0&skin=&isTitle=0&noborder=1&isWeibo=1&isFans=&uid=2036163762&verifier=bce5fd03">
+      </iframe>
+    </li>
+  </ul>
+</section>
+
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Ming -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'chenming';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall/';
+        var disqus_url = 'http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

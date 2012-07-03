@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: windbg | Ming's Blog]]></title>
+  <link href="http://blog.chenming.info/blog/categories/windbg/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-03T10:35:03+08:00</updated>
+  <id>http://blog.chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[使用windbg来调试程序]]></title>
+    <link href="http://blog.chenming.info/blog/2007/04/24/using_windbg/"/>
+    <updated>2007-04-24T21:39:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2007/04/24/using_windbg</id>
+    <content type="html"><![CDATA[<p><code>windbg</code>是Windows上的调试工具。据说功能比较强大，我用它是因为它能支持JIT和
+利用程序的<code>mini dump</code>来进行Postmortem调试。
+发现其确实是一个不错的工具。</p>
+
+<h2>windbg命令</h2>
+
+<h3>断点相关命令</h3>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>断点相关命令 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>bl&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>列出当前的所有断点
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>bc id&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>Clear断点
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>be id&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>Enable断点
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>bd id&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>Disable断点
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>bp address&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>设置断点。比如在main()入口处设置断点：
+</span><span class='line'>bp main
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h3>运行相关命令</h3>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>运行相关命令 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>g&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>运行程序
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>lm&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>列出进程使用到的模块
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>q&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>退出windbg
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>p&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>单步到下一行（step）
+</span><span class='line'>The p command executes a single instruction or source line, and
+</span><span class='line'>optionally displays the resulting values of all registers and flags.
+</span><span class='line'>When subroutine calls or interrupts occur, they are treated as a single step.
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>pc&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>单步到下一条指令(step to next call)
+</span><span class='line'>The pc command executes the program until a call instruction is reached.
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>t&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>trace
+</span><span class='line'>The t command executes a single instruction or source line,
+</span><span class='line'>and optionally displays the resulting values of all registers and flags.
+</span><span class='line'>When subroutine calls or interrupts occur,
+</span><span class='line'>each of their steps is traced as well.
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>tb&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>Trace to Next Branch
+</span><span class='line'>The tb command executes the program until a branch instruction is reached.
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>dv&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>打印函数的局部变量，类似gdb的info locals。
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>? express&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>对express进行求值
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h3>堆栈相关命令</h3>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>堆栈相关命令 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>kb&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>显示当前线程的堆栈
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>kp&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>显示当前线程的堆栈，加上参数信息
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>kP&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>同kp，只是把函数打印在第二行而已
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>kn&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>要打印是第几帧
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>对具体的一帧，看看各个命令的输出就知道它们的区别了：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>kb:
+</span><span class='line'>0012ff0c 0040128c 00000000 0012ff28 00401260 x!strlen+0x30&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;p>kp:
+</span><span class='line'>0012ff0c 0040128c x!strlen(unsigned char * buf = 0x00000000 "")+0x30&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;p>kP:
+</span><span class='line'>0012ff0c 0040128c x!strlen(
+</span><span class='line'>unsigned char * buf = 0x00000000 "")+0x30&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;p>kn:
+</span><span class='line'>00 0012feac 0040137c x!strlen+0x30</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h3>线程相关命令</h3>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>线程相关命令 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>~&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>列出当前的所有线程信息
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>~ * cmd&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>对每个线程执行cmd命令。类似gdb下的thread apply all cmd。
+</span><span class='line'>示例：显示所有线程的堆栈
+</span><span class='line'>~ * kb
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>~ N s&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>切换到线程N。这里N是windbg的线程编号，而非真实的线程号。
+</span><span class='line'>示例：切换到第2个线程
+</span><span class='line'>~ 2 s
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h3>其它命令</h3>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>其它命令 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>.hh&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>打开windbg的帮助文件。
+</span><span class='line'>如要获取命令x的帮助信息：
+</span><span class='line'>.hh x
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>.cls&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>清除当前屏幕
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>.shell cmd&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>执行外部命令cmd
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>.dump&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>创建dump文件。如果加参数/m表示创建mini dump，如：
+</span><span class='line'>.dump /m x.dump
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>.sympath&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>设置.pdb文件的路径，路径之间使用分号分隔
+</span><span class='line'>.sympath C:\users\sandbox;
+</span><span class='line'>
+</span><span class='line'>加入Windows的调试信息
+</span><span class='line'>.sympath  SRV*c:\Temp*http://msdl.microsoft.com/download/symbols
+</span><span class='line'>这个也可以通过环境变量_NT_SYMBOL_PATH来进行控制
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>!handle&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>获取当前进程的句柄信息
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>!gle&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>获取当前线程上执行GetLastError()的结果
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>!error&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>获取错误码的描述信息
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h2>JIT(Just In Time)调试</h2>
+
+<p>执行如下命令把windbg注册为默认的调试器：</p>
+
+<pre><code>windbg -I
+</code></pre>
+
+<p>它会修改如下的注册表项：</p>
+
+<pre><code>HKLM\Software\Microsoft\Windows NT\CurrentVersion\AeDebug
+</code></pre>
+
+<p>设置之后windbg就成为默认的调试器了，当程序挂了之后他就会跳出来。
+如果你不想要它自动调用windbg，可以把注册表项下面的Auto这个值改为0，
+这样就会先弹出一个对话框问你是否调试了。</p>
+
+<h2>分析mini-dump文件</h2>
+
+<p>可以使用windbg来分析mini-dump文件,使用-z参数即可。
+比如要调试一个x.dmp的mini-dump文件，可以使用如下的命令:</p>
+
+<pre><code>windbg -z x.dmp -c "!analyze -v; q" -o logo x.txt
+</code></pre>
+
+<h2>windbg的命令行选项</h2>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>windbg的命令行选项 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>-logo file 把调试过程的输出写入指定文件
+</span><span class='line'>-p pid attach到一个进程上进行调试
+</span><span class='line'>-y sympath 指定.pdb的路径信息,路径之间使用分号分隔
+</span><span class='line'>-c "cmd" 在启动windbg后立即运行cmd命令
+</span><span class='line'>-z dumpfile 指定要调试的dump文件</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h2>更多信息</h2>
+
+<ul>
+<li><a href="http://www.microsoft.com/whdc/devtools/debugging/installx86.mspx">下载windbg</a></li>
+<li><a href="http://www.microsoft.com/whdc/driver/kernel/KB-drv.mspx">KB articles</a></li>
+<li><a href="http://msdn2.microsoft.com/en-us/library/bb204861.aspx">Crash Dump Analysis</a></li>
+<li><a href="http://www.debuginfo.com/articles/effminidumps.html">Effective minidumps</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

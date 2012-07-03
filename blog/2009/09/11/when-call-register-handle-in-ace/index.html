@@ -1,0 +1,326 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>ACE中register_handler()的调用时机 - Ming's Blog</title>
+  <meta name="author" content="Ming">
+
+  
+  <meta name="description" content="这个问题源自ACE邮件列表中使用Reactor来进行串口通信的问题，
+最后的根因时因为调用register_handler()的时机不对，
+还没有调用connect()，就调用了register_handler()，
+这个时候要注册的句柄因为没有建立连接，值还是-1，注册会失败， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.chenming.info/blog/2009/09/11/when-call-register-handle-in-ace/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Ming's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33056683-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ming's Blog</a></h1>
+  
+    <h2>trivial notes</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.chenming.info" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/categories">Categories</a></li>
+  <li><a href="/blog/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">ACE中register_handler()的调用时机</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-11T09:36:00+08:00" pubdate data-updated="true">Sep 11<span>th</span>, 2009</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>这个问题源自ACE邮件列表中使用Reactor来进行串口通信的问题，
+最后的根因时因为调用<code>register_handler()</code>的时机不对，
+还没有调用<code>connect()</code>，就调用了<code>register_handler()</code>，
+这个时候要注册的句柄因为没有建立连接，值还是-1，注册会失败，导致后续不能获得串口上的数据是理所当然的了。</p>
+
+<p>总结一下Reactor中<code>register_handler()</code>/<code>remove_handler()</code>的调用顺序就是：</p>
+
+<pre><code>connect()/accept()   -&gt;  register_handler()
+remove_handler() -&gt; close()
+</code></pre>
+
+<p>附讨论的原始信息：</p>
+
+<blockquote><p>Great news :)  Also, don&#8217;t forget to do the reverse when cleaning up:  Call remove_handler() *before* closing the port or you&#8217;ll see a fault on shutdown.  Basically, the sequence is &#8220;connect port -> register_handler() -> (do serial stuff) -> remove_handler() -> close port&#8221;.  Finally, don&#8217;t try this on Win32 platforms :)</p><p>- Bob</p><p><br/> &#8212;&#8212;<br/>Hi Bob,</p><p>that´s the error. When I&#8217;d started I had in the right order, but cause it wasn´t running (due to some further errors) I tried some things and totally forgot to change it back. Thank you so much^^.</p><p>Greetings,<br/>Daniel</p><p>@Andreas: I didn´t need to try your version.^^ But thx anyway&#8230;</p><p>&#8212;&#8212;&#8211; Original-Nachricht &#8212;&#8212;&#8211;<br/>> Datum: Fri, 6 Nov 2009 08:19:09 -0500<br/>> Von: robert.ciora@us.transport.bombardier.com<br/>> An: &#8220;Daniel Kempcke&#8221; <Daniel.Kempcke@gmx.net><br/>> CC: ace-users@list.isis.vanderbilt.edu, ace-users-bounces@list.isis.vanderbilt.edu<br/>> Betreff: Re: [ace-users] Problem reactor used with serial interface</p><p>> Daniel,<br/>><br/>> Another quick one:  You&#8217;re calling &#8220;reactor()->register_handler(&#8230;)&#8221;<br/>> before calling &#8220;connector->connect(&#8230;)&#8221;.  The register_handler() will use<br/>> your get_handle() to determine which handle to register.  Since you<br/>> haven&#8217;t connected the port yet, your get_handle() (which calls<br/>> peer_.get_handle()) is returning ACE_INVALID_HANDLE.  It&#8217;s in the<br/>> connect() call where the peer&#8217;s handle gets set to something valid.<br/>><br/>> Try calling register_handler() *after* calling connect().<br/>><br/>> - Bob<br/>><br/>><br/>><br/>> Please consider the environment before you print / Antes de imprimir,<br/>> piense en el medio ambiente<br/>><br/>> &#8220;Daniel Kempcke&#8221; <Daniel.Kempcke@gmx.net><br/>> Sent by: ace-users-bounces@list.isis.vanderbilt.edu<br/>> 11/06/2009 04:06 AM<br/>><br/>> To<br/>> ace-users@list.isis.vanderbilt.edu<br/>> cc<br/>><br/>> Subject<br/>> Re: [ace-users] Problem reactor used with serial interface<br/>><br/>><br/>> Hi Bob,<br/>><br/>> I tried it with -1 (and also with some other values). But the behaviour<br/>> didn&#8217;t change.<br/>> But anyway - thx for your response&#8230;<br/>><br/>> Daniel<br/>><br/>> &#8212;&#8212;&#8211; Original-Nachricht &#8212;&#8212;&#8211;<br/>> > Datum: Thu, 5 Nov 2009 10:41:30 -0500<br/>> > Von: robert.ciora@us.transport.bombardier.com<br/>> > An: &#8220;Daniel Kempcke&#8221; <Daniel.Kempcke@gmx.net><br/>> > CC: ace-users@list.isis.vanderbilt.edu,<br/>> ace-users-bounces@list.isis.vanderbilt.edu<br/>> > Betreff: Re: [ace-users] Problem reactor used with serial interface<br/>><br/>> > Daniel,<br/>> ><br/>> > As a quick guess: try setting your serial parameters&#8217; &#8220;readtimeoutmsec&#8221;<br/>> > field to -1.  This *should* cause the reactor (select() call) to<br/>> correctly<br/>> > block on the handle.<br/>> ><br/>> > - Bob<br/>> ><br/>> ><br/>> > Please consider the environment before you print / Antes de imprimir,<br/>> > piense en el medio ambiente<br/>> ><br/>> ><br/>> > &#8220;Daniel Kempcke&#8221; <Daniel.Kempcke@gmx.net><br/>> > Sent by: ace-users-bounces@list.isis.vanderbilt.edu<br/>> > 11/05/2009 10:21 AM<br/>> ><br/>> > To<br/>> > ace-users@list.isis.vanderbilt.edu<br/>> > cc<br/>> ><br/>> > Subject<br/>> > [ace-users] Problem reactor used with serial interface<br/>> ><br/>> > To: ace-bugs@cs.wustl.edu<br/>> > Subject: [area]: [synopsis]<br/>> ><br/>> >     ACE VERSION: 5.6.3<br/>> ><br/>> >     HOST MACHINE and OPERATING SYSTEM:<br/>> >     - Linux - Ubuntu 9.04 - Kernel 2.6.28<br/>> ><br/>> ><br/>> ><br/>> >     TARGET MACHINE and OPERATING SYSTEM, if different from HOST:<br/>> >     -<br/>> >     COMPILER NAME AND VERSION (AND PATCHLEVEL):<br/>> >     - g++ Version 4.3.3<br/>> ><br/>> ><br/>> >     BUILD METHOD USED:<br/>> > [Experimental ./configure or traditional makefile/project file?]<br/>> >     - makefile/project file<br/>> ><br/>> ><br/>> >     AREA/CLASS/EXAMPLE AFFECTED:<br/>> > [What example failed?  What module failed to compile?]<br/>> ><br/>> > Example for using the Reactor with a serial device and not with TCP/IP<br/>> as<br/>> > a data source. Compiling didn´t fail.<br/>> ><br/>> ><br/>> >     DOES THE PROBLEM AFFECT:<br/>> >         COMPILATION? -<br/>> >         LINKING? -<br/>> >             On Unix systems, did you run make realclean first?<br/>> >             - yes<br/>> >         EXECUTION?<br/>> >         - fails (no signal, caused by data input from the serial device,<br/>><br/>> > occurs)<br/>> ><br/>> ><br/>> >     DESCRIPTION:<br/>> ><br/>> >     The application uses the reactor. There is a serial device on which<br/>> > constantly data arrives. The applic just opens the serial connection and<br/>><br/>> > registers a handler to it. Then it starts the run_reactor_event_loop -<br/>> in<br/>> > this case without an exit conditions.<br/>> ><br/>> ><br/>> > The application uses the standard reactor methods:<br/>> ><br/>> > The &#8220;open()&#8221; method registers a handler, makes a connect to the serial<br/>> > device and sets the serial parameters.<br/>> > The &#8220;handle_input()&#8221; method doesn´t have to do anythng special. In this<br/>> > example it shall only dislay the received data.<br/>> > &#8220;Handle_close()&#8221; just removes the handler, closes the serial connection<br/>> > and deletes the object.<br/>> ><br/>> ><br/>> > Normally I would expect, that the reactor would get signals - cause of<br/>> the<br/>> > incoming data on the serial interface - from the OS, which causes calls<br/>> of<br/>> > the &#8220;handle_input()&#8221; method.<br/>> > But nothing happens - the &#8220;handle_input()&#8221; routine&#8217;s never been called,<br/>> > despite there´s always data arriving on the serial interface.<br/>> ><br/>> > I tried also other examples, which were available online. They are<br/>> similar<br/>> > structured and also never reach the &#8220;handle_input()&#8221;.<br/>> ><br/>> ><br/>> > here´s the code example:<br/>> ><br/>> ><br/>> > #include &#8220;ace/DEV_Connector.h&#8221;<br/>> > #include &#8220;ace/TTY_IO.h&#8221;<br/>> > #include &#8220;ace/Time_Value.h&#8221;<br/>> > #include &#8220;ace/Reactor.h&#8221;<br/>> ><br/>> > #include <iostream><br/>> ><br/>> > class Service : public ACE_Event_Handler{<br/>> > public:<br/>> >                  Service();<br/>> >                  virtual ~Service();<br/>> ><br/>> >                  int open(const char *, ACE_TTY_IO::Serial_Params&<br/>> > sSerialParams);<br/>> ><br/>> >                  virtual ACE_HANDLE get_handle(void) const<br/>> >                  {<br/>> >                                  return this->peer_.get_handle();<br/>> >                  }<br/>> ><br/>> >                  virtual int handle_input(ACE_HANDLE fd =<br/>> > ACE_INVALID_HANDLE);<br/>> ><br/>> >                  virtual int handle_close(ACE_HANDLE handle,<br/>> > ACE_Reactor_Mask close_mask);<br/>> ><br/>> > protected:<br/>> >                  ACE_DEV_Connector connector_;<br/>> >                  //ACE_Message_Queue<ACE_NULL_SYNC> output_queue;<br/>> ><br/>> > private:<br/>> >                  ACE_TTY_IO peer_;<br/>> > };<br/>> ><br/>> ><br/>> > int open(const char* name, ACE_TTY_IO::Serial_Params& sSerialParams) {<br/>> ><br/>> >                  int nResult = 0;<br/>> ><br/>> >                  ACE_Reactor::instance()->register_handler(this,<br/>> >  ACE_Event_Handler::READ_MASK);<br/>> > // Set our I/O handle to that of the peer_ object handling our<br/>> connection<br/>> > if (this->connector_.connect(peer_, ACE_DEV_Addr(name), 0,<br/>> >                                                  ACE_Addr::sap_any, 0,<br/>> > //reuse<br/>> >                                                  O_RDWR |<br/>> > FILE_FLAG_OVERLAPPED) != 0) {<br/>> >                                  ACE_ERROR((LM_ERROR, ACE_TEXT(&#8220;%p\n&#8221;),<br/>> >                  ACE_TEXT(&#8220;&#8212; SerialIOHandler connect\n&#8221;)));<br/>> >                                  nResult = -1;<br/>> >                  }<br/>> ><br/>> >                  if (peer_.control(ACE_TTY_IO::SETPARAMS,<br/>> &sSerialParams)<br/>> > != 0) {<br/>> >                                  ACE_ERROR((LM_ERROR, ACE_TEXT(&#8220;%p<br/>> > control\n&#8221;), name));<br/>> >                                  nResult = -1;<br/>> >                  }<br/>> ><br/>> ><br/>> >                  return nResult;<br/>> > }<br/>> ><br/>> > int handle_input(ACE_HANDLE) {<br/>> >                  char *readBack;<br/>> >                  peer_.recv((void *) &readBack, 1);<br/>> ><br/>> >                  cout << readBack << endl;<br/>> ><br/>> >                  return 0;<br/>> > }<br/>> ><br/>> > int handle_close(ACE_HANDLE handle, ACE_Reactor_Mask close_mask) {<br/>> ><br/>> >                  if (this->peer_.get_handle() != ACE_INVALID_HANDLE) {<br/>> >                                  ACE_Reactor_Mask m =<br/>> > ACE_Event_Handler::ACCEPT_MASK<br/>> >                                                                  |<br/>> > ACE_Event_Handler::DONT_CALL;<br/>> ><br/>> >                                  this->reactor()->remove_handler(this,<br/>> m);<br/>> >                                  this->peer_.close();<br/>> ><br/>> >                                  delete this;<br/>> >                                  return 0;<br/>> >                  }<br/>> >                  return 0;<br/>> > }<br/>> ><br/>> ><br/>> > int ACE_TMAIN(int, ACE_TCHAR *[]) {<br/>> ><br/>> >                  Service SerialIO0;<br/>> >                  Service SerialIO1;<br/>> ><br/>> >                  ACE_TTY_IO::Serial_Params sSerialParams;<br/>> >            sSerialPortParams.baudrate = 115200;<br/>> >                     sSerialPortParams.xonlim = 0;<br/>> >                     sSerialPortParams.xofflim = 0;<br/>> >                     sSerialPortParams.readmincharacters = 0;<br/>> >                     sSerialPortParams.readtimeoutmsec = 1000; // 1<br/>> second<br/>> >                     sSerialPortParams.paritymode = &#8220;none&#8221;;<br/>> >                     sSerialPortParams.ctsenb = false;<br/>> >                     sSerialPortParams.rtsenb = 0;<br/>> >                     sSerialPortParams.xinenb = false;<br/>> >                     sSerialPortParams.xoutenb = false;<br/>> >                     sSerialPortParams.modem = false;<br/>> >                     sSerialPortParams.rcvenb = true;<br/>> >                     sSerialPortParams.dsrenb = false;<br/>> >                     sSerialPortParams.dtrdisable = false;<br/>> >                     sSerialPortParams.databits = 8;<br/>> >                     sSerialPortParams.stopbits = 1;<br/>> ><br/>> ><br/>> >                  const char * serName0 = &#8220;/dev/ttyUSB0&#8221;;<br/>> >                  const char * serName1 = &#8220;/dev/ttyUSB1&#8221;;<br/>> ><br/>> ><br/>> >                  if (SerialIO0.open(serName0, sSerialParams) == -1)<br/>> >                  {<br/>> >                                  cout << "could not connect to: " <<<br/>> > serName0 << endl;<br/>> >                                  return 1;<br/>> >                  }<br/>> ><br/>> >                  if (SerialIO1.open(serName1, sSerialParams) == -1)<br/>> >                  {<br/>> >                                  cout << "could not connect to: " <<<br/>> > serName1 << endl;<br/>> >                                  return 1;<br/>> >                  }<br/>> ><br/>> >                  cout << "connected to: " << serName0 << " " << serName1<br/>><br/>> > << endl;<br/>> ><br/>> ><br/>> >                  ACE_Reactor::instance()->run_reactor_event_loop();<br/>> ><br/>> >                  return 0;<br/>> > }<br/>> ><br/>> > Would be great if somebody could give me a little help. Thanks a lot in<br/>> > advance.<br/>> > Best regards,<br/>> > Daniel<br/>> ></p></blockquote>
+
+
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ming</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-09-11T09:36:00+08:00" pubdate data-updated="true">Sep 11<span>th</span>, 2009</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ace/'>ace</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+  <span>
+  <iframe 
+    width="86" 
+    scrolling="no" 
+    height="16" 
+    frameborder="0" 
+    src=
+      "http://hits.sinajs.cn/A1/weiboshare.html?url=http://blog.chenming.info/blog/2009/09/11/when-call-register-handle-in-ace/&amp;type=6&amp;ralateUid=2036163762&amp;language=zh_cn" allowtransparency="true">
+  </iframe>
+  </span>
+  
+</div>
+
+<hr style="border-bottom:1px dotted #bdbabd;height:1px;border-top:0px;border-left:0px;border-right:0px;" />
+
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2009/05/05/how-to-setup-rhel-kdump/" title="Previous Post: How to setup RHEL kdump">&laquo; How to setup RHEL kdump</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2009/10/15/http-digest-auth-with-python/" title="Next Post: 使用Python实现HTTP的digest认证算法">使用Python实现HTTP的digest认证算法 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/13/install-wp7-sdk-on-xp/">在XP下安装WP7的SDK</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/02/how-to-use-wp7-as-usb-drive/">How to use WP7 as USB drive</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/28/jquery-revert-selection/">jQuery reverse selection</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/24/jquery-tree-filter/">实现jQuery的treeview的filter</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/22/linux-reset-terminal/">在Linux下清屏是clear还是reset</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/20/cookie-expries-issue-on-django-auth/">服务器时间不正确导致django的认证失败</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2009/12/04/how-to-use-nettl-on-hpux/">在HP-UX上使用nettl抓包</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>新浪微博</h1>
+  <ul id="weibo">
+    <li>
+      <iframe 
+        width="100%" 
+        height="550" 
+        class="share_self" 
+        frameborder="0" 
+        scrolling="no" 
+        src="http://widget.weibo.com/weiboshow/index.php?width=0&height=550&ptype=1&speed=0&skin=&isTitle=0&noborder=1&isWeibo=1&isFans=&uid=2036163762&verifier=bce5fd03">
+      </iframe>
+    </li>
+  </ul>
+</section>
+
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Ming -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'chenming';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.chenming.info/blog/2009/09/11/when-call-register-handle-in-ace/';
+        var disqus_url = 'http://blog.chenming.info/blog/2009/09/11/when-call-register-handle-in-ace/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

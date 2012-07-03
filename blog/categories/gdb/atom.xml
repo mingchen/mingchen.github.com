@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: gdb | Ming's Blog]]></title>
+  <link href="http://blog.chenming.info/blog/categories/gdb/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-03T10:35:03+08:00</updated>
+  <id>http://blog.chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[使用gdb调试异常]]></title>
+    <link href="http://blog.chenming.info/blog/2008/04/16/handle-exception-in-gdb/"/>
+    <updated>2008-04-16T22:05:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2008/04/16/handle-exception-in-gdb</id>
+    <content type="html"><![CDATA[<p>有时程序中有未捕获的异常会导致程序异常的行为甚至导致程序的直接退出。
+这对服务器程序来说是不可接受的。</p>
+
+<p>可以使用<code>gdb</code>的<code>catch</code>命令来帮助我们调试异常。</p>
+
+<p>使用<code>gdb</code>捕获异常的扔出点（相当于在扔出异常的地方添加断点）：</p>
+
+<pre><code>catch throw
+</code></pre>
+
+<p>使用gdb捕获线程退出（相当于在线程退出的时候添加断点）：</p>
+
+<pre><code>catch pthread_exit
+</code></pre>
+
+<p>这样，如果相应的事件发生，<code>gdb</code>就会中断程序的执行，
+就可以使用<code>gdb</code>的<code>bt</code>命令来检查出现错误的调用栈了。</p>
+
+<p>更多信息：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>(gdb) help catch
+</span><span class='line'>Set catchpoints to catch events.
+</span><span class='line'>Raised signals may be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch signal              - all signals
+</span><span class='line'>catch signal &lt;signame&gt;    - a particular signal
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Raised exceptions may be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch throw               - all exceptions, when thrown
+</span><span class='line'>catch throw &lt;exceptname&gt;  - a particular exception, when thrown
+</span><span class='line'>catch catch               - all exceptions, when caught
+</span><span class='line'>catch catch &lt;exceptname&gt;  - a particular exception, when caught
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Thread or process events may be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch thread_start        - any threads, just after creation
+</span><span class='line'>catch thread_exit         - any threads, just before expiration
+</span><span class='line'>catch thread_join         - any threads, just after joins
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Process events may be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch start               - any processes, just after creation
+</span><span class='line'>catch exit                - any processes, just before expiration
+</span><span class='line'>catch fork                - calls to fork()
+</span><span class='line'>catch vfork               - calls to vfork()
+</span><span class='line'>catch exec                - calls to exec()
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Dynamically-linked library events may be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch load                - loads of any library
+</span><span class='line'>catch load &lt;libname&gt;      - loads of a particular library
+</span><span class='line'>catch unload              - unloads of any library
+</span><span class='line'>catch unload &lt;libname&gt;    - unloads of a particular library
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>The act of your program's execution stopping may also be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch stop
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>C++ exceptions may be caught:&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>catch throw               - all exceptions, when thrown
+</span><span class='line'>catch catch               - all exceptions, when caught
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Do "help set follow-fork-mode" for info on debugging your program
+</span><span class='line'>after a fork or vfork is caught.&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;p>Do "help breakpoints" for info on other commands dealing with breakpoints.</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,565 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>ACE_Message_Queue的notify和Reactor结合使用时会导致死锁 - Ming's Blog</title>
+  <meta name="author" content="Ming">
+
+  
+  <meta name="description" content="现象 设置了Queue的通知策略之后，在putq之后会调用Reactor的notify方法，
+Reactor内部使用一个管道来传输通知事件，导致在写入通知事件时阻塞在该管道上，
+从而导致程序挂起。 这是一个很早就发现的bug，但是一直没有被修正。一方面是它不好修正， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.chenming.info/blog/2008/03/08/ace-message-queue-notify-deadlock-in-reactor/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Ming's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33056683-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ming's Blog</a></h1>
+  
+    <h2>trivial notes</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.chenming.info" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/categories">Categories</a></li>
+  <li><a href="/blog/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">ACE_Message_Queue的notify和Reactor结合使用时会导致死锁</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-03-08T22:00:00+08:00" pubdate data-updated="true">Mar 8<span>th</span>, 2008</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>现象</h2>
+
+<p>设置了Queue的通知策略之后，在<code>putq</code>之后会调用Reactor的<code>notify</code>方法，
+Reactor内部使用一个管道来传输通知事件，导致在写入通知事件时阻塞在该管道上，
+从而导致程序挂起。</p>
+
+<p>这是一个很早就发现的bug，但是一直没有被修正。一方面是它不好修正，
+从邮件列表里得到的信息是ACE的维护者缺乏资金解决这个问题。</p>
+
+<h2>一个示例的调用栈</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>(gdb) thr app all bt
+</span><span class='line'>
+</span><span class='line'>Thread 4 (Thread 0xb7ad3b90 (LWP 31160)):   # ---- Scheduler thread.
+</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()
+</span><span class='line'>#1  0xb7f790e5 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#2  0x08070c59 in ACE_OS::cond_wait (cv=0x91a7cbc, external_mutex=0x91a7ca0)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/OS_NS_Thread.inl:329
+</span><span class='line'>#3  0x08070c9f in ACE_Condition&lt;ACE_Thread_Mutex>::wait (this=0x91a7cbc)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Condition_T.cpp:90
+</span><span class='line'>#4  0x0807020a in cm::Scheduler::choose_processor (this=0x91a7c54)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/Scheduler.cpp:94
+</span><span class='line'>#5  0x080705ad in cm::Scheduler::svc (this=0x91a7c54)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/Scheduler.cpp:80
+</span><span class='line'>#6  0xb7daae52 in ACE_Task_Base::svc_run (args=0x91a7c54) at Task.cpp:275
+</span><span class='line'>#7  0xb7dac2ed in ACE_Thread_Adapter::invoke_i (this=0x91a7fa0) at Thread_Adapter.cpp:149
+</span><span class='line'>#8  0xb7dac366 in ACE_Thread_Adapter::invoke (this=0x91a7fa0) at Thread_Adapter.cpp:98
+</span><span class='line'>#9  0xb7d33271 in ace_thread_adapter (args=0x91a7fa0) at Base_Thread_Adapter.cpp:124
+</span><span class='line'>#10 0xb7f754ff in start_thread () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#11 0xb7ef049e in clone () from /lib/tls/i686/cmov/libc.so.6
+</span><span class='line'>
+</span><span class='line'>Thread 3 (Thread 0xb72d2b90 (LWP 31161)):   # ---- Processor thread.
+</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()
+</span><span class='line'>#1  0xb7f7c07b in write () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#2  0xb7d212ea in ACE::send (handle=6, buf=0xb72cff34, n=8, timeout=0x8)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/OS_NS_unistd.inl:1200
+</span><span class='line'>#3  0xb7d4da29 in ACE_Dev_Poll_Reactor_Notify::notify (this=0x91a3c10, eh=0x92095b0, mask=2,
+</span><span class='line'>    timeout=0x0) at Dev_Poll_Reactor.cpp:165
+</span><span class='line'>#4  0xb7d4bcbc in ACE_Dev_Poll_Reactor::notify (this=0x91a3980, eh=0x92095b0, mask=2,
+</span><span class='line'>    timeout=0x0) at Dev_Poll_Reactor.cpp:2028
+</span><span class='line'>#5  0xb7d9550e in ACE_Reactor::notify (this=0x91a38c0, event_handler=0x92095b0, mask=2, tv=0x0)
+</span><span class='line'>    at Reactor.cpp:481
+</span><span class='line'>#6  0xb7d95e76 in ACE_Reactor_Notification_Strategy::notify (this=0x9209638)
+</span><span class='line'>    at Reactor_Notification_Strategy.cpp:28
+</span><span class='line'>#7  0x08062d47 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::notify (this=0x9209660)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1998
+</span><span class='line'>#8  0x080650cc in ACE_Message_Queue&lt;ACE_MT_SYNCH>::enqueue_tail (this=0x9209660,
+</span><span class='line'>    new_item=0xb61bb3d8, timeout=0xb72d0064)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1888
+</span><span class='line'>#9  0x08076c2c in ACE_Task&lt;ACE_MT_SYNCH>::putq (this=0x92095b0, mb=0xb61bb3d8, tv=0xb72d0064)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Task_T.inl:36
+</span><span class='line'>#10 0x08075653 in cm::RequestHandler::async_send (this=0x92095b0, mb=0xb61bb3d8)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/RequestHandler.cpp:257
+</span><span class='line'>#11 0x080746ef in cm::HttpTransaction::send_static_file (this=0x9209d10, uri=@0xb72d2288)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:98
+</span><span class='line'>#12 0x08074c8b in cm::HttpTransaction::execute (this=0x9209d10)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:37
+</span><span class='line'>#13 0x080712a0 in cm::Processor::svc (this=0x91aa128)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/Processor.cpp:47
+</span><span class='line'>#14 0xb7daae52 in ACE_Task_Base::svc_run (args=0x91aa128) at Task.cpp:275
+</span><span class='line'>#15 0xb7dac2ed in ACE_Thread_Adapter::invoke_i (this=0x91aa330) at Thread_Adapter.cpp:149
+</span><span class='line'>#16 0xb7dac366 in ACE_Thread_Adapter::invoke (this=0x91aa330) at Thread_Adapter.cpp:98
+</span><span class='line'>#17 0xb7d33271 in ace_thread_adapter (args=0x91aa330) at Base_Thread_Adapter.cpp:124
+</span><span class='line'>#18 0xb7f754ff in start_thread () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#19 0xb7ef049e in clone () from /lib/tls/i686/cmov/libc.so.6
+</span><span class='line'>
+</span><span class='line'>Thread 2 (Thread 0xb6ad1b90 (LWP 31162)):   # ---- Processor thread
+</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()
+</span><span class='line'>#1  0xb7f7c07b in write () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#2  0xb7d212ea in ACE::send (handle=6, buf=0xb6acef34, n=8, timeout=0x8)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/OS_NS_unistd.inl:1200
+</span><span class='line'>#3  0xb7d4da29 in ACE_Dev_Poll_Reactor_Notify::notify (this=0x91a3c10, eh=0x9209448, mask=2,
+</span><span class='line'>    timeout=0x0) at Dev_Poll_Reactor.cpp:165
+</span><span class='line'>#4  0xb7d4bcbc in ACE_Dev_Poll_Reactor::notify (this=0x91a3980, eh=0x9209448, mask=2,
+</span><span class='line'>    timeout=0x0) at Dev_Poll_Reactor.cpp:2028
+</span><span class='line'>#5  0xb7d9550e in ACE_Reactor::notify (this=0x91a38c0, event_handler=0x9209448, mask=2, tv=0x0)
+</span><span class='line'>    at Reactor.cpp:481
+</span><span class='line'>#6  0xb7d95e76 in ACE_Reactor_Notification_Strategy::notify (this=0x92094d0)
+</span><span class='line'>    at Reactor_Notification_Strategy.cpp:28
+</span><span class='line'>#7  0x08062d47 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::notify (this=0x92094f8)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1998
+</span><span class='line'>#8  0x080650cc in ACE_Message_Queue&lt;ACE_MT_SYNCH>::enqueue_tail (this=0x92094f8,
+</span><span class='line'>    new_item=0x92f5c38, timeout=0xb6acf064)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1888
+</span><span class='line'>#9  0x08076c2c in ACE_Task&lt;ACE_MT_SYNCH>::putq (this=0x9209448, mb=0x92f5c38, tv=0xb6acf064)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Task_T.inl:36
+</span><span class='line'>#10 0x08075653 in cm::RequestHandler::async_send (this=0x9209448, mb=0x92f5c38)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/RequestHandler.cpp:257
+</span><span class='line'>#11 0x08074917 in cm::HttpTransaction::send_static_file (this=0x9209bc0, uri=@0xb6ad1288)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:110
+</span><span class='line'>#12 0x08074c8b in cm::HttpTransaction::execute (this=0x9209bc0)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:37
+</span><span class='line'>#13 0x080712a0 in cm::Processor::svc (this=0x91ac488)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/Processor.cpp:47
+</span><span class='line'>#14 0xb7daae52 in ACE_Task_Base::svc_run (args=0x91ac488) at Task.cpp:275
+</span><span class='line'>#15 0xb7dac2ed in ACE_Thread_Adapter::invoke_i (this=0x91ac690) at Thread_Adapter.cpp:149
+</span><span class='line'>#16 0xb7dac366 in ACE_Thread_Adapter::invoke (this=0x91ac690) at Thread_Adapter.cpp:98
+</span><span class='line'>#17 0xb7d33271 in ace_thread_adapter (args=0x91ac690) at Base_Thread_Adapter.cpp:124
+</span><span class='line'>#18 0xb7f754ff in start_thread () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#19 0xb7ef049e in clone () from /lib/tls/i686/cmov/libc.so.6
+</span><span class='line'>
+</span><span class='line'>Thread 1 (Thread 0xb7ad48e0 (LWP 31159)):  # ---- Reactor thread.
+</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()
+</span><span class='line'>#1  0xb7f790e5 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/tls/i686/cmov/libpthread.so.0
+</span><span class='line'>#2  0xb7d3c254 in ACE_Condition_Thread_Mutex::wait (this=0x91ae99c, mutex=@0x80, abstime=0x0)
+</span><span class='line'>---Type &lt;return> to continue, or q &lt;return> to quit---
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/OS_NS_Thread.inl:362
+</span><span class='line'>#3  0xb7d3c2bb in ACE_Condition_Thread_Mutex::wait (this=0x91ae99c, abstime=0x0)
+</span><span class='line'>    at Condition_Thread_Mutex.cpp:107
+</span><span class='line'>#4  0x08063c90 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::wait_not_full_cond (this=0x91ae920,
+</span><span class='line'>    timeout=0x0) at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1715
+</span><span class='line'>#5  0x08064e38 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::enqueue_head (this=0x91ae920,
+</span><span class='line'>    new_item=0xb6105610, timeout=0x0) at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1777
+</span><span class='line'>#6  0x0807236a in ACE_Task&lt;ACE_MT_SYNCH>::ungetq (this=0x91ae870, mb=0xb6105610, tv=0x0)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Task_T.inl:43
+</span><span class='line'>#7  0x08071d5d in cm::HttpRequestHandler::handle_output (this=0x91ae870)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpRequestHandler.cpp:86
+</span><span class='line'>#8  0xb7d4d982 in ACE_Dev_Poll_Reactor_Notify::dispatch_notify (this=0x91a3c10,
+</span><span class='line'>    buffer=@0xbfaf5c04) at Dev_Poll_Reactor.cpp:365
+</span><span class='line'>#9  0xb7d4c91b in ACE_Dev_Poll_Reactor_Notify::handle_input (this=0x91a3c10, handle=5)
+</span><span class='line'>    at Dev_Poll_Reactor.cpp:297
+</span><span class='line'>#10 0xb7d4f945 in ACE_Dev_Poll_Reactor::dispatch_io_event (this=0x91a3980, guard=@0xbfaf5d14)
+</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Dev_Poll_Reactor.inl:126
+</span><span class='line'>#11 0xb7d4fb4c in ACE_Dev_Poll_Reactor::dispatch (this=0x91a3980, guard=@0xbfaf5d14)
+</span><span class='line'>    at Dev_Poll_Reactor.cpp:1079
+</span><span class='line'>#12 0xb7d4fca6 in ACE_Dev_Poll_Reactor::handle_events_i (this=0x91a3980, max_wait_time=0x0,
+</span><span class='line'>    guard=@0xbfaf5d14) at Dev_Poll_Reactor.cpp:1056
+</span><span class='line'>#13 0xb7d4fd7c in ACE_Dev_Poll_Reactor::handle_events (this=0x91a3980, max_wait_time=0x0)
+</span><span class='line'>    at Dev_Poll_Reactor.cpp:1012
+</span><span class='line'>#14 0xb7d94fc3 in ACE_Reactor::run_reactor_event_loop (this=0x91a38c0, eh=0) at Reactor.cpp:224
+</span><span class='line'>#15 0x08062452 in main (argc=7, argv=0xbfaf5f04)
+</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/main.cpp:75
+</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>规避方法</h2>
+
+<p>把<code>ACE_Message_Queue</code>的<code>high water level</code>设置为一个很高的值，
+避免队列满触发该bug。</p>
+
+<h2>参考</h2>
+
+<p><a href="http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/3575b21beae71683?pli=1">http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/3575b21beae71683?pli=1</a>
+<a href="http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/38fb11cf258f3eec">http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/38fb11cf258f3eec</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ming</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-03-08T22:00:00+08:00" pubdate data-updated="true">Mar 8<span>th</span>, 2008</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ace/'>ace</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+  <span>
+  <iframe 
+    width="86" 
+    scrolling="no" 
+    height="16" 
+    frameborder="0" 
+    src=
+      "http://hits.sinajs.cn/A1/weiboshare.html?url=http://blog.chenming.info/blog/2008/03/08/ace-message-queue-notify-deadlock-in-reactor/&amp;type=6&amp;ralateUid=2036163762&amp;language=zh_cn" allowtransparency="true">
+  </iframe>
+  </span>
+  
+</div>
+
+<hr style="border-bottom:1px dotted #bdbabd;height:1px;border-top:0px;border-left:0px;border-right:0px;" />
+
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2008/02/06/setup-vnc-on-rhel/" title="Previous Post: RHEL下如何启用VNC服务">&laquo; RHEL下如何启用VNC服务</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2008/04/16/handle-exception-in-gdb/" title="Next Post: 使用gdb调试异常">使用gdb调试异常 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/13/install-wp7-sdk-on-xp/">在XP下安装WP7的SDK</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/02/how-to-use-wp7-as-usb-drive/">How to use WP7 as USB drive</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/28/jquery-revert-selection/">jQuery reverse selection</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/24/jquery-tree-filter/">实现jQuery的treeview的filter</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/22/linux-reset-terminal/">在Linux下清屏是clear还是reset</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/20/cookie-expries-issue-on-django-auth/">服务器时间不正确导致django的认证失败</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2009/12/04/how-to-use-nettl-on-hpux/">在HP-UX上使用nettl抓包</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>新浪微博</h1>
+  <ul id="weibo">
+    <li>
+      <iframe 
+        width="100%" 
+        height="550" 
+        class="share_self" 
+        frameborder="0" 
+        scrolling="no" 
+        src="http://widget.weibo.com/weiboshow/index.php?width=0&height=550&ptype=1&speed=0&skin=&isTitle=0&noborder=1&isWeibo=1&isFans=&uid=2036163762&verifier=bce5fd03">
+      </iframe>
+    </li>
+  </ul>
+</section>
+
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Ming -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'chenming';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
