@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: octave | Ming's Blog]]></title>
+  <link href="http://blog.chenming.info/blog/categories/octave/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-06T09:28:42+08:00</updated>
+  <id>http://blog.chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[在Mac上安装octave]]></title>
+    <link href="http://blog.chenming.info/blog/2012/06/29/install-octave-on-mac/"/>
+    <updated>2012-06-29T21:02:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2012/06/29/install-octave-on-mac</id>
+    <content type="html"><![CDATA[<p><a href="http://www.gnu.org/software/octave/">octave</a>
+是类似<code>matlab</code>的用于科学计算（比如矩阵的算法）的免费工具。
+用<code>matlab</code>写的代码很多都直接能直接在<code>octave</code>下运行。
+它能工作在Windows，Linux，MacOS下。</p>
+
+<p><blockquote><p>GNU Octave is a high-level interpreted language,<br/>primarily intended for numerical computations.<br/>It provides capabilities for the numerical solution<br/>of linear and nonlinear problems, and for performing<br/>other numerical experiments.<br/>It also provides extensive graphics capabilities for<br/>data visualization and manipulation.</p></blockquote></p>
+
+<p>本以为<code>brew install octave</code>就能安装的，但是发现没有这么简单。
+为了在MacOS下能正常使用<code>octave</code>，还颇费一番周折。</p>
+
+<h2>我的环境</h2>
+
+<p>我的OS和编译器版本如下：</p>
+
+<pre><code>Mac OS X 10.7.4
+Xcode 4.3.2
+</code></pre>
+
+<h2>安装过程</h2>
+
+<h3>安装fortan编译器</h3>
+
+<p>预先需要安装一个gfortan的编译器：</p>
+
+<pre><code>brew install gfortran
+</code></pre>
+
+<h3>安装fltk</h3>
+
+<p>由于某些组建使用了fltk，而<code>brew</code>里面的<code>fltk</code>版本不对，无法安装。
+需要手动安装<code>fltk</code>。从<a href="http://www.fltk.org/">http://www.fltk.org/</a>下载fltk-1.3.0后并解压缩，
+然后执行如下命令安装：</p>
+
+<pre><code>./configure --disable-debug --enable-shared --prefix=/usr/local/Cellar/fltk/1.3.0
+make install
+brew link fltk
+</code></pre>
+
+<h3>安装aquaterm</h3>
+
+<p><code>octave</code>依赖<code>gnuplot</code>来绘图，并使用了<code>aqua term</code>。
+如果没有<code>aqua term</code>，会导致<code>octave</code>无法画图。
+因此需要先安装<code>aquaterm</code>，可以在sourceforge下载安装包。</p>
+
+<h3>安装gnuplot</h3>
+
+<p>然后再安装<code>gnuplot</code>，可以使用<code>brew</code>来安装：</p>
+
+<pre><code>brew install gnuplot
+</code></pre>
+
+<p>如果<code>brew</code>安装的<code>gnuplot</code>没有<code>aqua term</code>，可以从源代码安装<code>gnuplot</code>。
+方法如下：</p>
+
+<p><a href="http://sourceforge.net/projects/gnuplot/files/gnuplot/4.6.0/">从sourceforge下载gnuplot的源代码</a>，
+然后使用下面的命令编译并安装gnuplot</p>
+
+<pre><code>./configure --prefix=/usr/local/Cellar/gnuplot/4.6.0
+make &amp;&amp; make install
+brew link gnuplot
+</code></pre>
+
+<h3>安装octave</h3>
+
+<p>直接使用<code>brew</code>来安装<code>octave</code>：</p>
+
+<pre><code>brew install octave
+</code></pre>
+
+<h3>测试安装是否成功</h3>
+
+<p>在安装成功后，在命令行终端输入<code>octave</code>会启动<code>octave</code>，
+然后输入如下指令，测试绘图功能是否正常。</p>
+
+<pre><code>x = linspace(0, 2*pi, 100);
+y = sin(x);
+plot(x, y);
+</code></pre>
+
+<p>它会画一个<code>sin(x)</code>的曲线。</p>
+
+<p><img src="/images/install-octave-on-mac/octave-figure-sinx.png" title="sin(x)" alt="picture alt" /></p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://www.gnu.org/software/octave/">Octave主页</a></li>
+<li><a href="http://en.wikibooks.org/wiki/Octave_Programming_Tutorial">Octave教程</a></li>
+<li><a href="http://www-mdp.eng.cam.ac.uk/web/CD/engapps/octave/octavetut.pdf">Introduction to Octave</a></li>
+<li><a href="http://www.octave.org/wiki/index.php?title=Installing_MacOS_X_Bundle">Install Octave on MacOS</a></li>
+<li><a href="http://en.wikibooks.org/wiki/MATLAB_Programming/Differences_between_Octave_and_MATLAB">MATLAB Programming/Differences between Octave and MATLAB</a></li>
+<li><a href="http://www.gnuplot.info/">Gnuplot主页</a></li>
+<li><a href="http://www.ibm.com/developerworks/cn/linux/l-gnuplot/">gnuplot 让您的数据可视化</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

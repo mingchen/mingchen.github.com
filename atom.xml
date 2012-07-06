@@ -4,7 +4,7 @@
   <title><![CDATA[Ming's Blog]]></title>
   <link href="http://blog.chenming.info/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2012-07-03T10:35:03+08:00</updated>
+  <updated>2012-07-06T09:28:42+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -12,6 +12,438 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android上使用SparseArray来替代HashMap]]></title>
+    <link href="http://blog.chenming.info/blog/2012/07/04/android-sparsearray/"/>
+    <updated>2012-07-04T10:50:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2012/07/04/android-sparsearray</id>
+    <content type="html"><![CDATA[<p>在android上做lint时，下面的代码会收到警告，提示使用<code>SparseArray</code>来代替<code>HashMap</code>来提高性能。</p>
+
+<pre><code>private static Map&lt;Integer, CommandHandler&gt; mCmdToComponent
+    = new HashMap&lt;Integer, CommandHandler&gt;();
+</code></pre>
+
+<p>详细信息如下：</p>
+
+<blockquote><p>Use new SparseArray&lt;Object&gt;(&#8230;) instead for better performance</p><p>Issue: Looks for opportunities to replace HashMaps with the more efficient SparseArray<br/>Id: UseSparseArrays</p><p>For maps where the keys are of type integer, it&#8217;s typically more efficient to use the Android SparseArray API. This check identifies scenarios where you might want to consider using SparseArray instead of HashMap for better performance.</p><p>This is *particularly* useful when the value types are primitives like ints, where you can use SparseIntArray and avoid auto-boxing the values from int to Integer.</p><p>If you need to construct a HashMap because you need to call an API outside of your control which requires a Map, you can suppress this warning using for example the @SuppressLint annotation.</p></blockquote>
+
+
+<p>出于好奇看了看<code>SparseArray</code>的源代码，发现它内部是使用有序数组+二分查找来实现的。
+插入、查找和删除操作的效率都是<code>log2(n)</code>。
+在插入的时候还要对整个数组进行移动，代价也是不低的。
+对<code>HashMap</code>来说，它更省空间和省了<code>auto-boxing</code>的开销。</p>
+
+<p>参考:</p>
+
+<ul>
+<li><a href="http://developer.android.com/reference/android/util/SparseArray.html">http://developer.android.com/reference/android/util/SparseArray.html</a></li>
+<li><a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.0.3_r1/android/util/SparseArray.java?av=f">SparseArray.java - 源代码</a></li>
+<li><a href="http://code.google.com/p/re2/source/browse/util/sparse_array.h">http://code.google.com/p/re2/source/browse/util/sparse_array.h</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[在Mac上安装octave]]></title>
+    <link href="http://blog.chenming.info/blog/2012/06/29/install-octave-on-mac/"/>
+    <updated>2012-06-29T21:02:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2012/06/29/install-octave-on-mac</id>
+    <content type="html"><![CDATA[<p><a href="http://www.gnu.org/software/octave/">octave</a>
+是类似<code>matlab</code>的用于科学计算（比如矩阵的算法）的免费工具。
+用<code>matlab</code>写的代码很多都直接能直接在<code>octave</code>下运行。
+它能工作在Windows，Linux，MacOS下。</p>
+
+<blockquote><p>GNU Octave is a high-level interpreted language,<br/>primarily intended for numerical computations.<br/>It provides capabilities for the numerical solution<br/>of linear and nonlinear problems, and for performing<br/>other numerical experiments.<br/>It also provides extensive graphics capabilities for<br/>data visualization and manipulation.</p></blockquote>
+
+
+<p>本以为<code>brew install octave</code>就能安装的，但是发现没有这么简单。
+为了在MacOS下能正常使用<code>octave</code>，还颇费一番周折。</p>
+
+<h2>我的环境</h2>
+
+<p>我的OS和编译器版本如下：</p>
+
+<pre><code>Mac OS X 10.7.4
+Xcode 4.3.2
+</code></pre>
+
+<h2>安装过程</h2>
+
+<h3>安装fortan编译器</h3>
+
+<p>预先需要安装一个gfortan的编译器：</p>
+
+<pre><code>brew install gfortran
+</code></pre>
+
+<h3>安装fltk</h3>
+
+<p>由于某些组建使用了fltk，而<code>brew</code>里面的<code>fltk</code>版本不对，无法安装。
+需要手动安装<code>fltk</code>。从<a href="http://www.fltk.org/">http://www.fltk.org/</a>下载fltk-1.3.0后并解压缩，
+然后执行如下命令安装：</p>
+
+<pre><code>./configure --disable-debug --enable-shared --prefix=/usr/local/Cellar/fltk/1.3.0
+make install
+brew link fltk
+</code></pre>
+
+<h3>安装aquaterm</h3>
+
+<p><code>octave</code>依赖<code>gnuplot</code>来绘图，并使用了<code>aqua term</code>。
+如果没有<code>aqua term</code>，会导致<code>octave</code>无法画图。
+因此需要先安装<code>aquaterm</code>，可以在sourceforge下载安装包。</p>
+
+<h3>安装gnuplot</h3>
+
+<p>然后再安装<code>gnuplot</code>，可以使用<code>brew</code>来安装：</p>
+
+<pre><code>brew install gnuplot
+</code></pre>
+
+<p>如果<code>brew</code>安装的<code>gnuplot</code>没有<code>aqua term</code>，可以从源代码安装<code>gnuplot</code>。
+方法如下：</p>
+
+<p><a href="http://sourceforge.net/projects/gnuplot/files/gnuplot/4.6.0/">从sourceforge下载gnuplot的源代码</a>，
+然后使用下面的命令编译并安装gnuplot</p>
+
+<pre><code>./configure --prefix=/usr/local/Cellar/gnuplot/4.6.0
+make &amp;&amp; make install
+brew link gnuplot
+</code></pre>
+
+<h3>安装octave</h3>
+
+<p>直接使用<code>brew</code>来安装<code>octave</code>：</p>
+
+<pre><code>brew install octave
+</code></pre>
+
+<h3>测试安装是否成功</h3>
+
+<p>在安装成功后，在命令行终端输入<code>octave</code>会启动<code>octave</code>，
+然后输入如下指令，测试绘图功能是否正常。</p>
+
+<pre><code>x = linspace(0, 2*pi, 100);
+y = sin(x);
+plot(x, y);
+</code></pre>
+
+<p>它会画一个<code>sin(x)</code>的曲线。</p>
+
+<p><img src="http://blog.chenming.info/images/install-octave-on-mac/octave-figure-sinx.png" title="sin(x)" alt="picture alt" /></p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://www.gnu.org/software/octave/">Octave主页</a></li>
+<li><a href="http://en.wikibooks.org/wiki/Octave_Programming_Tutorial">Octave教程</a></li>
+<li><a href="http://www-mdp.eng.cam.ac.uk/web/CD/engapps/octave/octavetut.pdf">Introduction to Octave</a></li>
+<li><a href="http://www.octave.org/wiki/index.php?title=Installing_MacOS_X_Bundle">Install Octave on MacOS</a></li>
+<li><a href="http://en.wikibooks.org/wiki/MATLAB_Programming/Differences_between_Octave_and_MATLAB">MATLAB Programming/Differences between Octave and MATLAB</a></li>
+<li><a href="http://www.gnuplot.info/">Gnuplot主页</a></li>
+<li><a href="http://www.ibm.com/developerworks/cn/linux/l-gnuplot/">gnuplot 让您的数据可视化</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[学习一点git]]></title>
+    <link href="http://blog.chenming.info/blog/2012/06/25/learn-git/"/>
+    <updated>2012-06-25T21:29:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2012/06/25/learn-git</id>
+    <content type="html"><![CDATA[<h2>git是什么东东？</h2>
+
+<blockquote><p>Git is a fast, scalable, distributed revision control system with an unusually rich command set that provides both high-level operations and full access to internals.</p></blockquote>
+
+<h2>git用法</h2>
+
+<h3>GUI</h3>
+
+<p><code>git</code>自带了个简单的GUI工具<code>gitk</code>。
+在Mac下可以使用<code>SourceTree</code>（在app store）可以免费下载。</p>
+
+<h3>获得帮助</h3>
+
+<p><code>git</code>提供了help来获得帮助信息。</p>
+
+<pre>
+$ git help
+usage: git [--version] [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]
+           [-p|--paginate|--no-pager] [--no-replace-objects] [--bare]
+           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]
+           [-c name=value] [--help]
+           <command> [<args>]
+
+The most commonly used git commands are:
+   add        Add file contents to the index
+   bisect     Find by binary search the change that introduced a bug
+   branch     List, create, or delete branches
+   checkout   Checkout a branch or paths to the working tree
+   clone      Clone a repository into a new directory
+   commit     Record changes to the repository
+   diff       Show changes between commits, commit and working tree, etc
+   fetch      Download objects and refs from another repository
+   grep       Print lines matching a pattern
+   init       Create an empty git repository or reinitialize an existing one
+   log        Show commit logs
+   merge      Join two or more development histories together
+   mv         Move or rename a file, a directory, or a symlink
+   pull       Fetch from and merge with another repository or a local branch
+   push       Update remote refs along with associated objects
+   rebase     Forward-port local commits to the updated upstream head
+   reset      Reset current HEAD to the specified state
+   rm         Remove files from the working tree and from the index
+   show       Show various types of objects
+   status     Show the working tree status
+   tag        Create, list, delete or verify a tag object signed with GPG
+
+See 'git help <command>' for more information on a specific command.
+</pre>
+
+
+<p>比如要想得到关于commit命令的帮助信息，可以使用</p>
+
+<pre><code>git help commit
+</code></pre>
+
+<h3>设置你的个人信息</h3>
+
+<p>在你每次提交时会记录你的用户名和邮箱，可以使用如下命令进行设置。</p>
+
+<pre><code>$ git config --global user.name "Your Name Comes Here"
+$ git config --global user.email you@yourdomain.example.com
+</code></pre>
+
+<h3>创建一个新的git仓库</h3>
+
+<pre><code>$ mkdir /path/to/your/project
+$ cd /path/to/your/project
+$ git init
+$ git add .
+$ git commit -m "First commit"
+</code></pre>
+
+<p><code>git init</code>会初始化一个<code>git</code>仓库，初始化后在当前目录会创建一个<code>.git</code>目录。</p>
+
+<p><code>git add .</code>把当前目录和其子目录的文件加入版本控制系统，但是这个时候还没有真正的提交到仓库。</p>
+
+<p><code>git commit</code>把<code>git add</code>产生的改动提交到仓库，<code>-m</code>参数提交的注释信息。</p>
+
+<h3>提交修改过的文件</h3>
+
+<pre><code>$ git status
+</code></pre>
+
+<p>显示本地有哪些文件改动过/新添加。</p>
+
+<pre><code>$ git add file1 file2 …
+</code></pre>
+
+<p>添加修改过的文件。</p>
+
+<pre><code>$ git diff --cached
+</code></pre>
+
+<p>显示修改过的文件的改动（只对使用<code>add</code>命令添加过的文件产生diff）。</p>
+
+<pre><code>$ git diff
+</code></pre>
+
+<p>显示修改过的文件的改动（对没有使用<code>add</code>命令添加过的文件产生diff）。</p>
+
+<pre><code>$ git commit -m "comments here..."
+</code></pre>
+
+<p>提交修改到仓库。</p>
+
+<p>如果要想要某些文件不受<code>git</code>管理，比如编译产生的中间文件。
+可以在项目的根目录下创建一个文件<code>.gitignore</code>来过滤这些文件。</p>
+
+<p>我的<code>.gitignore</code>如下</p>
+
+<pre>
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+#
+# xcode user settings
+#
+xcuserdata
+</pre>
+
+
+<p>更多的<code>.gitignore</code>可以参考<a href="https://github.com/github/gitignore">这里</a></p>
+
+<p><code>.gitignore</code>是针对一个项目的，也可以通过设置<code>git</code>全局的配置来指定在所有的项目中都要忽略的文件。
+比如你一个全局的配置文件<code>~/.gitignore_global</code>，使用下面的命令可以来指定</p>
+
+<pre><code>git config --global core.excludesfile ~/.gitignore_global
+</code></pre>
+
+<h3>修订历史</h3>
+
+<p>要查看提交的历史记录，使用<code>log</code>命令：</p>
+
+<pre>
+$ git log
+commit c82a22c39cbc32576f64f5c6b3f24b99ea8149c7
+Author: Junio C Hamano <junkio@cox.net>
+Date:   Tue May 16 17:18:22 2006 -0700
+
+    merge-base: Clarify the comments on post processing.
+</pre>
+
+
+<p>要查看每次提交到底有哪些改动，加<code>-p</code>参数：</p>
+
+<pre><code>$ git log -p
+</code></pre>
+
+<p><code>-p</code>输出非常详细，如果只想查看每次提交包含了哪些文件的改动，使用命令：</p>
+
+<pre><code>$ git log --stat --summary
+</code></pre>
+
+<p>如果要查看某次提交具体做了哪些修改，使用<code>git show</code>命令：</p>
+
+<pre><code>$ git show c82a22c39cbc32576f64f5c6b3f24b99ea8149c7
+</code></pre>
+
+<p>c82a22c39cbc32576f64f5c6b3f24b99ea8149c7是某次提交的hash值。
+在使用<code>show</code>命令是不用每次都完整的输入，只需要输入前面的几个字符能唯一标识一次提交即可：</p>
+
+<pre>
+$ git show c82a22c39c   # the first few characters of the name are
+                        # usually enough
+$ git show HEAD         # the tip of the current branch
+$ git show experimental # the tip of the "experimental" branch
+</pre>
+
+
+<p>如果要想使用图形界面查看，使用<code>gitk</code>：</p>
+
+<pre><code>$ gitk
+</code></pre>
+
+<p>也可以使用网页形式来查看历史记录：</p>
+
+<pre><code>$ git instaweb
+</code></pre>
+
+<p><code>instaweb</code>命令需要一个web服务器，如果是MAC，可以使用<code>brew</code>来安装一个<code>lighttpd</code></p>
+
+<pre><code>$ brew install lighttpd
+</code></pre>
+
+<h3>分支管理</h3>
+
+<p><code>git</code>支持在一个仓库中维护多个分支的功能。创建分支是非常轻量级的操作。
+使用下面的命令创建一个名为“experimental”的分支：</p>
+
+<pre><code>$ git branch experimental
+</code></pre>
+
+<p>使用<code>branch</code>命令来列出所有的分支：</p>
+
+<pre><code>$ git branch
+  experimental
+* master
+</code></pre>
+
+<p>“experimental”分支是刚刚创建的分支，“master”分支是由系统自动创建的缺省分支。
+星号（*）表示当前你当前工作在哪个分支上。</p>
+
+<p>要在分支之间切换，使用<code>checkout</code>命令。下面的命令切换到“experimental”分支上：</p>
+
+<pre><code>$ git checkout experimental
+</code></pre>
+
+<p>现在修改一些文件，然后在切换回“master”分支：</p>
+
+<pre><code>(edit file)
+$ git commit -a
+$ git checkout master
+</code></pre>
+
+<p>然后在“master”分支上在做一些修改并提交：</p>
+
+<pre><code>(edit file)
+$ git commit -a
+</code></pre>
+
+<p>要合并“experimental”分支的修改到“master”分支，使用下面的命令：</p>
+
+<pre><code>$ git merge experimental
+</code></pre>
+
+<p>如果没有冲突，合并会自动完成，如果有冲突，需要手动解决冲突。
+使用<code>diff</code>命令来查看有<code>merge</code>有改动了哪些文件。</p>
+
+<pre><code>$ git diff
+</code></pre>
+
+<p>在解决了冲突之后使用<code>commit</code>命令提交修改:</p>
+
+<pre><code>$ git commit -a -m "commit on master…"
+</code></pre>
+
+<p>在分支上的修改都合并到之后并不在使用该分支时，可以使用<code>git branch -d</code>来删除该分支：</p>
+
+<pre><code>$ git branch -d experimental
+</code></pre>
+
+<p>该命令会确保分支上的修改已经合并到“master”分支。</p>
+
+<p>如果要强制删除一个分支，可以使用<code>git branch -D</code>来完成：</p>
+
+<pre><code>$ git branch -D crazy-idea
+</code></pre>
+
+<p>该命令不会检查分支的合并状态，在分支上的修改会丢失。</p>
+
+<h3>和远程仓库同步</h3>
+
+<p>从远程仓库clone：</p>
+
+<pre><code>$ git clone https://foobar@bitbucket.org/foobar/sandbox.git
+</code></pre>
+
+<p>把本地仓库同步到远程仓库上去：</p>
+
+<pre><code>$ cd /path/to/my/repo
+$ git remote add origin https://foobar@bitbucket.org/foobar/sandbox.git
+$ git push -u origin master   # to push changes for the first time
+</code></pre>
+
+<h2>git的竞争对手</h2>
+
+<ul>
+<li><a href="http://mercurial.selenic.com/">mercurial</a>是另一个分布式的版本控制系统。</li>
+</ul>
+
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://www.kernel.org/pub/software/scm/git/docs/user-manual.html">git用户手册</a></li>
+<li><a href="http://www.kernel.org/pub/software/scm/git/docs/">git命令行参考手册</a></li>
+<li><a href="http://www.kernel.org/pub/software/scm/git/docs/gittutorial.html">git入门教程</a></li>
+<li><a href="http://www.kernel.org/pub/software/scm/git/docs/everyday.html">git常用命令</a></li>
+<li><a href="http://www.kernel.org/pub/software/scm/git/docs/gitworkflows.html">gitworkflows - An overview of recommended workflows with git</a></li>
+<li><a href="http://code.google.com/p/support/wiki/DVCSAnalysis">Analysis of Git and Mercurial</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[学习一点HTML5]]></title>
@@ -1476,553 +1908,6 @@ ssa-1#/etc/init.d/drbd start
 
 
 <p>注：[1] 也可以只使用2个网卡，把心跳合在bonding网卡上。建议把心跳的网卡单独出来。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[sys_call_table符号链接失败及如何替换系统调用]]></title>
-    <link href="http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall/"/>
-    <updated>2008-11-24T22:15:00+08:00</updated>
-    <id>http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall</id>
-    <content type="html"><![CDATA[<p>2.4的内核中可以通过修改<code>sys_call_table</code>来很轻松的替换系统调用，
-来完成很多trick，很多的<code>rootkit</code>就是基于这种手法来完成的。
-到了2.6的内核，事情就不是这么回事了，<code>sys_call_table</code>不再被export出来了。
-这样的话就不能简单通过修改<code>sys_call_table</code>来替换系统调用了。如果再继续使用<code>sys_call_table</code>的话，将会得到类似如下的警告：</p>
-
-<pre><code>WARNING: "sys_call_table" [/mnt/linux/km/lpp/src/lpp.ko] undefined!
-</code></pre>
-
-<p>当然，加载模块也会失败的:</p>
-
-<pre><code># insmod lpp.ko
-insmod: error inserting 'lpp.ko': -1 Unknown symbol in module
-# dmesg
-lpp: Unknown symbol sys_call_table
-</code></pre>
-
-<p>当然，虽然没有export出来，但我们还是有办法获取到<code>sys_call_table</code>的，
-在C语言中，<code>sys_call_table</code>也就是一个地址而已，我们的问题就是如何获取这个地址。</p>
-
-<p>有如下2种方法。</p>
-
-<p>方法1：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="nf">find_sys_call_table</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="n">sctable</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ptr</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">extern</span> <span class="kt">int</span> <span class="n">loops_per_jiffy</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">sctable</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="n">ptr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="o">&amp;</span><span class="n">loops_per_jiffy</span><span class="p">;</span>
-</span><span class='line'>        <span class="n">ptr</span> <span class="o">&lt;</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="o">&amp;</span><span class="n">boot_cpu_data</span><span class="p">;</span> <span class="n">ptr</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)){</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
-</span><span class='line'>        <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="p">)</span><span class="n">ptr</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="n">__NR_close</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span> <span class="n">sys_close</span><span class="p">){</span>
-</span><span class='line'>            <span class="n">sctable</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
-</span><span class='line'>            <span class="k">return</span> <span class="o">&amp;</span><span class="n">sctable</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">**</span><span class="n">sys_call_table</span> <span class="o">=</span> <span class="n">find_sys_call_table</span><span class="p">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>一个完整的示例：
-<a href="http://www.gnome.org/~lcolitti/gnome-startup/linux-iolog/readlog.c">http://www.gnome.org/~lcolitti/gnome-startup/linux-iolog/readlog.c</a></p>
-
-<p>注意，在最新的内核2.6.30的内核它不能编译，需要对第52行进行修改：</p>
-
-<pre><code>52c52
-&lt;         f = current-&gt;files-&gt;fd[fd];
----
-&gt;         f = current-&gt;files-&gt;fd_array[fd];
-</code></pre>
-
-<p>方法2：去<code>System.map</code>中找。</p>
-
-<pre><code>grep sys_call_table /boot/System.map
-</code></pre>
-
-<p>方法3：当然你也可以直接修改内核代码，然后再重新编译内核。</p>
-
-<p>2.6的内核之所以不把<code>sys_call_table</code>给export出来，不仅仅是因为安全的原因，
-另外一个原因是我们真正的需要在内核去替换系统调用吗?</p>
-
-<p>在用户空间，我们照样也能完成系统调用的替换，为什么不在用户空间去做呢？
-使用Linux的<code>LD_PRELOAD</code>特性，Linux的man page对<code>LD_PRELOAD</code>的解释：</p>
-
-<blockquote><p>LD_PRELOAD<br/>      A whitespace-separated list of additional, user-specified, ELF<br/>      shared libraries to be loaded before all others. This can be<br/>      used to selectively  override  functions in other shared<br/>      libraries. For setuid/setgid  ELF binaries, only libraries in<br/>      the standard search directories that are also setgid will be<br/>      loaded.</p></blockquote>
-
-
-<p>借助LD_PRELOAD我们可以在用户空间轻松完成所有系统调用的替换。
-比如我们写一个动态库，源代码如下：</p>
-
-<figure class='code'><figcaption><span>演示如何截获系统调用 </span></figcaption>
- <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
-</span><span class='line'><span class="cp">#define __USE_GNU</span>
-</span><span class='line'><span class="cp">#include &lt;dlfcn.h&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">ssize_t</span> <span class="p">(</span><span class="o">*</span><span class="n">readfn</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span><span class="p">,</span> <span class="kt">size_t</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="n">init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">__attribute__</span><span class="p">((</span><span class="n">constructor</span><span class="p">));</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="nf">init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Preloaded</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">readfn</span> <span class="o">=</span> <span class="n">dlsym</span><span class="p">(</span><span class="n">RTLD_NEXT</span><span class="p">,</span> <span class="s">&quot;read&quot;</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">ssize_t</span> <span class="nf">read</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">nbytes</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;My read</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">readfn</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>编译：</p>
-
-<pre><code>gcc -shared -g -o libcm.so -ldl
-</code></pre>
-
-<p>然后再这样使用<code>LD_PRELOAD</code>：</p>
-
-<pre><code>LD_PRELOAD=./libcm.so ./a.out
-</code></pre>
-
-<p>这样a.out里面所有的read调用都会进入到我们read函数中去了。</p>
-
-<p>参考：</p>
-
-<ul>
-<li><a href="http://kerneltrap.org/node/5802">http://kerneltrap.org/node/5802</a></li>
-<li><a href="http://kerneltrap.org/node/5793">http://kerneltrap.org/node/5793</a></li>
-<li><a href="http://en.wikipedia.org/wiki/Dynamic_linker">http://en.wikipedia.org/wiki/Dynamic_linker</a></li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[使用gdb调试异常]]></title>
-    <link href="http://blog.chenming.info/blog/2008/04/16/handle-exception-in-gdb/"/>
-    <updated>2008-04-16T22:05:00+08:00</updated>
-    <id>http://blog.chenming.info/blog/2008/04/16/handle-exception-in-gdb</id>
-    <content type="html"><![CDATA[<p>有时程序中有未捕获的异常会导致程序异常的行为甚至导致程序的直接退出。
-这对服务器程序来说是不可接受的。</p>
-
-<p>可以使用<code>gdb</code>的<code>catch</code>命令来帮助我们调试异常。</p>
-
-<p>使用<code>gdb</code>捕获异常的扔出点（相当于在扔出异常的地方添加断点）：</p>
-
-<pre><code>catch throw
-</code></pre>
-
-<p>使用gdb捕获线程退出（相当于在线程退出的时候添加断点）：</p>
-
-<pre><code>catch pthread_exit
-</code></pre>
-
-<p>这样，如果相应的事件发生，<code>gdb</code>就会中断程序的执行，
-就可以使用<code>gdb</code>的<code>bt</code>命令来检查出现错误的调用栈了。</p>
-
-<p>更多信息：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>(gdb) help catch
-</span><span class='line'>Set catchpoints to catch events.
-</span><span class='line'>Raised signals may be caught:
-</span><span class='line'>  catch signal              - all signals
-</span><span class='line'>  catch signal &lt;signame>    - a particular signal
-</span><span class='line'>Raised exceptions may be caught:
-</span><span class='line'>  catch throw               - all exceptions, when thrown
-</span><span class='line'>  catch throw &lt;exceptname>  - a particular exception, when thrown
-</span><span class='line'>  catch catch               - all exceptions, when caught
-</span><span class='line'>  catch catch &lt;exceptname>  - a particular exception, when caught
-</span><span class='line'>Thread or process events may be caught:
-</span><span class='line'>  catch thread_start        - any threads, just after creation
-</span><span class='line'>  catch thread_exit         - any threads, just before expiration
-</span><span class='line'>  catch thread_join         - any threads, just after joins
-</span><span class='line'>Process events may be caught:
-</span><span class='line'>  catch start               - any processes, just after creation
-</span><span class='line'>  catch exit                - any processes, just before expiration
-</span><span class='line'>  catch fork                - calls to fork()
-</span><span class='line'>  catch vfork               - calls to vfork()
-</span><span class='line'>  catch exec                - calls to exec()
-</span><span class='line'>Dynamically-linked library events may be caught:
-</span><span class='line'>  catch load                - loads of any library
-</span><span class='line'>  catch load &lt;libname>      - loads of a particular library
-</span><span class='line'>  catch unload              - unloads of any library
-</span><span class='line'>  catch unload &lt;libname>    - unloads of a particular library
-</span><span class='line'>The act of your program's execution stopping may also be caught:
-</span><span class='line'>  catch stop
-</span><span class='line'>
-</span><span class='line'>C++ exceptions may be caught:
-</span><span class='line'>  catch throw               - all exceptions, when thrown
-</span><span class='line'>  catch catch               - all exceptions, when caught
-</span><span class='line'>
-</span><span class='line'>Do "help set follow-fork-mode" for info on debugging your program
-</span><span class='line'>after a fork or vfork is caught.
-</span><span class='line'>
-</span><span class='line'>Do "help breakpoints" for info on other commands dealing with breakpoints.</span></code></pre></td></tr></table></div></figure>
-
-
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[ACE_Message_Queue的notify和Reactor结合使用时会导致死锁]]></title>
-    <link href="http://blog.chenming.info/blog/2008/03/08/ace-message-queue-notify-deadlock-in-reactor/"/>
-    <updated>2008-03-08T22:00:00+08:00</updated>
-    <id>http://blog.chenming.info/blog/2008/03/08/ace-message-queue-notify-deadlock-in-reactor</id>
-    <content type="html"><![CDATA[<h2>现象</h2>
-
-<p>设置了Queue的通知策略之后，在<code>putq</code>之后会调用Reactor的<code>notify</code>方法，
-Reactor内部使用一个管道来传输通知事件，导致在写入通知事件时阻塞在该管道上，
-从而导致程序挂起。</p>
-
-<p>这是一个很早就发现的bug，但是一直没有被修正。一方面是它不好修正，
-从邮件列表里得到的信息是ACE的维护者缺乏资金解决这个问题。</p>
-
-<h2>一个示例的调用栈</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-<span class='line-number'>115</span>
-<span class='line-number'>116</span>
-<span class='line-number'>117</span>
-<span class='line-number'>118</span>
-<span class='line-number'>119</span>
-<span class='line-number'>120</span>
-<span class='line-number'>121</span>
-<span class='line-number'>122</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>(gdb) thr app all bt
-</span><span class='line'>
-</span><span class='line'>Thread 4 (Thread 0xb7ad3b90 (LWP 31160)):   # ---- Scheduler thread.
-</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()
-</span><span class='line'>#1  0xb7f790e5 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/tls/i686/cmov/libpthread.so.0
-</span><span class='line'>#2  0x08070c59 in ACE_OS::cond_wait (cv=0x91a7cbc, external_mutex=0x91a7ca0)
-</span><span class='line'>    at /home/cm/ACE_wrappers/ace/OS_NS_Thread.inl:329
-</span><span class='line'>#3  0x08070c9f in ACE_Condition&lt;ACE_Thread_Mutex>::wait (this=0x91a7cbc)
-</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Condition_T.cpp:90
-</span><span class='line'>#4  0x0807020a in cm::Scheduler::choose_processor (this=0x91a7c54)
-</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/Scheduler.cpp:94
-</span><span class='line'>#5  0x080705ad in cm::Scheduler::svc (this=0x91a7c54)
-</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/Scheduler.cpp:80
-</span><span class='line'>#6  0xb7daae52 in ACE_Task_Base::svc_run (args=0x91a7c54) at Task.cpp:275
-</span><span class='line'>#7  0xb7dac2ed in ACE_Thread_Adapter::invoke_i (this=0x91a7fa0) at Thread_Adapter.cpp:149
-</span><span class='line'>#8  0xb7dac366 in ACE_Thread_Adapter::invoke (this=0x91a7fa0) at Thread_Adapter.cpp:98
-</span><span class='line'>#9  0xb7d33271 in ace_thread_adapter (args=0x91a7fa0) at Base_Thread_Adapter.cpp:124
-</span><span class='line'>#10 0xb7f754ff in start_thread () from /lib/tls/i686/cmov/libpthread.so.0
-</span><span class='line'>#11 0xb7ef049e in clone () from /lib/tls/i686/cmov/libc.so.6
-</span><span class='line'>
-</span><span class='line'>Thread 3 (Thread 0xb72d2b90 (LWP 31161)):   # ---- Processor thread.
-</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()
-</span><span class='line'>#1  0xb7f7c07b in write () from /lib/tls/i686/cmov/libpthread.so.0
-</span><span class='line'>#2  0xb7d212ea in ACE::send (handle=6, buf=0xb72cff34, n=8, timeout=0x8)
-</span><span class='line'>    at /home/cm/ACE_wrappers/ace/OS_NS_unistd.inl:1200
-</span><span class='line'>#3  0xb7d4da29 in ACE_Dev_Poll_Reactor_Notify::notify (this=0x91a3c10, eh=0x92095b0, mask=2,
-</span><span class='line'>    timeout=0x0) at Dev_Poll_Reactor.cpp:165
-</span><span class='line'>#4  0xb7d4bcbc in ACE_Dev_Poll_Reactor::notify (this=0x91a3980, eh=0x92095b0, mask=2,
-</span><span class='line'>    timeout=0x0) at Dev_Poll_Reactor.cpp:2028
-</span><span class='line'>#5  0xb7d9550e in ACE_Reactor::notify (this=0x91a38c0, event_handler=0x92095b0, mask=2, tv=0x0)
-</span><span class='line'>    at Reactor.cpp:481
-</span><span class='line'>#6  0xb7d95e76 in ACE_Reactor_Notification_Strategy::notify (this=0x9209638)
-</span><span class='line'>    at Reactor_Notification_Strategy.cpp:28
-</span><span class='line'>#7  0x08062d47 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::notify (this=0x9209660)
-</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1998
-</span><span class='line'>#8  0x080650cc in ACE_Message_Queue&lt;ACE_MT_SYNCH>::enqueue_tail (this=0x9209660,
-</span><span class='line'>    new_item=0xb61bb3d8, timeout=0xb72d0064)
-</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1888
-</span><span class='line'>#9  0x08076c2c in ACE_Task&lt;ACE_MT_SYNCH>::putq (this=0x92095b0, mb=0xb61bb3d8, tv=0xb72d0064)
-</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Task_T.inl:36
-</span><span class='line'>#10 0x08075653 in cm::RequestHandler::async_send (this=0x92095b0, mb=0xb61bb3d8)
-</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/RequestHandler.cpp:257
-</span><span class='line'>#11 0x080746ef in cm::HttpTransaction::send_static_file (this=0x9209d10, uri=@0xb72d2288)
-</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:98
-</span><span class='line'>#12 0x08074c8b in cm::HttpTransaction::execute (this=0x9209d10)
-</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:37
-</span><span class='line'>#13 0x080712a0 in cm::Processor::svc (this=0x91aa128)
-</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/Processor.cpp:47
-</span><span class='line'>#14 0xb7daae52 in ACE_Task_Base::svc_run (args=0x91aa128) at Task.cpp:275
-</span><span class='line'>#15 0xb7dac2ed in ACE_Thread_Adapter::invoke_i (this=0x91aa330) at Thread_Adapter.cpp:149
-</span><span class='line'>#16 0xb7dac366 in ACE_Thread_Adapter::invoke (this=0x91aa330) at Thread_Adapter.cpp:98
-</span><span class='line'>#17 0xb7d33271 in ace_thread_adapter (args=0x91aa330) at Base_Thread_Adapter.cpp:124
-</span><span class='line'>#18 0xb7f754ff in start_thread () from /lib/tls/i686/cmov/libpthread.so.0
-</span><span class='line'>#19 0xb7ef049e in clone () from /lib/tls/i686/cmov/libc.so.6
-</span><span class='line'>
-</span><span class='line'>Thread 2 (Thread 0xb6ad1b90 (LWP 31162)):   # ---- Processor thread
-</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()
-</span><span class='line'>#1  0xb7f7c07b in write () from /lib/tls/i686/cmov/libpthread.so.0
-</span><span class='line'>#2  0xb7d212ea in ACE::send (handle=6, buf=0xb6acef34, n=8, timeout=0x8)
-</span><span class='line'>    at /home/cm/ACE_wrappers/ace/OS_NS_unistd.inl:1200
-</span><span class='line'>#3  0xb7d4da29 in ACE_Dev_Poll_Reactor_Notify::notify (this=0x91a3c10, eh=0x9209448, mask=2,
-</span><span class='line'>    timeout=0x0) at Dev_Poll_Reactor.cpp:165
-</span><span class='line'>#4  0xb7d4bcbc in ACE_Dev_Poll_Reactor::notify (this=0x91a3980, eh=0x9209448, mask=2,
-</span><span class='line'>    timeout=0x0) at Dev_Poll_Reactor.cpp:2028
-</span><span class='line'>#5  0xb7d9550e in ACE_Reactor::notify (this=0x91a38c0, event_handler=0x9209448, mask=2, tv=0x0)
-</span><span class='line'>    at Reactor.cpp:481
-</span><span class='line'>#6  0xb7d95e76 in ACE_Reactor_Notification_Strategy::notify (this=0x92094d0)
-</span><span class='line'>    at Reactor_Notification_Strategy.cpp:28
-</span><span class='line'>#7  0x08062d47 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::notify (this=0x92094f8)
-</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1998
-</span><span class='line'>#8  0x080650cc in ACE_Message_Queue&lt;ACE_MT_SYNCH>::enqueue_tail (this=0x92094f8,
-</span><span class='line'>    new_item=0x92f5c38, timeout=0xb6acf064)
-</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1888
-</span><span class='line'>#9  0x08076c2c in ACE_Task&lt;ACE_MT_SYNCH>::putq (this=0x9209448, mb=0x92f5c38, tv=0xb6acf064)
-</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Task_T.inl:36
-</span><span class='line'>#10 0x08075653 in cm::RequestHandler::async_send (this=0x9209448, mb=0x92f5c38)
-</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/RequestHandler.cpp:257
-</span><span class='line'>#11 0x08074917 in cm::HttpTransaction::send_static_file (this=0x9209bc0, uri=@0xb6ad1288)
-</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:110
-</span><span class='line'>#12 0x08074c8b in cm::HttpTransaction::execute (this=0x9209bc0)
-</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpTransaction.cpp:37
-</span><span class='line'>#13 0x080712a0 in cm::Processor::svc (this=0x91ac488)
-</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/Processor.cpp:47
-</span><span class='line'>#14 0xb7daae52 in ACE_Task_Base::svc_run (args=0x91ac488) at Task.cpp:275
-</span><span class='line'>#15 0xb7dac2ed in ACE_Thread_Adapter::invoke_i (this=0x91ac690) at Thread_Adapter.cpp:149
-</span><span class='line'>#16 0xb7dac366 in ACE_Thread_Adapter::invoke (this=0x91ac690) at Thread_Adapter.cpp:98
-</span><span class='line'>#17 0xb7d33271 in ace_thread_adapter (args=0x91ac690) at Base_Thread_Adapter.cpp:124
-</span><span class='line'>#18 0xb7f754ff in start_thread () from /lib/tls/i686/cmov/libpthread.so.0
-</span><span class='line'>#19 0xb7ef049e in clone () from /lib/tls/i686/cmov/libc.so.6
-</span><span class='line'>
-</span><span class='line'>Thread 1 (Thread 0xb7ad48e0 (LWP 31159)):  # ---- Reactor thread.
-</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()
-</span><span class='line'>#1  0xb7f790e5 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/tls/i686/cmov/libpthread.so.0
-</span><span class='line'>#2  0xb7d3c254 in ACE_Condition_Thread_Mutex::wait (this=0x91ae99c, mutex=@0x80, abstime=0x0)
-</span><span class='line'>---Type &lt;return> to continue, or q &lt;return> to quit---
-</span><span class='line'>    at /home/cm/ACE_wrappers/ace/OS_NS_Thread.inl:362
-</span><span class='line'>#3  0xb7d3c2bb in ACE_Condition_Thread_Mutex::wait (this=0x91ae99c, abstime=0x0)
-</span><span class='line'>    at Condition_Thread_Mutex.cpp:107
-</span><span class='line'>#4  0x08063c90 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::wait_not_full_cond (this=0x91ae920,
-</span><span class='line'>    timeout=0x0) at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1715
-</span><span class='line'>#5  0x08064e38 in ACE_Message_Queue&lt;ACE_MT_SYNCH>::enqueue_head (this=0x91ae920,
-</span><span class='line'>    new_item=0xb6105610, timeout=0x0) at /home/cm/ACE_wrappers/ace/Message_Queue_T.cpp:1777
-</span><span class='line'>#6  0x0807236a in ACE_Task&lt;ACE_MT_SYNCH>::ungetq (this=0x91ae870, mb=0xb6105610, tv=0x0)
-</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Task_T.inl:43
-</span><span class='line'>#7  0x08071d5d in cm::HttpRequestHandler::handle_output (this=0x91ae870)
-</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/HttpRequestHandler.cpp:86
-</span><span class='line'>#8  0xb7d4d982 in ACE_Dev_Poll_Reactor_Notify::dispatch_notify (this=0x91a3c10,
-</span><span class='line'>    buffer=@0xbfaf5c04) at Dev_Poll_Reactor.cpp:365
-</span><span class='line'>#9  0xb7d4c91b in ACE_Dev_Poll_Reactor_Notify::handle_input (this=0x91a3c10, handle=5)
-</span><span class='line'>    at Dev_Poll_Reactor.cpp:297
-</span><span class='line'>#10 0xb7d4f945 in ACE_Dev_Poll_Reactor::dispatch_io_event (this=0x91a3980, guard=@0xbfaf5d14)
-</span><span class='line'>    at /home/cm/ACE_wrappers/ace/Dev_Poll_Reactor.inl:126
-</span><span class='line'>#11 0xb7d4fb4c in ACE_Dev_Poll_Reactor::dispatch (this=0x91a3980, guard=@0xbfaf5d14)
-</span><span class='line'>    at Dev_Poll_Reactor.cpp:1079
-</span><span class='line'>#12 0xb7d4fca6 in ACE_Dev_Poll_Reactor::handle_events_i (this=0x91a3980, max_wait_time=0x0,
-</span><span class='line'>    guard=@0xbfaf5d14) at Dev_Poll_Reactor.cpp:1056
-</span><span class='line'>#13 0xb7d4fd7c in ACE_Dev_Poll_Reactor::handle_events (this=0x91a3980, max_wait_time=0x0)
-</span><span class='line'>    at Dev_Poll_Reactor.cpp:1012
-</span><span class='line'>#14 0xb7d94fc3 in ACE_Reactor::run_reactor_event_loop (this=0x91a38c0, eh=0) at Reactor.cpp:224
-</span><span class='line'>#15 0x08062452 in main (argc=7, argv=0xbfaf5f04)
-</span><span class='line'>    at /home/cm/Dropbox/projects/ace_skel/src/main.cpp:75
-</span><span class='line'>#0  0xb80da430 in __kernel_vsyscall ()</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>规避方法</h2>
-
-<p>把<code>ACE_Message_Queue</code>的<code>high water level</code>设置为一个很高的值，
-避免队列满触发该bug。</p>
-
-<h2>参考</h2>
-
-<p><a href="http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/3575b21beae71683?pli=1">http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/3575b21beae71683?pli=1</a>
-<a href="http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/38fb11cf258f3eec">http://groups.google.com/group/comp.soft-sys.ace/browse_thread/thread/38fb11cf258f3eec</a></p>
 ]]></content>
   </entry>
   

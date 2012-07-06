@@ -1,0 +1,594 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>学习一点git - Ming's Blog</title>
+  <meta name="author" content="Ming">
+
+  
+  <meta name="description" content="git是什么东东？ Git is a fast, scalable, distributed revision control system with an unusually rich command set that provides both high-level operations &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.chenming.info/blog/2012/06/25/learn-git/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Ming's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33056683-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ming's Blog</a></h1>
+  
+    <h2>trivial notes</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.chenming.info" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/categories">Categories</a></li>
+  <li><a href="/blog/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">学习一点git</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-25T21:29:00+08:00" pubdate data-updated="true">Jun 25<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>git是什么东东？</h2>
+
+<blockquote><p>Git is a fast, scalable, distributed revision control system with an unusually rich command set that provides both high-level operations and full access to internals.</p></blockquote>
+
+<h2>git用法</h2>
+
+<h3>GUI</h3>
+
+<p><code>git</code>自带了个简单的GUI工具<code>gitk</code>。
+在Mac下可以使用<code>SourceTree</code>（在app store）可以免费下载。</p>
+
+<h3>获得帮助</h3>
+
+<p><code>git</code>提供了help来获得帮助信息。</p>
+
+<pre>
+$ git help
+usage: git [--version] [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]
+           [-p|--paginate|--no-pager] [--no-replace-objects] [--bare]
+           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]
+           [-c name=value] [--help]
+           <command> [<args>]
+
+The most commonly used git commands are:
+   add        Add file contents to the index
+   bisect     Find by binary search the change that introduced a bug
+   branch     List, create, or delete branches
+   checkout   Checkout a branch or paths to the working tree
+   clone      Clone a repository into a new directory
+   commit     Record changes to the repository
+   diff       Show changes between commits, commit and working tree, etc
+   fetch      Download objects and refs from another repository
+   grep       Print lines matching a pattern
+   init       Create an empty git repository or reinitialize an existing one
+   log        Show commit logs
+   merge      Join two or more development histories together
+   mv         Move or rename a file, a directory, or a symlink
+   pull       Fetch from and merge with another repository or a local branch
+   push       Update remote refs along with associated objects
+   rebase     Forward-port local commits to the updated upstream head
+   reset      Reset current HEAD to the specified state
+   rm         Remove files from the working tree and from the index
+   show       Show various types of objects
+   status     Show the working tree status
+   tag        Create, list, delete or verify a tag object signed with GPG
+
+See 'git help <command>' for more information on a specific command.
+</pre>
+
+
+<p>比如要想得到关于commit命令的帮助信息，可以使用</p>
+
+<pre><code>git help commit
+</code></pre>
+
+<h3>设置你的个人信息</h3>
+
+<p>在你每次提交时会记录你的用户名和邮箱，可以使用如下命令进行设置。</p>
+
+<pre><code>$ git config --global user.name "Your Name Comes Here"
+$ git config --global user.email you@yourdomain.example.com
+</code></pre>
+
+<h3>创建一个新的git仓库</h3>
+
+<pre><code>$ mkdir /path/to/your/project
+$ cd /path/to/your/project
+$ git init
+$ git add .
+$ git commit -m "First commit"
+</code></pre>
+
+<p><code>git init</code>会初始化一个<code>git</code>仓库，初始化后在当前目录会创建一个<code>.git</code>目录。</p>
+
+<p><code>git add .</code>把当前目录和其子目录的文件加入版本控制系统，但是这个时候还没有真正的提交到仓库。</p>
+
+<p><code>git commit</code>把<code>git add</code>产生的改动提交到仓库，<code>-m</code>参数提交的注释信息。</p>
+
+<h3>提交修改过的文件</h3>
+
+<pre><code>$ git status
+</code></pre>
+
+<p>显示本地有哪些文件改动过/新添加。</p>
+
+<pre><code>$ git add file1 file2 …
+</code></pre>
+
+<p>添加修改过的文件。</p>
+
+<pre><code>$ git diff --cached
+</code></pre>
+
+<p>显示修改过的文件的改动（只对使用<code>add</code>命令添加过的文件产生diff）。</p>
+
+<pre><code>$ git diff
+</code></pre>
+
+<p>显示修改过的文件的改动（对没有使用<code>add</code>命令添加过的文件产生diff）。</p>
+
+<pre><code>$ git commit -m "comments here..."
+</code></pre>
+
+<p>提交修改到仓库。</p>
+
+<p>如果要想要某些文件不受<code>git</code>管理，比如编译产生的中间文件。
+可以在项目的根目录下创建一个文件<code>.gitignore</code>来过滤这些文件。</p>
+
+<p>我的<code>.gitignore</code>如下</p>
+
+<pre>
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+#
+# xcode user settings
+#
+xcuserdata
+</pre>
+
+
+<p>更多的<code>.gitignore</code>可以参考<a href="https://github.com/github/gitignore">这里</a></p>
+
+<p><code>.gitignore</code>是针对一个项目的，也可以通过设置<code>git</code>全局的配置来指定在所有的项目中都要忽略的文件。
+比如你一个全局的配置文件<code>~/.gitignore_global</code>，使用下面的命令可以来指定</p>
+
+<pre><code>git config --global core.excludesfile ~/.gitignore_global
+</code></pre>
+
+<h3>修订历史</h3>
+
+<p>要查看提交的历史记录，使用<code>log</code>命令：</p>
+
+<pre>
+$ git log
+commit c82a22c39cbc32576f64f5c6b3f24b99ea8149c7
+Author: Junio C Hamano <junkio@cox.net>
+Date:   Tue May 16 17:18:22 2006 -0700
+
+    merge-base: Clarify the comments on post processing.
+</pre>
+
+
+<p>要查看每次提交到底有哪些改动，加<code>-p</code>参数：</p>
+
+<pre><code>$ git log -p
+</code></pre>
+
+<p><code>-p</code>输出非常详细，如果只想查看每次提交包含了哪些文件的改动，使用命令：</p>
+
+<pre><code>$ git log --stat --summary
+</code></pre>
+
+<p>如果要查看某次提交具体做了哪些修改，使用<code>git show</code>命令：</p>
+
+<pre><code>$ git show c82a22c39cbc32576f64f5c6b3f24b99ea8149c7
+</code></pre>
+
+<p>c82a22c39cbc32576f64f5c6b3f24b99ea8149c7是某次提交的hash值。
+在使用<code>show</code>命令是不用每次都完整的输入，只需要输入前面的几个字符能唯一标识一次提交即可：</p>
+
+<pre>
+$ git show c82a22c39c   # the first few characters of the name are
+                        # usually enough
+$ git show HEAD         # the tip of the current branch
+$ git show experimental # the tip of the "experimental" branch
+</pre>
+
+
+<p>如果要想使用图形界面查看，使用<code>gitk</code>：</p>
+
+<pre><code>$ gitk
+</code></pre>
+
+<p>也可以使用网页形式来查看历史记录：</p>
+
+<pre><code>$ git instaweb
+</code></pre>
+
+<p><code>instaweb</code>命令需要一个web服务器，如果是MAC，可以使用<code>brew</code>来安装一个<code>lighttpd</code></p>
+
+<pre><code>$ brew install lighttpd
+</code></pre>
+
+<h3>分支管理</h3>
+
+<p><code>git</code>支持在一个仓库中维护多个分支的功能。创建分支是非常轻量级的操作。
+使用下面的命令创建一个名为“experimental”的分支：</p>
+
+<pre><code>$ git branch experimental
+</code></pre>
+
+<p>使用<code>branch</code>命令来列出所有的分支：</p>
+
+<pre><code>$ git branch
+  experimental
+* master
+</code></pre>
+
+<p>“experimental”分支是刚刚创建的分支，“master”分支是由系统自动创建的缺省分支。
+星号（*）表示当前你当前工作在哪个分支上。</p>
+
+<p>要在分支之间切换，使用<code>checkout</code>命令。下面的命令切换到“experimental”分支上：</p>
+
+<pre><code>$ git checkout experimental
+</code></pre>
+
+<p>现在修改一些文件，然后在切换回“master”分支：</p>
+
+<pre><code>(edit file)
+$ git commit -a
+$ git checkout master
+</code></pre>
+
+<p>然后在“master”分支上在做一些修改并提交：</p>
+
+<pre><code>(edit file)
+$ git commit -a
+</code></pre>
+
+<p>要合并“experimental”分支的修改到“master”分支，使用下面的命令：</p>
+
+<pre><code>$ git merge experimental
+</code></pre>
+
+<p>如果没有冲突，合并会自动完成，如果有冲突，需要手动解决冲突。
+使用<code>diff</code>命令来查看有<code>merge</code>有改动了哪些文件。</p>
+
+<pre><code>$ git diff
+</code></pre>
+
+<p>在解决了冲突之后使用<code>commit</code>命令提交修改:</p>
+
+<pre><code>$ git commit -a -m "commit on master…"
+</code></pre>
+
+<p>在分支上的修改都合并到之后并不在使用该分支时，可以使用<code>git branch -d</code>来删除该分支：</p>
+
+<pre><code>$ git branch -d experimental
+</code></pre>
+
+<p>该命令会确保分支上的修改已经合并到“master”分支。</p>
+
+<p>如果要强制删除一个分支，可以使用<code>git branch -D</code>来完成：</p>
+
+<pre><code>$ git branch -D crazy-idea
+</code></pre>
+
+<p>该命令不会检查分支的合并状态，在分支上的修改会丢失。</p>
+
+<h3>和远程仓库同步</h3>
+
+<p>从远程仓库clone：</p>
+
+<pre><code>$ git clone https://foobar@bitbucket.org/foobar/sandbox.git
+</code></pre>
+
+<p>把本地仓库同步到远程仓库上去：</p>
+
+<pre><code>$ cd /path/to/my/repo
+$ git remote add origin https://foobar@bitbucket.org/foobar/sandbox.git
+$ git push -u origin master   # to push changes for the first time
+</code></pre>
+
+<h2>git的竞争对手</h2>
+
+<ul>
+<li><a href="http://mercurial.selenic.com/">mercurial</a>是另一个分布式的版本控制系统。</li>
+</ul>
+
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://www.kernel.org/pub/software/scm/git/docs/user-manual.html">git用户手册</a></li>
+<li><a href="http://www.kernel.org/pub/software/scm/git/docs/">git命令行参考手册</a></li>
+<li><a href="http://www.kernel.org/pub/software/scm/git/docs/gittutorial.html">git入门教程</a></li>
+<li><a href="http://www.kernel.org/pub/software/scm/git/docs/everyday.html">git常用命令</a></li>
+<li><a href="http://www.kernel.org/pub/software/scm/git/docs/gitworkflows.html">gitworkflows - An overview of recommended workflows with git</a></li>
+<li><a href="http://code.google.com/p/support/wiki/DVCSAnalysis">Analysis of Git and Mercurial</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ming</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-25T21:29:00+08:00" pubdate data-updated="true">Jun 25<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/git/'>git</a>, <a class='category' href='/blog/categories/howto/'>howto</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+  <span>
+  <iframe 
+    width="86" 
+    scrolling="no" 
+    height="16" 
+    frameborder="0" 
+    src=
+      "http://hits.sinajs.cn/A1/weiboshare.html?url=http://blog.chenming.info/blog/2012/06/25/learn-git/&amp;type=6&amp;ralateUid=2036163762&amp;language=zh_cn" allowtransparency="true">
+  </iframe>
+  </span>
+  
+</div>
+
+<hr style="border-bottom:1px dotted #bdbabd;height:1px;border-top:0px;border-left:0px;border-right:0px;" />
+
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/06/22/html5-resources/" title="Previous Post: 学习一点HTML5">&laquo; 学习一点HTML5</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/06/29/install-octave-on-mac/" title="Next Post: 在Mac上安装octave">在Mac上安装octave &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/07/04/android-sparsearray/">Android上使用SparseArray来替代HashMap</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/06/29/install-octave-on-mac/">在Mac上安装octave</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/06/25/learn-git/">学习一点git</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/13/install-wp7-sdk-on-xp/">在XP下安装WP7的SDK</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/02/how-to-use-wp7-as-usb-drive/">How to use WP7 as USB drive</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/28/jquery-revert-selection/">jQuery reverse selection</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/24/jquery-tree-filter/">实现jQuery的treeview的filter</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>新浪微博</h1>
+  <ul id="weibo">
+    <li>
+      <iframe 
+        width="100%" 
+        height="550" 
+        class="share_self" 
+        frameborder="0" 
+        scrolling="no" 
+        src="http://widget.weibo.com/weiboshow/index.php?width=0&height=550&ptype=1&speed=0&skin=&isTitle=0&noborder=1&isWeibo=1&isFans=&uid=2036163762&verifier=bce5fd03">
+      </iframe>
+    </li>
+  </ul>
+</section>
+
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Ming -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'chenming';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.chenming.info/blog/2012/06/25/learn-git/';
+        var disqus_url = 'http://blog.chenming.info/blog/2012/06/25/learn-git/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

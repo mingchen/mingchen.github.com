@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: android | Ming's Blog]]></title>
+  <link href="http://blog.chenming.info/blog/categories/android/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-06T09:28:42+08:00</updated>
+  <id>http://blog.chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Android上使用SparseArray来替代HashMap]]></title>
+    <link href="http://blog.chenming.info/blog/2012/07/04/android-sparsearray/"/>
+    <updated>2012-07-04T10:50:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2012/07/04/android-sparsearray</id>
+    <content type="html"><![CDATA[<p>在android上做lint时，下面的代码会收到警告，提示使用<code>SparseArray</code>来代替<code>HashMap</code>来提高性能。</p>
+
+<pre><code>private static Map&lt;Integer, CommandHandler&gt; mCmdToComponent
+    = new HashMap&lt;Integer, CommandHandler&gt;();
+</code></pre>
+
+<p>详细信息如下：</p>
+
+<p><blockquote><p>Use new SparseArray&lt;Object&gt;(...) instead for better performance</p></p><p><p>Issue: Looks for opportunities to replace HashMaps with the more efficient SparseArray<br/>Id: UseSparseArrays</p></p><p><p>For maps where the keys are of type integer, it's typically more efficient to use the Android SparseArray API. This check identifies scenarios where you might want to consider using SparseArray instead of HashMap for better performance.</p></p><p><p>This is <em>particularly</em> useful when the value types are primitives like ints, where you can use SparseIntArray and avoid auto-boxing the values from int to Integer.</p></p><p><p>If you need to construct a HashMap because you need to call an API outside of your control which requires a Map, you can suppress this warning using for example the @SuppressLint annotation.</p></p><p><p></p></blockquote></p>
+
+<p>出于好奇看了看<code>SparseArray</code>的源代码，发现它内部是使用有序数组+二分查找来实现的。
+插入、查找和删除操作的效率都是<code>log2(n)</code>。
+在插入的时候还要对整个数组进行移动，代价也是不低的。
+对<code>HashMap</code>来说，它更省空间和省了<code>auto-boxing</code>的开销。</p>
+
+<p>参考:</p>
+
+<ul>
+<li><a href="http://developer.android.com/reference/android/util/SparseArray.html">http://developer.android.com/reference/android/util/SparseArray.html</a></li>
+<li><a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.0.3_r1/android/util/SparseArray.java?av=f">SparseArray.java - 源代码</a></li>
+<li><a href="http://code.google.com/p/re2/source/browse/util/sparse_array.h">http://code.google.com/p/re2/source/browse/util/sparse_array.h</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
