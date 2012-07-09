@@ -4,7 +4,7 @@
   <title><![CDATA[Ming's Blog]]></title>
   <link href="http://blog.chenming.info/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2012-07-08T08:43:41+08:00</updated>
+  <updated>2012-07-09T15:04:22+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -12,6 +12,98 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Python的virtualenv和pip]]></title>
+    <link href="http://blog.chenming.info/blog/2012/07/08/python-pip-virtualenv/"/>
+    <updated>2012-07-08T22:53:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2012/07/08/python-pip-virtualenv</id>
+    <content type="html"><![CDATA[<h2>什么是virtualenv</h2>
+
+<blockquote><p>virtualenv is a tool to create isolated Python environments.</p><p>The basic problem being addressed is one of dependencies and versions, and indirectly permissions. Imagine you have an application that needs version 1 of LibFoo, but another application requires version 2. How can you use both these applications? If you install everything into /usr/lib/python2.7/site-packages (or whatever your platform’s standard location is), it’s easy to end up in a situation where you unintentionally upgrade an application that shouldn’t be upgraded.</p><p>Or more generally, what if you want to install an application and leave it be? If an application works, any change in its libraries or the versions of those libraries can break the application.</p><p>Also, what if you can’t install packages into the global site-packages directory? For instance, on a shared host.</p><p>In all these cases, virtualenv can help you. It creates an environment that has its own installation directories, that doesn’t share libraries with other virtualenv environments (and optionally doesn’t access the globally installed libraries either).</p><footer><strong>What It Does</strong> <cite><a href='http://www.virtualenv.org/en/latest/index.html#id4'>www.virtualenv.org/en/latest/&hellip;</a></cite></footer></blockquote>
+
+
+<h2>安装virtualenv和pip</h2>
+
+<p>推荐的安装方法是安装<code>virtualenv</code>，它会自动安装<code>pip</code>。
+最简单安装<code>virtualenv</code>的方法如下：</p>
+
+<pre><code>$ curl -O https://raw.github.com/pypa/virtualenv/master/virtualenv.py
+$ python virtualenv.py my_new_env
+$ . my_new_env/bin/activate
+(my_new_env)$ pip install ...
+</code></pre>
+
+<p>安装<code>pip</code>的前提条件是要安装<a href="http://pypi.python.org/pypi/setuptools">setuptools</a>
+或<a href="http://pypi.python.org/pypi/distribute">distribute</a>。
+安装<code>distribute</code>的方法：</p>
+
+<pre><code>$ curl http://python-distribute.org/distribute_setup.py | python
+</code></pre>
+
+<p><em>警告</em>：如果是<code>Python 3.x</code>，必须安装<code>distribute</code>，因为<code>setuptools</code>不支持<code>Python 3.x</code>。</p>
+
+<p>如果不想安装<code>virtualenv</code>，也可以直接安装<code>pip</code>：</p>
+
+<pre><code>$ curl https://raw.github.com/pypa/pip/master/contrib/get-pip.py | python
+</code></pre>
+
+<p>这可能需要<code>root</code>的权限。</p>
+
+<h3>pip用法</h3>
+
+<p><code>pip</code>是个包管理系统，使用它能方便的安装我们想要的包。</p>
+
+<h4>安装</h4>
+
+<p>使用<code>pip</code>的<code>install</code>命令即可安装一个指定的软件包：</p>
+
+<pre><code>$ pip install SomePackage
+</code></pre>
+
+<p>如果已经安装了某个软件包，需要升级安装，需要指定<code>--upgrade</code>参数：</p>
+
+<pre><code>$ pip install --upgrade SomePackage
+</code></pre>
+
+<p>如果要安装指定的版本的软件包，直接指定软件包版本即可：</p>
+
+<pre><code>$ pip install SomePackage==1.0.4
+</code></pre>
+
+<p><code>pip</code>还指定安装包的路径，包括从本地源代码安装或者网上的某个链接安装：</p>
+
+<pre><code>$ pip install ./downloads/SomePackage-1.0.4.tar.gz
+$ pip install http://my.package.repo/SomePackage-1.0.4.zip
+</code></pre>
+
+<h4>卸载</h4>
+
+<p>要卸载一个软件包，使用<code>uninstall</code>命令即可：</p>
+
+<pre><code>$ pip uninstall package-name
+</code></pre>
+
+<h4>查询</h4>
+
+<p>如果不清楚要安装的软件包的具体名称，可以使用<code>search</code>命令进行查询：</p>
+
+<pre><code>$ pip search "query"
+</code></pre>
+
+<p>它会列出所有相关的软包。</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://pypi.python.org/pypi/pip/">http://pypi.python.org/pypi/pip/</a></li>
+<li><a href="http://www.virtualenv.org">http://www.virtualenv.org</a></li>
+<li><a href="http://www.pip-installer.org/">http://www.pip-installer.org/</a></li>
+<li><a href="http://www.pip-installer.org/en/latest/usage.html">http://www.pip-installer.org/en/latest/usage.html</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android上使用SparseArray来替代HashMap]]></title>
@@ -698,6 +790,9 @@ $ git push -u origin master   # to push changes for the first time
     <id>http://blog.chenming.info/blog/2011/12/29/web-developer-tools-bookmark</id>
     <content type="html"><![CDATA[<ul>
 <li>一个在线调试和共享js代码的网站：<a href="http://jsfiddle.net">http://jsfiddle.net</a></li>
+<li>Email icon generator：<a href="http://services.nexodyne.com/email/index.php">http://services.nexodyne.com/email/index.php</a></li>
+<li>在线把网页转换为pdf：<a href="http://www.printfriendly.com/">http://www.printfriendly.com/</a></li>
+<li>Web模板下载：<a href="http://960.gs/">http://960.gs/</a></li>
 </ul>
 
 ]]></content>
@@ -1796,118 +1891,6 @@ reboot
 </code></pre>
 
 <p>After system reboot, the kdump is ready. the kernel crash file is located at <code>/var/crash/</code>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[DRBD实践]]></title>
-    <link href="http://blog.chenming.info/blog/2009/03/06/drbd/"/>
-    <updated>2009-03-06T22:31:00+08:00</updated>
-    <id>http://blog.chenming.info/blog/2009/03/06/drbd</id>
-    <content type="html"><![CDATA[<h2>实验环境</h2>
-
-<pre><code>OS：RHEL 5.2 64bit
-DRBD 8.2.6
-</code></pre>
-
-<h2>硬件配置：</h2>
-
-<ul>
-<li>三个物理网卡(注[1])（2个用于bonding，一个用于心跳。）</li>
-<li>在两台机器上分别分配一个4G的分区。</li>
-</ul>
-
-
-<h2>准备工作</h2>
-
-<p>为了测试方便，先划一个2G大小的逻辑分区出来。</p>
-
-<pre><code># lvcreate –L 2G –n lvol0 vg1
-</code></pre>
-
-<p>划一个分区来做<code>meta-disk</code></p>
-
-<pre><code># lvcreate –L 200M –n metadisk vg1
-</code></pre>
-
-<h2>编译</h2>
-
-<pre><code># tar zxvf drbd-8.2.6.tar.gz
-# cd drbd-8.2.6/drbd
-# make clean all
-# cd ../
-# make tools
-# make install
-</code></pre>
-
-<h2>配置</h2>
-
-<p>配置文件：<code>/etc/drbd.conf</code></p>
-
-<p>样例文件：</p>
-
-<p>使用scp把<code>/etc/drbd.conf</code>拷贝到另一台运行DBRD的机器上。</p>
-
-<pre><code># scp /etc/drbd.conf root@ssa-1:/etc/drbd.conf
-</code></pre>
-
-<p>创建DRBD记录信息数据块，分别在两台机器上执行如下命令：</p>
-
-<pre><code>ssa-0 # drbdadm create-md r0
-ssa-1 # drbdadm create-md r0
-</code></pre>
-
-<h2>启动DRBD</h2>
-
-<p>需要在两台机器上同时启动DRBD服务：</p>
-
-<pre><code>ssa-0#/etc/init.d/drbd start
-ssa-1#/etc/init.d/drbd start
-</code></pre>
-
-<h2>检查DBRD状态</h2>
-
-<pre><code># cat /proc/drbd
-</code></pre>
-
-<p><code>st</code>表示主备状态。</p>
-
-<h2>操作DRBD</h2>
-
-<p>把当前的主机设置主机</p>
-
-<pre><code>ssa-0# drbdsetup /dev/drbd1 primary -o
-</code></pre>
-
-<p>创建文件系统</p>
-
-<pre><code>mkfs.ext3 –j /dev/drbd1
-</code></pre>
-
-<p>把当前的主机设置为备机。需要先卸下挂载的DRBD设备：</p>
-
-<pre><code># umount /dev/drbd1
-</code></pre>
-
-<p>然后执行如下命令：</p>
-
-<pre><code># drbdadm secondary r0
-</code></pre>
-
-<p>把备机升级为主机：</p>
-
-<pre><code># drbdadm primary r0
-</code></pre>
-
-<h2>参考资料</h2>
-
-<ul>
-<li><a href="http://www.drbd.org/docs">http://www.drbd.org/docs</a></li>
-<li>man drbd.conf</li>
-</ul>
-
-
-<p>注：[1] 也可以只使用2个网卡，把心跳合在bonding网卡上。建议把心跳的网卡单独出来。</p>
 ]]></content>
   </entry>
   

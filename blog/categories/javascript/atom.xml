@@ -4,7 +4,7 @@
   <title><![CDATA[Category: javascript | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/javascript/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2012-07-08T08:43:41+08:00</updated>
+  <updated>2012-07-09T15:04:22+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -20,6 +20,9 @@
     <id>http://blog.chenming.info/blog/2011/12/29/web-developer-tools-bookmark</id>
     <content type="html"><![CDATA[<ul>
 <li>一个在线调试和共享js代码的网站：<a href="http://jsfiddle.net">http://jsfiddle.net</a></li>
+<li>Email icon generator：<a href="http://services.nexodyne.com/email/index.php">http://services.nexodyne.com/email/index.php</a></li>
+<li>在线把网页转换为pdf：<a href="http://www.printfriendly.com/">http://www.printfriendly.com/</a></li>
+<li>Web模板下载：<a href="http://960.gs/">http://960.gs/</a></li>
 </ul>
 
 ]]></content>

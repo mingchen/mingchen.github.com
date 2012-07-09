@@ -9,9 +9,9 @@
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="2.4的内核中可以通过修改sys_call_table来很轻松的替换系统调用，
-来完成很多trick，很多的rootkit就是基于这种手法来完成的。
-到了2.6的内核，事情就不是这么回事了，sys_call_table不再被export出来了。 &hellip;">
+  <meta name="description" content="实验环境 OS：RHEL 5.2 64bit
+DRBD 8.2.6 硬件配置： 三个物理网卡(注[1])（2个用于bonding，一个用于心跳。）
+在两台机器上分别分配一个4G的分区。 准备工作 为了测试方便，先划一个2G大小的逻辑分区出来。 # lvcreate –L 2G –n lvol0 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -80,6 +80,147 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2009/03/06/drbd/">DRBD实践</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-03-06T22:31:00+08:00" pubdate data-updated="true">Mar 6<span>th</span>, 2009</time>
+        
+         | <a href="/blog/2009/03/06/drbd/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>实验环境</h2>
+
+<pre><code>OS：RHEL 5.2 64bit
+DRBD 8.2.6
+</code></pre>
+
+<h2>硬件配置：</h2>
+
+<ul>
+<li>三个物理网卡(注[1])（2个用于bonding，一个用于心跳。）</li>
+<li>在两台机器上分别分配一个4G的分区。</li>
+</ul>
+
+
+<h2>准备工作</h2>
+
+<p>为了测试方便，先划一个2G大小的逻辑分区出来。</p>
+
+<pre><code># lvcreate –L 2G –n lvol0 vg1
+</code></pre>
+
+<p>划一个分区来做<code>meta-disk</code></p>
+
+<pre><code># lvcreate –L 200M –n metadisk vg1
+</code></pre>
+
+<h2>编译</h2>
+
+<pre><code># tar zxvf drbd-8.2.6.tar.gz
+# cd drbd-8.2.6/drbd
+# make clean all
+# cd ../
+# make tools
+# make install
+</code></pre>
+
+<h2>配置</h2>
+
+<p>配置文件：<code>/etc/drbd.conf</code></p>
+
+<p>样例文件：</p>
+
+<p>使用scp把<code>/etc/drbd.conf</code>拷贝到另一台运行DBRD的机器上。</p>
+
+<pre><code># scp /etc/drbd.conf root@ssa-1:/etc/drbd.conf
+</code></pre>
+
+<p>创建DRBD记录信息数据块，分别在两台机器上执行如下命令：</p>
+
+<pre><code>ssa-0 # drbdadm create-md r0
+ssa-1 # drbdadm create-md r0
+</code></pre>
+
+<h2>启动DRBD</h2>
+
+<p>需要在两台机器上同时启动DRBD服务：</p>
+
+<pre><code>ssa-0#/etc/init.d/drbd start
+ssa-1#/etc/init.d/drbd start
+</code></pre>
+
+<h2>检查DBRD状态</h2>
+
+<pre><code># cat /proc/drbd
+</code></pre>
+
+<p><code>st</code>表示主备状态。</p>
+
+<h2>操作DRBD</h2>
+
+<p>把当前的主机设置主机</p>
+
+<pre><code>ssa-0# drbdsetup /dev/drbd1 primary -o
+</code></pre>
+
+<p>创建文件系统</p>
+
+<pre><code>mkfs.ext3 –j /dev/drbd1
+</code></pre>
+
+<p>把当前的主机设置为备机。需要先卸下挂载的DRBD设备：</p>
+
+<pre><code># umount /dev/drbd1
+</code></pre>
+
+<p>然后执行如下命令：</p>
+
+<pre><code># drbdadm secondary r0
+</code></pre>
+
+<p>把备机升级为主机：</p>
+
+<pre><code># drbdadm primary r0
+</code></pre>
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="http://www.drbd.org/docs">http://www.drbd.org/docs</a></li>
+<li>man drbd.conf</li>
+</ul>
+
+
+<p>注：[1] 也可以只使用2个网卡，把心跳合在bonding网卡上。建议把心跳的网卡单独出来。</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -5454,6 +5595,10 @@ time.nist.gov
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/07/08/python-pip-virtualenv/">Python的virtualenv和pip</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/07/04/android-sparsearray/">Android上使用SparseArray来替代HashMap</a>
       </li>
     
@@ -5489,15 +5634,11 @@ time.nist.gov
         <a href="/blog/2011/12/28/jquery-revert-selection/">jQuery reverse selection</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2011/12/24/jquery-tree-filter/">实现jQuery的treeview的filter</a>
-      </li>
-    
   </ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 104.28571428571429%'>android(1)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 104.28571428571429%'>django(1)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 104.28571428571429%'>octave(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 104.28571428571429%'>python(1)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
+    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 104.28571428571429%'>android(1)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 104.28571428571429%'>django(1)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 104.28571428571429%'>octave(1)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 108.57142857142857%'>python(2)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
 </section>
 
 <section>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: virtualenv | Ming's Blog]]></title>
+  <link href="http://blog.chenming.info/blog/categories/virtualenv/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-07-09T15:04:22+08:00</updated>
+  <id>http://blog.chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Python的virtualenv和pip]]></title>
+    <link href="http://blog.chenming.info/blog/2012/07/08/python-pip-virtualenv/"/>
+    <updated>2012-07-08T22:53:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2012/07/08/python-pip-virtualenv</id>
+    <content type="html"><![CDATA[<h2>什么是virtualenv</h2>
+
+<p><blockquote><p>virtualenv is a tool to create isolated Python environments.</p></p><p><p>The basic problem being addressed is one of dependencies and versions, and indirectly permissions. Imagine you have an application that needs version 1 of LibFoo, but another application requires version 2. How can you use both these applications? If you install everything into /usr/lib/python2.7/site-packages (or whatever your platform’s standard location is), it’s easy to end up in a situation where you unintentionally upgrade an application that shouldn’t be upgraded.</p></p><p><p>Or more generally, what if you want to install an application and leave it be? If an application works, any change in its libraries or the versions of those libraries can break the application.</p></p><p><p>Also, what if you can’t install packages into the global site-packages directory? For instance, on a shared host.</p></p><p><p>In all these cases, virtualenv can help you. It creates an environment that has its own installation directories, that doesn’t share libraries with other virtualenv environments (and optionally doesn’t access the globally installed libraries either).</p><footer><strong>What It Does</strong> <cite><a href='http://www.virtualenv.org/en/latest/index.html#id4'>www.virtualenv.org/en/latest/&hellip;</a></cite></footer></blockquote></p>
+
+<h2>安装virtualenv和pip</h2>
+
+<p>推荐的安装方法是安装<code>virtualenv</code>，它会自动安装<code>pip</code>。
+最简单安装<code>virtualenv</code>的方法如下：</p>
+
+<pre><code>$ curl -O https://raw.github.com/pypa/virtualenv/master/virtualenv.py
+$ python virtualenv.py my_new_env
+$ . my_new_env/bin/activate
+(my_new_env)$ pip install ...
+</code></pre>
+
+<p>安装<code>pip</code>的前提条件是要安装<a href="http://pypi.python.org/pypi/setuptools">setuptools</a>
+或<a href="http://pypi.python.org/pypi/distribute">distribute</a>。
+安装<code>distribute</code>的方法：</p>
+
+<pre><code>$ curl http://python-distribute.org/distribute_setup.py | python
+</code></pre>
+
+<p><em>警告</em>：如果是<code>Python 3.x</code>，必须安装<code>distribute</code>，因为<code>setuptools</code>不支持<code>Python 3.x</code>。</p>
+
+<p>如果不想安装<code>virtualenv</code>，也可以直接安装<code>pip</code>：</p>
+
+<pre><code>$ curl https://raw.github.com/pypa/pip/master/contrib/get-pip.py | python
+</code></pre>
+
+<p>这可能需要<code>root</code>的权限。</p>
+
+<h3>pip用法</h3>
+
+<p><code>pip</code>是个包管理系统，使用它能方便的安装我们想要的包。</p>
+
+<h4>安装</h4>
+
+<p>使用<code>pip</code>的<code>install</code>命令即可安装一个指定的软件包：</p>
+
+<pre><code>$ pip install SomePackage
+</code></pre>
+
+<p>如果已经安装了某个软件包，需要升级安装，需要指定<code>--upgrade</code>参数：</p>
+
+<pre><code>$ pip install --upgrade SomePackage
+</code></pre>
+
+<p>如果要安装指定的版本的软件包，直接指定软件包版本即可：</p>
+
+<pre><code>$ pip install SomePackage==1.0.4
+</code></pre>
+
+<p><code>pip</code>还指定安装包的路径，包括从本地源代码安装或者网上的某个链接安装：</p>
+
+<pre><code>$ pip install ./downloads/SomePackage-1.0.4.tar.gz
+$ pip install http://my.package.repo/SomePackage-1.0.4.zip
+</code></pre>
+
+<h4>卸载</h4>
+
+<p>要卸载一个软件包，使用<code>uninstall</code>命令即可：</p>
+
+<pre><code>$ pip uninstall package-name
+</code></pre>
+
+<h4>查询</h4>
+
+<p>如果不清楚要安装的软件包的具体名称，可以使用<code>search</code>命令进行查询：</p>
+
+<pre><code>$ pip search "query"
+</code></pre>
+
+<p>它会列出所有相关的软包。</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://pypi.python.org/pypi/pip/">http://pypi.python.org/pypi/pip/</a></li>
+<li><a href="http://www.virtualenv.org">http://www.virtualenv.org</a></li>
+<li><a href="http://www.pip-installer.org/">http://www.pip-installer.org/</a></li>
+<li><a href="http://www.pip-installer.org/en/latest/usage.html">http://www.pip-installer.org/en/latest/usage.html</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
