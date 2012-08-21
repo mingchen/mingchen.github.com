@@ -9,9 +9,9 @@
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="实验环境 OS：RHEL 5.2 64bit
-DRBD 8.2.6 硬件配置： 三个物理网卡(注[1])（2个用于bonding，一个用于心跳。）
-在两台机器上分别分配一个4G的分区。 准备工作 为了测试方便，先划一个2G大小的逻辑分区出来。 # lvcreate –L 2G –n lvol0 &hellip;">
+  <meta name="description" content="Kdump是一种调试Linux内核的方法，
+用于在Linux内核出现Oops之后自动dump内核映像到指定位置的机制，
+便于我们的事后调试。 Kdump is a new kernel crash dumping mechanism and is very reliable.The crash &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -80,6 +80,102 @@ DRBD 8.2.6 硬件配置： 三个物理网卡(注[1])（2个用于bonding，一�
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2009/05/05/how-to-setup-rhel-kdump/">How to Setup RHEL Kdump</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-05-05T22:39:00+08:00" pubdate data-updated="true">May 5<span>th</span>, 2009</time>
+        
+         | <a href="/blog/2009/05/05/how-to-setup-rhel-kdump/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><code>Kdump</code>是一种调试Linux内核的方法，
+用于在Linux内核出现<code>Oops</code>之后自动dump内核映像到指定位置的机制，
+便于我们的事后调试。</p>
+
+<blockquote><p>Kdump is a new kernel crash dumping mechanism and is very reliable.<br/>The crash dump is captured from the context of a freshly booted kernel<br/>and not from the context of the crashed kernel.<br/>Kdump uses kexec to boot into a second kernel whenever the system crashes.<br/>This second kernel, often called a capture kernel, boots with very little<br/>memory and captures the dump image.</p></blockquote>
+
+
+<ol>
+<li>Install <code>kexec-tools</code></li>
+</ol>
+
+
+<p>Install by <code>yum</code>:</p>
+
+<pre><code>yum install kexec-tools
+</code></pre>
+
+<ol>
+<li>write kdump config file <code>/etc/kdump.conf</code></li>
+</ol>
+
+
+<p>An example with following content.</p>
+
+<pre><code>path /var/crash
+core_collector makedumpfile -d 31 -c
+</code></pre>
+
+<ol>
+<li>change <code>/etc/grub.conf</code> append <code>crashkernel=128M@16M</code> to the end of kernel line.</li>
+</ol>
+
+
+<p>An example of <code>/etc/grub.conf</code></p>
+
+<pre><code>default=0
+timeout=5
+splashimage=(hd0,0)/grub/splash.xpm.gz
+hiddenmenu
+title Red Hat Enterprise Linux Server (2.6.18-128.el5)
+        root (hd0,0)
+        kernel /vmlinuz-2.6.18-128.el5 ro root=/dev/mapper/luks-10d5d533-38f6-482c-982d-bfb488adfbed
+ rhgb quiet crashkernel=128M@16M
+        initrd /initrd-2.6.18-128.el5.img
+</code></pre>
+
+<ol>
+<li>post config</li>
+</ol>
+
+
+<p>Set <code>kdump</code> service automatically start with system startup.</p>
+
+<pre><code>chkconfig kdump on
+service kdump start
+reboot
+</code></pre>
+
+<p>After system reboot, the kdump is ready. the kernel crash file is located at <code>/var/crash/</code>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -5595,6 +5691,10 @@ time.nist.gov
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/07/15/learn-octave/">学习一点octave</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/07/08/python-pip-virtualenv/">Python的virtualenv和pip</a>
       </li>
     
@@ -5630,15 +5730,11 @@ time.nist.gov
         <a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2011/12/28/jquery-revert-selection/">jQuery reverse selection</a>
-      </li>
-    
   </ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 104.28571428571429%'>android(1)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 104.28571428571429%'>django(1)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 104.28571428571429%'>octave(1)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 108.57142857142857%'>python(2)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
+    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 104.28571428571429%'>android(1)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 104.28571428571429%'>django(1)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 108.57142857142857%'>python(2)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
 </section>
 
 <section>

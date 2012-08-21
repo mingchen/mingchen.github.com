@@ -4,7 +4,7 @@
   <title><![CDATA[Ming's Blog]]></title>
   <link href="http://blog.chenming.info/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2012-07-12T10:07:33+08:00</updated>
+  <updated>2012-08-21T17:52:25+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -12,6 +12,581 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[学习一点octave]]></title>
+    <link href="http://blog.chenming.info/blog/2012/07/15/learn-octave/"/>
+    <updated>2012-07-15T17:51:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2012/07/15/learn-octave</id>
+    <content type="html"><![CDATA[<h2>入门</h2>
+
+<p>不像<code>matlab</code>有图形界面，<code>octave</code>只提供了命令行接口。
+要启动<code>octave</code>，只需要在命令行输入<code>octave</code>即可。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ octave
+</span><span class='line'>GNU Octave, version 3.6.1
+</span><span class='line'>Copyright (C) 2012 John W. Eaton and others.
+</span><span class='line'>This is free software; see the source code for copying conditions.
+</span><span class='line'>There is ABSOLUTELY NO WARRANTY; not even for MERCHANTABILITY or
+</span><span class='line'>FITNESS FOR A PARTICULAR PURPOSE.  For details, type `warranty'.
+</span><span class='line'>
+</span><span class='line'>Octave was configured for "x86_64-apple-darwin11.4.0".
+</span><span class='line'>
+</span><span class='line'>Additional information about Octave is available at http://www.octave.org.
+</span><span class='line'>
+</span><span class='line'>Please contribute if you find this software useful.
+</span><span class='line'>For more information, visit http://www.octave.org/help-wanted.html
+</span><span class='line'>
+</span><span class='line'>Read http://www.octave.org/bugs.html to learn how to submit bug reports.
+</span><span class='line'>
+</span><span class='line'>For information about changes from previous versions, type `news'.
+</span><span class='line'>
+</span><span class='line'>octave:1></span></code></pre></td></tr></table></div></figure>
+
+
+<p>接下来我们就可以向<code>octave</code>发出指令了，比如进行简单的数学运算：</p>
+
+<pre><code>octave:2&gt; 2 * (3 + 5)
+ans =  16
+
+octave:3&gt; 2 ^ (3 + 5)
+ans =  256
+</code></pre>
+
+<h3>变量</h3>
+
+<p>默认情况运算的结果会保存在ans这个变量中，在octave里还能使用变量，
+比如创建一个变量x用于保存一次运算的结果：</p>
+
+<pre><code>octave:7&gt; x = 2 * 3
+x =  6
+</code></pre>
+
+<p>如果想查看当前有哪些变量在使用，使用<code>who</code>命令：</p>
+
+<pre><code>octave:8&gt; who
+Variables in the current scope:
+
+ans  x
+</code></pre>
+
+<p>要查看某个变量的值，可以使用<code>disp</code>，比如要查看刚刚创建的变量x的值：</p>
+
+<pre><code>octave:9&gt; disp(x)
+ 6
+</code></pre>
+
+<h3>常量</h3>
+
+<p><code>octave</code>系统定义了圆周率<code>pi</code>和自然指数<code>e</code>这两个常量，</p>
+
+<pre><code>octave:2&gt; pi
+ans =  3.1416
+octave:3&gt; e
+ans =  2.7183
+</code></pre>
+
+<p>另外系统还定义了<code>Inf</code>和<code>NaN</code>（注意要区分大小写）。
+<code>Inf</code>(Infinity)表示被零除的结果，<code>NaN</code>(Not a Number)表示零除零的结果。</p>
+
+<pre><code>octave:23&gt; 3/0
+warning: division by zero
+ans = Inf
+octave:24&gt; 0/0
+warning: division by zero
+ans = NaN
+</code></pre>
+
+<h3>定义显示结果方式</h3>
+
+<p>使用<code>format</code>命令可以定义输出结果以什么格式显示，
+比如<code>hex</code>指定为十六进制，<code>bit</code>指定为八进制，<code>long</code>能以更高的精度来显示。
+使用<code>help format</code>来查看<code>format</code>的详细参数。</p>
+
+<p>示例:</p>
+
+<pre><code>octave:4&gt; format long
+octave:5&gt; pi
+ans =  3.14159265358979
+</code></pre>
+
+<h3>工作区</h3>
+
+<p>使用<code>save</code>命令保存当前工作区到文件work1.mat：</p>
+
+<pre><code>octave:6&gt; save work1
+</code></pre>
+
+<p>它会保存所有的变量信息。
+使用<code>load</code>命令在下次启动的时候载入之前的工作区：</p>
+
+<pre><code>octave:1&gt; load work1
+</code></pre>
+
+<h3>分号</h3>
+
+<p>默认情况下<code>octave</code>会显示每次计算的结果到屏幕上。
+如果你不想要看到这些结果，可以在语句的结尾加上分号来抑制计算结果的输出。
+在写脚本时使用分号很有用。</p>
+
+<pre><code>octave:32&gt; x = 2 * 3
+x =  6
+octave:33&gt; x = 2 * 3;
+octave:34&gt; disp(x)
+ 6
+</code></pre>
+
+<h3>获取帮助</h3>
+
+<p><code>octave</code>本身提供了帮助功能，键入<code>help</code>即会看到<code>octave</code>的帮助信息。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>octave:1> help
+</span><span class='line'>
+</span><span class='line'>  For help with individual commands and functions type
+</span><span class='line'>
+</span><span class='line'>    help NAME
+</span><span class='line'>
+</span><span class='line'>  (replace NAME with the name of the command or function you would
+</span><span class='line'>  like to learn more about).
+</span><span class='line'>
+</span><span class='line'>  For a more detailed introduction to GNU Octave, please consult the
+</span><span class='line'>  manual.  To read the manual from the prompt type
+</span><span class='line'>
+</span><span class='line'>    doc
+</span><span class='line'>
+</span><span class='line'>  GNU Octave is supported and developed by its user community.
+</span><span class='line'>  For more information visit http://www.octave.org.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果想查看某个函数的帮助信息，使用<code>help fun-name</code>即可。
+比如想查看<code>trace</code>（矩阵的迹）这个函数的帮助信息，执行<code>help trace</code>会看到如下信息：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>octave:2> help trace
+</span><span class='line'>`trace' is a function from the file /usr/local/Cellar/octave/3.6.1/share/octave/3.6.1/m/linear-algebra/trace.m
+</span><span class='line'>
+</span><span class='line'> -- Function File:  trace (A)
+</span><span class='line'>     Compute the trace of A, `sum (diag (A))'.
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>Additional help for built-in functions and operators is
+</span><span class='line'>available in the on-line version of the manual.  Use the command
+</span><span class='line'>`doc &lt;topic>' to search the manual index.
+</span><span class='line'>
+</span><span class='line'>Help and information about Octave is also available on the WWW
+</span><span class='line'>at http://www.octave.org and via the help@octave.org
+</span><span class='line'>mailing list.</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>矩阵</h2>
+
+<h3>创建矩阵</h3>
+
+<p>矩阵使用<code>方括号</code>(<code>[]</code>)括起来，维度使用<code>分号</code>(<code>;</code>)分割。
+同一维度之间的分隔符可以是<code>空格</code>或<code>逗号</code>(<code>,</code>)。
+示例：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>octave:35> x = [ 2 3 5 ]
+</span><span class='line'>x =
+</span><span class='line'>
+</span><span class='line'>   2   3   5
+</span><span class='line'>
+</span><span class='line'>octave:36> y = [ 2, 3, 5 ]
+</span><span class='line'>y =
+</span><span class='line'>
+</span><span class='line'>   2   3   5
+</span><span class='line'>
+</span><span class='line'>octave:37> z = [ 2; 3; 5 ]
+</span><span class='line'>z =
+</span><span class='line'>
+</span><span class='line'>   2
+</span><span class='line'>   3
+</span><span class='line'>   5
+</span><span class='line'>
+</span><span class='line'>octave:39> a = [ 1 2; 1, 3; 1   5 ]
+</span><span class='line'>a =
+</span><span class='line'>
+</span><span class='line'>   1   2
+</span><span class='line'>   1   3
+</span><span class='line'>   1   5</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>使用冒号表达式快速构造连续的向量</h3>
+
+<p>在<code>octave</code>中可以使用冒号表达式来快速的构造连续的向量，比如：</p>
+
+<pre><code>octave:43&gt; v = 2:5
+v =
+
+   2   3   4   5
+</code></pre>
+
+<p>这种方式构造的向量是以1为递增的。
+如果想指定步长，可以使用<code>start:step:end</code>的方式，其中<code>step</code>即为步长。
+这样构造出来的向量的最后一个数值不会超过<code>end</code>。
+比如：</p>
+
+<pre><code>octave:44&gt; v = 2:0.3:3
+v =
+
+    2.0000    2.3000    2.6000    2.9000
+</code></pre>
+
+<h3>构造矩阵的函数</h3>
+
+<p><code>linspace(start, end, N)</code>产生<code>N</code>个均匀分布于<code>start</code>和<code>end</code>之间的向量。
+在绘图时用于产生<code>x</code>坐标特别有用。</p>
+
+<p><code>logspace(start, end, N)</code>产生<code>N</code>个指数分布于<code>10^start</code>和<code>10^end</code>之间的向量。
+在绘图时用于产生<code>x</code>坐标特别有用。</p>
+
+<p><code>zeros(M, N)</code>产生一个M行 x N列的值全为0的矩阵。</p>
+
+<p><code>zeros(N) = zeros(N, N)</code>。</p>
+
+<p><code>ones(M, N)</code>产生一个M行 x N列的值全为1的矩阵。</p>
+
+<p><code>ones(N) = ones(N, N)</code>。</p>
+
+<p><code>rand(M, N)</code>产生一个M行 x N列的值位于0~1的随机数的矩阵。</p>
+
+<p><code>rand(N) = rand(N, N)</code>。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>octave:66> x = linspace (3, 4, 5)
+</span><span class='line'>x =
+</span><span class='line'>
+</span><span class='line'> Columns 1 through 4:
+</span><span class='line'>
+</span><span class='line'>   3.00000000000000   3.25000000000000   3.50000000000000   3.75000000000000
+</span><span class='line'>
+</span><span class='line'> Column 5:
+</span><span class='line'>
+</span><span class='line'>   4.00000000000000
+</span><span class='line'>
+</span><span class='line'>octave:67> logspace (1, 2, 6)
+</span><span class='line'>ans =
+</span><span class='line'>
+</span><span class='line'> Columns 1 through 4:
+</span><span class='line'>
+</span><span class='line'>    10.0000000000000    15.8489319246111    25.1188643150958    39.8107170553497
+</span><span class='line'>
+</span><span class='line'> Columns 5 and 6:
+</span><span class='line'>
+</span><span class='line'>    63.0957344480193   100.0000000000000</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>矩阵运算</h3>
+
+<h4>加、减、乘、除</h4>
+
+<p><code>octave</code>的矩阵运算很直观：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>A + B
+</span><span class='line'>A - B
+</span><span class='line'>A * B
+</span><span class='line'>A \ B</span></code></pre></td></tr></table></div></figure>
+
+
+<p>说明：<code>A\B</code>为矩阵左除，用于求解线性方程<code>Wx=b</code>，其中<code>W</code>为一个nxn的矩阵，<code>b</code>为一个n维的列向量。
+求解线性方式示例：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>octave:15> W = [1 1 1 1; 1 2 3 4; 3 4 6 2; 2 7 10 5];
+</span><span class='line'>octave:16> b = [3; 5; 5; 8];
+</span><span class='line'>octave:17> x = W\b
+</span><span class='line'>x =
+</span><span class='line'>
+</span><span class='line'>   1.0000
+</span><span class='line'>   3.0000
+</span><span class='line'>  -2.0000
+</span><span class='line'>   1.0000</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>转置</h4>
+
+<p>矩阵<code>A</code>的转置为<code>A'</code>：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>octave:9> x = rand(3)
+</span><span class='line'>x =
+</span><span class='line'>
+</span><span class='line'>   0.0052581   0.4446771   0.3970036
+</span><span class='line'>   0.7844458   0.3317067   0.9633000
+</span><span class='line'>   0.0577080   0.9015905   0.0344771
+</span><span class='line'>
+</span><span class='line'>octave:10> x'
+</span><span class='line'>ans =
+</span><span class='line'>
+</span><span class='line'>   0.0052581   0.7844458   0.0577080
+</span><span class='line'>   0.4446771   0.3317067   0.9015905
+</span><span class='line'>   0.3970036   0.9633000   0.034477</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>幂</h4>
+
+<p>矩阵的幂很容易计算，在<code>octave</code>中 A<sup>3</sup> 可以通过<code>A^3</code>来计算：</p>
+
+<pre><code>octave:18&gt; A = [1 2; 3 4];
+octave:19&gt; A^3
+ans =
+
+    37    54
+    81   118
+</code></pre>
+
+<p>如果是对每个元素求幂的话，需要在操作数前加一个点：</p>
+
+<pre><code>octave:20&gt; A.^3
+ans =
+
+    1    8
+   27   64
+</code></pre>
+
+<h4>特征值和特征向量</h4>
+
+<p>如果是求方阵A的特征值，只需要输入<code>eig(A)</code>。
+特征向量和特征值可以通过</p>
+
+<pre><code>[X D] = eig(A)
+</code></pre>
+
+<p>来求得。</p>
+
+<pre><code>octave:21&gt; eig(A)
+ans =
+
+  -0.37228
+   5.37228
+
+octave:22&gt; [X D] = eig(A)
+X =
+
+  -0.82456  -0.41597
+   0.56577  -0.90938
+
+D =
+
+Diagonal Matrix
+
+  -0.37228         0
+         0   5.37228
+</code></pre>
+
+<p>如果A的要求QR分解，使用下面的命令：</p>
+
+<pre><code>[Q R] = qr(A)
+</code></pre>
+
+<p>示例：</p>
+
+<pre><code>octave:23&gt; [Q R] = qr(A)
+Q =
+
+   0.31623   0.94868
+   0.94868  -0.31623
+
+R =
+
+   3.16228   4.42719
+   0.00000   0.63246
+</code></pre>
+
+<h2>画图</h2>
+
+<h3>简介</h3>
+
+<p><code>octave</code>使用<code>gunplot</code>的<code>aqua term</code>来实现绘图功能。
+因此如果要想正确的绘制出图形，需要先安装<code>gnuplot</code>和<code>aqua term</code>。</p>
+
+<p><code>octave</code>的绘图的命令为<code>plot</code>，具体参考<code>help plot</code>。
+<code>octave</code>能在一个图形中画一条曲线或多条曲线，并能为图形添加标题，坐标说明等信息。</p>
+
+<h3>绘制一条曲线</h3>
+
+<p>plot(x, y)</p>
+
+<p>plot(x, y, &#8216;ro&#8217;)</p>
+
+<h3>绘制两条曲线</h3>
+
+<p>octave:1> x = linspace(0, 10, 1000);
+octave:2> y = sin(x)./(x+1);
+octave:3> z = sin(x);
+octave:4> plot(x, y, x, z);</p>
+
+<h3>添加说明</h3>
+
+<p>octave:21> title(&#8216;sinx/x+1&#8217;)
+octave:22> xlabel(&#8216;x&#8217;)
+octave:23> ylabel(&#8216;y&#8217;)</p>
+
+<p>octave:32>     x = linspace(0, 2*pi, 100);
+octave:33> y = sin(x)./(x+1);
+octave:34> plot(x, y, &#8216;:&#8217;)
+octave:35> hold on
+octave:36> z = sin(x);
+octave:37> plot(x, z, &#8216;-)
+error: unterminated string constant
+parse error:</p>
+
+<p>  syntax error</p>
+
+<blockquote><blockquote><blockquote><p>plot(x, z, &#8216;-)</p>
+
+<pre><code>              ^
+</code></pre></blockquote></blockquote></blockquote>
+
+<p>octave:37> plot(x, z, &#8216;-&#8216;)
+octave:38> legend(&#8216;sin(x)/(x+1)&#8217;, &#8216;sin(x)&#8217;)
+octave:39> xlabel(&#8216;angle&#8217;)
+octave:40> ylabel(&#8216;value&#8217;)
+octave:41> title(&#8216;sin(x)/(x+1) v.s. sin(x)&#8217;)</p>
+
+<h3>添加网格</h3>
+
+<p>使用<code>grid on</code>命令可以为图形添加网格线。</p>
+
+<pre><code>octave:20&gt; grid on
+</code></pre>
+
+<p>可以把绘制出来的图形以图片的格式保存，比如：</p>
+
+<p>print(&#8216;sin.eps&#8217;, &#8216;-deps&#8217;)
+print(&#8216;/tmp/sin.png&#8217;, &#8216;-dpng&#8217;)</p>
+
+<h2>常见错误信息及解决方法</h2>
+
+<h3>error: for x<sup>A,</sup> A must be a square matrix octave</h3>
+
+<p>这个错误是由于<code>x</code>是一个矩阵，但A不是可以与它进行相乘的矩阵。
+一般的情况是<code>x</code>是一个数列，想对这个数列中的每个数进行乘的运算，
+如果是这种情况，应该使用<code>x.^A</code>来代替<code>x^A</code>。示例如下：</p>
+
+<pre><code>octave:3&gt; n=1:5; m=2^n; disp(m)
+error: for x^A, A must be a square matrix
+
+octave:3&gt; n=1:5; m=2.^n; disp(m)
+    2    4    8   16   32
+</code></pre>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Python的virtualenv和pip]]></title>
@@ -168,6 +743,13 @@ Xcode 4.3.2
 <p>预先需要安装一个gfortan的编译器：</p>
 
 <pre><code>brew install gfortran
+</code></pre>
+
+<h3>安装ghostscript</h3>
+
+<p>如果想要把<code>octave</code>绘制的图形保存成图片格式（如<code>png</code>），需要<code>ghostscript</code>的支持。</p>
+
+<pre><code>brew install ghostscript
 </code></pre>
 
 <h3>安装fltk</h3>
@@ -829,6 +1411,9 @@ $ git push -u origin master   # to push changes for the first time
 <li>Email icon generator：<a href="http://services.nexodyne.com/email/index.php">http://services.nexodyne.com/email/index.php</a></li>
 <li>在线把网页转换为pdf：<a href="http://www.printfriendly.com/">http://www.printfriendly.com/</a></li>
 <li>Web模板下载：<a href="http://960.gs/">http://960.gs/</a></li>
+<li>Mobile mockup <a href="https://www.fluidui.com/">https://www.fluidui.com/</a></li>
+<li>Axure</li>
+<li>Angularjs <a href="http://angularjs.org">http://angularjs.org</a></li>
 </ul>
 
 ]]></content>
@@ -1860,73 +2445,6 @@ remove_handler() -&gt; close()
 
 
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[How to setup RHEL kdump]]></title>
-    <link href="http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump/"/>
-    <updated>2009-05-05T22:39:00+08:00</updated>
-    <id>http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump</id>
-    <content type="html"><![CDATA[<p><code>Kdump</code>是一种调试Linux内核的方法，
-用于在Linux内核出现<code>Oops</code>之后自动dump内核映像到指定位置的机制，
-便于我们的事后调试。</p>
-
-<blockquote><p>Kdump is a new kernel crash dumping mechanism and is very reliable.<br/>The crash dump is captured from the context of a freshly booted kernel<br/>and not from the context of the crashed kernel.<br/>Kdump uses kexec to boot into a second kernel whenever the system crashes.<br/>This second kernel, often called a capture kernel, boots with very little<br/>memory and captures the dump image.</p></blockquote>
-
-
-<ol>
-<li>Install <code>kexec-tools</code></li>
-</ol>
-
-
-<p>Install by <code>yum</code>:</p>
-
-<pre><code>yum install kexec-tools
-</code></pre>
-
-<ol>
-<li>write kdump config file <code>/etc/kdump.conf</code></li>
-</ol>
-
-
-<p>An example with following content.</p>
-
-<pre><code>path /var/crash
-core_collector makedumpfile -d 31 -c
-</code></pre>
-
-<ol>
-<li>change <code>/etc/grub.conf</code> append <code>crashkernel=128M@16M</code> to the end of kernel line.</li>
-</ol>
-
-
-<p>An example of <code>/etc/grub.conf</code></p>
-
-<pre><code>default=0
-timeout=5
-splashimage=(hd0,0)/grub/splash.xpm.gz
-hiddenmenu
-title Red Hat Enterprise Linux Server (2.6.18-128.el5)
-        root (hd0,0)
-        kernel /vmlinuz-2.6.18-128.el5 ro root=/dev/mapper/luks-10d5d533-38f6-482c-982d-bfb488adfbed
- rhgb quiet crashkernel=128M@16M
-        initrd /initrd-2.6.18-128.el5.img
-</code></pre>
-
-<ol>
-<li>post config</li>
-</ol>
-
-
-<p>Set <code>kdump</code> service automatically start with system startup.</p>
-
-<pre><code>chkconfig kdump on
-service kdump start
-reboot
-</code></pre>
-
-<p>After system reboot, the kdump is ready. the kernel crash file is located at <code>/var/crash/</code>.</p>
 ]]></content>
   </entry>
   
