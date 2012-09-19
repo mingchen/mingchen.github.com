@@ -4,7 +4,7 @@
   <title><![CDATA[Category: android | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2012-08-21T17:52:25+08:00</updated>
+  <updated>2012-09-19T15:16:20+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -12,6 +12,219 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android的硬件加速及可能导致的问题]]></title>
+    <link href="http://blog.chenming.info/blog/2012/09/18/android-hardware-accel/"/>
+    <updated>2012-09-18T14:39:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2012/09/18/android-hardware-accel</id>
+    <content type="html"><![CDATA[<h2>问题</h2>
+
+<p>在Android 4.0的某些设备上，在<code>View</code>刷新时会出现花屏和屏幕上的某些View错位的现象。
+经过调查后发现<code>adb logcat</code>中出现很多<code>OpenGLRenderer: 0x501</code>的错位：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>09-18 14:34:39.090: DEBUG/OpenGLRenderer(3104): GL error from OpenGLRenderer: 0x501
+</span><span class='line'>09-18 14:34:39.386: DEBUG/OpenGLRenderer(3104): GL error from OpenGLRenderer: 0x501
+</span><span class='line'>09-18 14:34:39.656: DEBUG/OpenGLRenderer(3104): GL error from OpenGLRenderer: 0x501</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>从这个日志，初步怀疑是硬件加速导致的问题。
+经过分析发现使用了比较复杂的自定义<code>View</code>，可能会导致硬件加速渲染出错。</p>
+
+<h2>硬件加速的优点与缺点</h2>
+
+<p>硬件加速能使用GPU来加速2D图像的渲染速度，但是硬件加速并不能完全支持所有的渲染操作，
+针对自定义的View，硬件加速可能导致渲染出现错误。
+如果有自定义的View，需要在硬件加速的设备上进行测试，如果出现渲染的问题，需要关闭硬件加速。</p>
+
+<h2>开启和关闭硬件加速</h2>
+
+<p>对硬件加速的开关可以在不同的级别进行控制：</p>
+
+<ul>
+<li>Application</li>
+<li>Activity</li>
+<li>Windows</li>
+<li>View</li>
+</ul>
+
+
+<h3>Application级别</h3>
+
+<p>在Applciation级别控制硬件加速的开关：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;application android:hardwareAccelerated="true" ...></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h3>Activity级别</h3>
+
+<p>可以对单个的<code>Activity</code>控制是否启用硬件加速：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;application android:hardwareAccelerated="true">&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>&lt;activity ... /&gt;
+</span><span class='line'>&lt;activity android:hardwareAccelerated="false" /&gt;
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p>&lt;/application></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h3>Window级别</h3>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>getWindow().setFlags(&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+</span><span class='line'>WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h3>View级别</h3>
+
+<p>在指定的View上关闭硬件加速：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>myView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>或者使用<code>android:layerType="software"</code>来关闭硬件加速：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;pre>&lt;code>android:layout_width="fill_parent"
+</span><span class='line'>android:layout_height="fill_parent"
+</span><span class='line'>android:orientation="vertical"
+</span><span class='line'>android:paddingLeft="2dp"
+</span><span class='line'>android:layerType="software"
+</span><span class='line'>android:paddingRight="2dp" &gt;
+</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h2>如何判断一个View是否启用了硬件加速</h2>
+
+<ul>
+<li><code>View.isHardwareAccelerated()</code> returns true if the View is attached to a hardware accelerated window.</li>
+<li><code>Canvas.isHardwareAccelerated()</code> returns true if the Canvas is hardware accelerated</li>
+</ul>
+
+
+<h2>Android Drawing Models</h2>
+
+<p>When hardware acceleration is enabled, the Android framework utilizes a new drawing model that utilizes display lists to
+render your application to the screen. To fully understand display lists and how they might affect your application, it
+is useful to understand how Android draws views without hardware acceleration as well. The following sections describe
+the software-based and hardware-accelerated drawing models.</p>
+
+<h3>Software-based drawing model</h3>
+
+<p>In the software drawing model, views are drawn with the following two steps:</p>
+
+<ol>
+<li>Invalidate the hierarchy</li>
+<li>Draw the hierarchy</li>
+</ol>
+
+
+<p>Whenever an application needs to update a part of its UI, it invokes invalidate() (or one of its variants) on any view
+that has changed content. The invalidation messages are propagated all the way up the view hierarchy to compute the
+regions of the screen that need to be redrawn (the dirty region). The Android system then draws any view in the
+hierarchy that intersects with the dirty region. Unfortunately, there are two drawbacks to this drawing model:</p>
+
+<ul>
+<li>First, this model requires execution of a lot of code on every draw pass. For example, if your application calls
+invalidate() on a button and that button sits on top of another view, the Android system redraws the view even though it
+hasn't changed.</li>
+<li>The second issue is that the drawing model can hide bugs in your application. Since the Android system redraws views
+when they intersect the dirty region, a view whose content you changed might be redrawn even though invalidate() was not
+called on it. When this happens, you are relying on another view being invalidated to obtain the proper behavior. This
+behavior can change every time you modify your application. Because of this, you should always call invalidate() on your
+custom views whenever you modify data or state that affects the view’s drawing code.</li>
+</ul>
+
+
+<p>Note: Android views automatically call invalidate() when their properties change, such as the background color or the
+text in a TextView.</p>
+
+<h3>Hardware accelerated drawing model</h3>
+
+<p>The Android system still uses invalidate() and draw() to request screen updates and to render views, but handles the
+actual drawing differently. Instead of executing the drawing commands immediately, the Android system records them
+inside display lists, which contain the output of the view hierarchy’s drawing code. Another optimization is that the
+Android system only needs to record and update display lists for views marked dirty by an invalidate() call. Views that
+have not been invalidated can be redrawn simply by re-issuing the previously recorded display list. The new drawing
+model contains three stages:</p>
+
+<ol>
+<li>Invalidate the hierarchy</li>
+<li>Record and update display lists</li>
+<li>Draw the display lists</li>
+</ol>
+
+
+<p>With this model, you cannot rely on a view intersecting the dirty region to have its draw() method executed. To ensure
+that the Android system records a view’s display list, you must call invalidate(). Forgetting to do so causes a view to
+look the same even after changing it, which is an easier bug to find if it happens.</p>
+
+<p>Using display lists also benefits animation performance because setting specific properties, such as alpha or rotation,
+does not require invalidating the targeted view (it is done automatically). This optimization also applies to views with
+display lists (any view when your application is hardware accelerated.) For example, assume there is a LinearLayout that
+contains a ListView above a Button. The display list for the LinearLayout looks like this:</p>
+
+<ul>
+<li>DrawDisplayList(ListView)</li>
+<li>DrawDisplayList(Button)</li>
+</ul>
+
+
+<p>Assume now that you want to change the ListView's opacity. After invoking setAlpha(0.5f) on the ListView, the display
+list now contains this:</p>
+
+<ul>
+<li>SaveLayerAlpha(0.5)</li>
+<li>DrawDisplayList(ListView)</li>
+<li>Restore</li>
+<li>DrawDisplayList(Button)</li>
+</ul>
+
+
+<p>The complex drawing code of ListView was not executed. Instead, the system only updated the display list of the much
+simpler LinearLayout. In an application without hardware acceleration enabled, the drawing code of both the list and its
+parent are executed again.</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://developer.android.com/guide/topics/graphics/hardware-accel.html">http://developer.android.com/guide/topics/graphics/hardware-accel.html</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android上使用SparseArray来替代HashMap]]></title>

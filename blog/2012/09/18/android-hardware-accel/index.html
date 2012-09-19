@@ -1,0 +1,514 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android的硬件加速及可能导致的问题 - Ming's Blog</title>
+  <meta name="author" content="Ming">
+
+  
+  <meta name="description" content="问题 在Android 4.0的某些设备上，在View刷新时会出现花屏和屏幕上的某些View错位的现象。
+经过调查后发现adb logcat中出现很多OpenGLRenderer: 0x501的错位： 1
+2
+3
+09-18 14:34:39.090: DEBUG/OpenGLRenderer( &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.chenming.info/blog/2012/09/18/android-hardware-accel/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Ming's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33056683-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Ming's Blog</a></h1>
+  
+    <h2>trivial notes</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.chenming.info" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/categories">Categories</a></li>
+  <li><a href="/blog/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android的硬件加速及可能导致的问题</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-18T14:39:00+08:00" pubdate data-updated="true">Sep 18<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>问题</h2>
+
+<p>在Android 4.0的某些设备上，在<code>View</code>刷新时会出现花屏和屏幕上的某些View错位的现象。
+经过调查后发现<code>adb logcat</code>中出现很多<code>OpenGLRenderer: 0x501</code>的错位：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>09-18 14:34:39.090: DEBUG/OpenGLRenderer(3104): GL error from OpenGLRenderer: 0x501
+</span><span class='line'>09-18 14:34:39.386: DEBUG/OpenGLRenderer(3104): GL error from OpenGLRenderer: 0x501
+</span><span class='line'>09-18 14:34:39.656: DEBUG/OpenGLRenderer(3104): GL error from OpenGLRenderer: 0x501</span></code></pre></td></tr></table></div></figure>
+
+
+<p>从这个日志，初步怀疑是硬件加速导致的问题。
+经过分析发现使用了比较复杂的自定义<code>View</code>，可能会导致硬件加速渲染出错。</p>
+
+<h2>硬件加速的优点与缺点</h2>
+
+<p>硬件加速能使用GPU来加速2D图像的渲染速度，但是硬件加速并不能完全支持所有的渲染操作，
+针对自定义的View，硬件加速可能导致渲染出现错误。
+如果有自定义的View，需要在硬件加速的设备上进行测试，如果出现渲染的问题，需要关闭硬件加速。</p>
+
+<h2>开启和关闭硬件加速</h2>
+
+<p>对硬件加速的开关可以在不同的级别进行控制：</p>
+
+<ul>
+<li>Application</li>
+<li>Activity</li>
+<li>Windows</li>
+<li>View</li>
+</ul>
+
+
+<h3>Application级别</h3>
+
+<p>在Applciation级别控制硬件加速的开关：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;application android:hardwareAccelerated="true" ...></span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Activity级别</h3>
+
+<p>可以对单个的<code>Activity</code>控制是否启用硬件加速：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;application android:hardwareAccelerated="true">
+</span><span class='line'>    &lt;activity ... />
+</span><span class='line'>    &lt;activity android:hardwareAccelerated="false" />
+</span><span class='line'>&lt;/application></span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Window级别</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>getWindow().setFlags(
+</span><span class='line'>    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+</span><span class='line'>    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>View级别</h3>
+
+<p>在指定的View上关闭硬件加速：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>myView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);</span></code></pre></td></tr></table></div></figure>
+
+
+<p>或者使用<code>android:layerType="software"</code>来关闭硬件加速：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+</span><span class='line'>    android:layout_width="fill_parent"
+</span><span class='line'>    android:layout_height="fill_parent"
+</span><span class='line'>    android:orientation="vertical"
+</span><span class='line'>    android:paddingLeft="2dp"
+</span><span class='line'>    android:layerType="software"
+</span><span class='line'>    android:paddingRight="2dp" ></span></code></pre></td></tr></table></div></figure>
+
+
+<h2>如何判断一个View是否启用了硬件加速</h2>
+
+<ul>
+<li><code>View.isHardwareAccelerated()</code> returns true if the View is attached to a hardware accelerated window.</li>
+<li><code>Canvas.isHardwareAccelerated()</code> returns true if the Canvas is hardware accelerated</li>
+</ul>
+
+
+<h2>Android Drawing Models</h2>
+
+<p>When hardware acceleration is enabled, the Android framework utilizes a new drawing model that utilizes display lists to
+render your application to the screen. To fully understand display lists and how they might affect your application, it
+is useful to understand how Android draws views without hardware acceleration as well. The following sections describe
+the software-based and hardware-accelerated drawing models.</p>
+
+<h3>Software-based drawing model</h3>
+
+<p>In the software drawing model, views are drawn with the following two steps:</p>
+
+<ol>
+<li>Invalidate the hierarchy</li>
+<li>Draw the hierarchy</li>
+</ol>
+
+
+<p>Whenever an application needs to update a part of its UI, it invokes invalidate() (or one of its variants) on any view
+that has changed content. The invalidation messages are propagated all the way up the view hierarchy to compute the
+regions of the screen that need to be redrawn (the dirty region). The Android system then draws any view in the
+hierarchy that intersects with the dirty region. Unfortunately, there are two drawbacks to this drawing model:</p>
+
+<ul>
+<li>First, this model requires execution of a lot of code on every draw pass. For example, if your application calls
+invalidate() on a button and that button sits on top of another view, the Android system redraws the view even though it
+hasn&#8217;t changed.</li>
+<li>The second issue is that the drawing model can hide bugs in your application. Since the Android system redraws views
+when they intersect the dirty region, a view whose content you changed might be redrawn even though invalidate() was not
+called on it. When this happens, you are relying on another view being invalidated to obtain the proper behavior. This
+behavior can change every time you modify your application. Because of this, you should always call invalidate() on your
+custom views whenever you modify data or state that affects the view’s drawing code.</li>
+</ul>
+
+
+<p>Note: Android views automatically call invalidate() when their properties change, such as the background color or the
+text in a TextView.</p>
+
+<h3>Hardware accelerated drawing model</h3>
+
+<p>The Android system still uses invalidate() and draw() to request screen updates and to render views, but handles the
+actual drawing differently. Instead of executing the drawing commands immediately, the Android system records them
+inside display lists, which contain the output of the view hierarchy’s drawing code. Another optimization is that the
+Android system only needs to record and update display lists for views marked dirty by an invalidate() call. Views that
+have not been invalidated can be redrawn simply by re-issuing the previously recorded display list. The new drawing
+model contains three stages:</p>
+
+<ol>
+<li>Invalidate the hierarchy</li>
+<li>Record and update display lists</li>
+<li>Draw the display lists</li>
+</ol>
+
+
+<p>With this model, you cannot rely on a view intersecting the dirty region to have its draw() method executed. To ensure
+that the Android system records a view’s display list, you must call invalidate(). Forgetting to do so causes a view to
+look the same even after changing it, which is an easier bug to find if it happens.</p>
+
+<p>Using display lists also benefits animation performance because setting specific properties, such as alpha or rotation,
+does not require invalidating the targeted view (it is done automatically). This optimization also applies to views with
+display lists (any view when your application is hardware accelerated.) For example, assume there is a LinearLayout that
+contains a ListView above a Button. The display list for the LinearLayout looks like this:</p>
+
+<ul>
+<li>DrawDisplayList(ListView)</li>
+<li>DrawDisplayList(Button)</li>
+</ul>
+
+
+<p>Assume now that you want to change the ListView&#8217;s opacity. After invoking setAlpha(0.5f) on the ListView, the display
+list now contains this:</p>
+
+<ul>
+<li>SaveLayerAlpha(0.5)</li>
+<li>DrawDisplayList(ListView)</li>
+<li>Restore</li>
+<li>DrawDisplayList(Button)</li>
+</ul>
+
+
+<p>The complex drawing code of ListView was not executed. Instead, the system only updated the display list of the much
+simpler LinearLayout. In an application without hardware acceleration enabled, the drawing code of both the list and its
+parent are executed again.</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://developer.android.com/guide/topics/graphics/hardware-accel.html">http://developer.android.com/guide/topics/graphics/hardware-accel.html</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ming</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-18T14:39:00+08:00" pubdate data-updated="true">Sep 18<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>android</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+  
+  
+<!-- JiaThis Button BEGIN -->
+<div id="jiathis_style_32x32">
+    <a class="jiathis_button_fav"></a>
+    <a class="jiathis_button_printfriendly"></a>
+    <a class="jiathis_button_tsina"></a>
+    <a class="jiathis_button_evernote"></a>
+    <a class="jiathis_button_readitlater"></a>
+    <a class="jiathis_button_tqq"></a>
+    <a class="jiathis_button_qzone"></a>
+    <a class="jiathis_button_delicious"></a>
+    <a class="jiathis_button_digg"></a>
+    <a class="jiathis_button_reddit"></a>
+    <a class="jiathis_button_tumblr"></a>
+<!--
+    <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank">更多</a>
+-->
+    <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v2.jiathis.com/code/jia.js?uid=1334844351248415" charset="utf-8"></script>
+<br/>
+<!-- JiaThis Button END -->
+  
+</div>
+
+<hr style="border-bottom:1px dotted #bdbabd;height:1px;border-top:0px;border-left:0px;border-right:0px;" />
+
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/08/25/python-tips/" title="Previous Post: Python Tips">&laquo; Python Tips</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/09/18/android-hardware-accel/">Android的硬件加速及可能导致的问题</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/25/python-tips/">Python Tips</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/21/protobuf-ios/">在iOS上使用protobuf</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/07/15/learn-octave/">学习一点octave</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/07/08/python-pip-virtualenv/">Python的virtualenv和pip</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/07/04/android-sparsearray/">Android上使用SparseArray来替代HashMap</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/06/29/install-octave-on-mac/">在Mac上安装octave</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/06/25/learn-git/">学习一点git</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>Tag Cloud</h1>
+    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 108.57142857142857%'>android(2)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 104.28571428571429%'>django(1)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 112.85714285714286%'>python(3)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
+</section>
+
+<section>
+  <h1>新浪微博</h1>
+  <ul id="weibo">
+    <li>
+      <iframe 
+        width="100%" 
+        height="550" 
+        class="share_self" 
+        frameborder="0" 
+        scrolling="no" 
+        src="http://widget.weibo.com/weiboshow/index.php?width=0&height=550&ptype=1&speed=0&skin=&isTitle=0&noborder=1&isWeibo=1&isFans=&uid=2036163762&verifier=bce5fd03">
+      </iframe>
+    </li>
+  </ul>
+</section>
+
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Ming -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'chenming';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.chenming.info/blog/2012/09/18/android-hardware-accel/';
+        var disqus_url = 'http://blog.chenming.info/blog/2012/09/18/android-hardware-accel/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

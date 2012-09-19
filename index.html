@@ -9,28 +9,11 @@
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="入门 不像matlab有图形界面，octave只提供了命令行接口。
-要启动octave，只需要在命令行输入octave即可。 1
+  <meta name="description" content="问题 在Android 4.0的某些设备上，在View刷新时会出现花屏和屏幕上的某些View错位的现象。
+经过调查后发现adb logcat中出现很多OpenGLRenderer: 0x501的错位： 1
 2
 3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-$ octave
-GNU Octave, version 3.6.1 &hellip;">
+09-18 14:34:39.090: DEBUG/OpenGLRenderer( &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -99,6 +82,343 @@ GNU Octave, version 3.6.1 &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/09/18/android-hardware-accel/">Android的硬件加速及可能导致的问题</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-18T14:39:00+08:00" pubdate data-updated="true">Sep 18<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/09/18/android-hardware-accel/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>问题</h2>
+
+<p>在Android 4.0的某些设备上，在<code>View</code>刷新时会出现花屏和屏幕上的某些View错位的现象。
+经过调查后发现<code>adb logcat</code>中出现很多<code>OpenGLRenderer: 0x501</code>的错位：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>09-18 14:34:39.090: DEBUG/OpenGLRenderer(3104): GL error from OpenGLRenderer: 0x501
+</span><span class='line'>09-18 14:34:39.386: DEBUG/OpenGLRenderer(3104): GL error from OpenGLRenderer: 0x501
+</span><span class='line'>09-18 14:34:39.656: DEBUG/OpenGLRenderer(3104): GL error from OpenGLRenderer: 0x501</span></code></pre></td></tr></table></div></figure>
+
+
+<p>从这个日志，初步怀疑是硬件加速导致的问题。
+经过分析发现使用了比较复杂的自定义<code>View</code>，可能会导致硬件加速渲染出错。</p>
+
+<h2>硬件加速的优点与缺点</h2>
+
+<p>硬件加速能使用GPU来加速2D图像的渲染速度，但是硬件加速并不能完全支持所有的渲染操作，
+针对自定义的View，硬件加速可能导致渲染出现错误。
+如果有自定义的View，需要在硬件加速的设备上进行测试，如果出现渲染的问题，需要关闭硬件加速。</p>
+
+<h2>开启和关闭硬件加速</h2>
+
+<p>对硬件加速的开关可以在不同的级别进行控制：</p>
+
+<ul>
+<li>Application</li>
+<li>Activity</li>
+<li>Windows</li>
+<li>View</li>
+</ul>
+
+
+<h3>Application级别</h3>
+
+<p>在Applciation级别控制硬件加速的开关：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;application android:hardwareAccelerated="true" ...></span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Activity级别</h3>
+
+<p>可以对单个的<code>Activity</code>控制是否启用硬件加速：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;application android:hardwareAccelerated="true">
+</span><span class='line'>    &lt;activity ... />
+</span><span class='line'>    &lt;activity android:hardwareAccelerated="false" />
+</span><span class='line'>&lt;/application></span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Window级别</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>getWindow().setFlags(
+</span><span class='line'>    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+</span><span class='line'>    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>View级别</h3>
+
+<p>在指定的View上关闭硬件加速：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>myView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);</span></code></pre></td></tr></table></div></figure>
+
+
+<p>或者使用<code>android:layerType="software"</code>来关闭硬件加速：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+</span><span class='line'>    android:layout_width="fill_parent"
+</span><span class='line'>    android:layout_height="fill_parent"
+</span><span class='line'>    android:orientation="vertical"
+</span><span class='line'>    android:paddingLeft="2dp"
+</span><span class='line'>    android:layerType="software"
+</span><span class='line'>    android:paddingRight="2dp" ></span></code></pre></td></tr></table></div></figure>
+
+
+<h2>如何判断一个View是否启用了硬件加速</h2>
+
+<ul>
+<li><code>View.isHardwareAccelerated()</code> returns true if the View is attached to a hardware accelerated window.</li>
+<li><code>Canvas.isHardwareAccelerated()</code> returns true if the Canvas is hardware accelerated</li>
+</ul>
+
+
+<h2>Android Drawing Models</h2>
+
+<p>When hardware acceleration is enabled, the Android framework utilizes a new drawing model that utilizes display lists to
+render your application to the screen. To fully understand display lists and how they might affect your application, it
+is useful to understand how Android draws views without hardware acceleration as well. The following sections describe
+the software-based and hardware-accelerated drawing models.</p>
+
+<h3>Software-based drawing model</h3>
+
+<p>In the software drawing model, views are drawn with the following two steps:</p>
+
+<ol>
+<li>Invalidate the hierarchy</li>
+<li>Draw the hierarchy</li>
+</ol>
+
+
+<p>Whenever an application needs to update a part of its UI, it invokes invalidate() (or one of its variants) on any view
+that has changed content. The invalidation messages are propagated all the way up the view hierarchy to compute the
+regions of the screen that need to be redrawn (the dirty region). The Android system then draws any view in the
+hierarchy that intersects with the dirty region. Unfortunately, there are two drawbacks to this drawing model:</p>
+
+<ul>
+<li>First, this model requires execution of a lot of code on every draw pass. For example, if your application calls
+invalidate() on a button and that button sits on top of another view, the Android system redraws the view even though it
+hasn&#8217;t changed.</li>
+<li>The second issue is that the drawing model can hide bugs in your application. Since the Android system redraws views
+when they intersect the dirty region, a view whose content you changed might be redrawn even though invalidate() was not
+called on it. When this happens, you are relying on another view being invalidated to obtain the proper behavior. This
+behavior can change every time you modify your application. Because of this, you should always call invalidate() on your
+custom views whenever you modify data or state that affects the view’s drawing code.</li>
+</ul>
+
+
+<p>Note: Android views automatically call invalidate() when their properties change, such as the background color or the
+text in a TextView.</p>
+
+<h3>Hardware accelerated drawing model</h3>
+
+<p>The Android system still uses invalidate() and draw() to request screen updates and to render views, but handles the
+actual drawing differently. Instead of executing the drawing commands immediately, the Android system records them
+inside display lists, which contain the output of the view hierarchy’s drawing code. Another optimization is that the
+Android system only needs to record and update display lists for views marked dirty by an invalidate() call. Views that
+have not been invalidated can be redrawn simply by re-issuing the previously recorded display list. The new drawing
+model contains three stages:</p>
+
+<ol>
+<li>Invalidate the hierarchy</li>
+<li>Record and update display lists</li>
+<li>Draw the display lists</li>
+</ol>
+
+
+<p>With this model, you cannot rely on a view intersecting the dirty region to have its draw() method executed. To ensure
+that the Android system records a view’s display list, you must call invalidate(). Forgetting to do so causes a view to
+look the same even after changing it, which is an easier bug to find if it happens.</p>
+
+<p>Using display lists also benefits animation performance because setting specific properties, such as alpha or rotation,
+does not require invalidating the targeted view (it is done automatically). This optimization also applies to views with
+display lists (any view when your application is hardware accelerated.) For example, assume there is a LinearLayout that
+contains a ListView above a Button. The display list for the LinearLayout looks like this:</p>
+
+<ul>
+<li>DrawDisplayList(ListView)</li>
+<li>DrawDisplayList(Button)</li>
+</ul>
+
+
+<p>Assume now that you want to change the ListView&#8217;s opacity. After invoking setAlpha(0.5f) on the ListView, the display
+list now contains this:</p>
+
+<ul>
+<li>SaveLayerAlpha(0.5)</li>
+<li>DrawDisplayList(ListView)</li>
+<li>Restore</li>
+<li>DrawDisplayList(Button)</li>
+</ul>
+
+
+<p>The complex drawing code of ListView was not executed. Instead, the system only updated the display list of the much
+simpler LinearLayout. In an application without hardware acceleration enabled, the drawing code of both the list and its
+parent are executed again.</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://developer.android.com/guide/topics/graphics/hardware-accel.html">http://developer.android.com/guide/topics/graphics/hardware-accel.html</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/08/25/python-tips/">Python Tips</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-25T15:13:00+08:00" pubdate data-updated="true">Aug 25<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/08/25/python-tips/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>Python</h2>
+
+<h3>list常用操作</h3>
+
+<p>合并两个<code>list</code>并排序</p>
+
+<pre><code>&gt;&gt;&gt; l1 = [1, 3, 4, 7]
+&gt;&gt;&gt; l2 = [0, 2, 5, 6, 8, 9]
+&gt;&gt;&gt; l1.extend(l2)
+&gt;&gt;&gt; sorted(l1)
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+</code></pre>
+
+<h2>Django</h2>
+
+<h2>参考</h2>
+
+<ul>
+<li>http://stackoverflow.com/questions/464342/combining-two-sorted-lists-in-python</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/08/21/protobuf-ios/">在iOS上使用protobuf</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-21T17:57:00+08:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+        
+         | <a href="/blog/2012/08/21/protobuf-ios/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>由于现有的iOS的protobuf库不支持delimited写和读到stream中，
+在Java已经由下面的API实现了类似的支持：</p>
+
+<ul>
+<li>writeDelimitedTo</li>
+<li>parseDelimitedFrom</li>
+</ul>
+
+
+<p>为了要iOS的支持类似功能，我在 https://github.com/booyah/protobuf-objc
+和 http://code.google.com/p/metasyntactic/wiki/ProtocolBuffers
+的基础上进行类似的实现。</p>
+
+<p>代码和文档在这儿：</p>
+
+<p>https://github.com/mingchen/protobuf-ios</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2757,364 +3077,6 @@ filter tcp_dport 1234
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2009/10/24/the-2nd-chengdu-scrum-assemble/">The 2nd Chengdu Scrum Assemble</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-10-24T09:50:00+08:00" pubdate data-updated="true">Oct 24<span>th</span>, 2009</time>
-        
-         | <a href="/blog/2009/10/24/the-2nd-chengdu-scrum-assemble/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>今天参加了第二次的成都Scrum聚会，听到了一些新的Agile工具，在此列出以作备忘：</p>
-
-<ul>
-<li>Hudson，持续集成的工具。CruiseControl并不是唯一的选择。</li>
-<li>NetBean，Eclipse的竞争者。</li>
-<li>Mercurial，一个分布式的版本控制工具</li>
-<li>xUnit</li>
-<li>Sonar</li>
-<li>Review Board</li>
-<li>Maven</li>
-<li>&#8230;</li>
-</ul>
-
-
-<p>大家有很多共识，软件开发中最关键的还是人。我认为软件开发需要做到的是 选择正确的人做正确的事。</p>
-
-<blockquote><p>It all about people。</p></blockquote>
-
-
-<p>关于<code>Self organization</code>，是有一个boundary的，
-还记得ScrumMaster培训的时候那个小游戏在地上画的线吗？</p>
-
-<p>在会上的抽奖节目中还有幸抽到了一本Scrum的书（虽然我看过它的英文版），也对组织者表示一下感谢。</p>
-
-<p>我们的讨论组：<a href="http://groups.google.com/group/scrumcd">http://groups.google.com/group/scrumcd</a></p>
-
-<p><a href="http://groups.google.com/group/scrumcd/browse_thread/thread/9f61abd1b9137125?hl=en">Presentation material from Agile Tour 2009 Chengdu</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2009/10/15/http-digest-auth-with-python/">使用Python实现HTTP的digest认证算法</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-10-15T09:39:00+08:00" pubdate data-updated="true">Oct 15<span>th</span>, 2009</time>
-        
-         | <a href="/blog/2009/10/15/http-digest-auth-with-python/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>因为测试需要，使用Python实现的的一个HTTP的digest认证算法。</p>
-
-<p>关于HTTP的digest算法参考
-<a href="http://www.ietf.org/rfc/rfc2617.txt">RFC 2617 - HTTP Authentication: Basic and Digest Access Authentication</a></p>
-
-<p>代码如下：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c">#!/usr/bin/env python</span>
-</span><span class='line'><span class="c">#</span>
-</span><span class='line'><span class="c"># Author: Chen Ming</span>
-</span><span class='line'><span class="c">#</span>
-</span><span class='line'><span class="c"># HTTP authentication: RFC 2671</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">hashlib</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-</span><span class='line'>  <span class="n">m</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
-</span><span class='line'>  <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">KD</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">H</span><span class="p">(</span><span class="n">secret</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">data</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="c">#def auth_response(method, realm, username, password, uri, algorithm, nonce,</span>
-</span><span class='line'><span class="c">#                  qop=&quot;&quot;, nc=&quot;&quot;, cnonce=&quot;&quot;, entity_body=&quot;&quot;):</span>
-</span><span class='line'><span class="k">def</span> <span class="nf">auth_response</span><span class="p">(</span><span class="n">authinfo</span><span class="p">):</span>
-</span><span class='line'>  <span class="sd">&quot;&quot;&quot;</span>
-</span><span class='line'><span class="sd">    method should be &#39;REGISTER&#39;</span>
-</span><span class='line'><span class="sd">    realm should be &#39;PoC Service C1.0&#39;</span>
-</span><span class='line'><span class="sd">  &quot;&quot;&quot;</span>
-</span><span class='line'>  <span class="n">method</span> <span class="o">=</span> <span class="s">&#39;REGISTER&#39;</span>
-</span><span class='line'>  <span class="n">username</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_username&#39;</span><span class="p">]</span>
-</span><span class='line'>  <span class="n">realm</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_realm&#39;</span><span class="p">]</span>
-</span><span class='line'>  <span class="n">password</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_password&#39;</span><span class="p">]</span>
-</span><span class='line'>  <span class="n">uri</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_uri&#39;</span><span class="p">]</span>
-</span><span class='line'>  <span class="n">qop</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_qop&#39;</span><span class="p">]</span>
-</span><span class='line'>  <span class="n">body</span><span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_body&#39;</span><span class="p">]</span>
-</span><span class='line'>  <span class="n">nonce</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_nonce&#39;</span><span class="p">]</span>
-</span><span class='line'>  <span class="n">nc</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_nc&#39;</span><span class="p">]</span>
-</span><span class='line'>  <span class="n">cnonce</span> <span class="o">=</span> <span class="n">authinfo</span><span class="p">[</span><span class="s">&#39;auth_cnonce&#39;</span><span class="p">]</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">A1</span> <span class="o">=</span> <span class="n">username</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">realm</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">password</span>
-</span><span class='line'>  <span class="k">if</span> <span class="n">qop</span> <span class="o">==</span> <span class="s">&quot;auth-int&quot;</span><span class="p">:</span>
-</span><span class='line'>    <span class="n">A2</span> <span class="o">=</span> <span class="n">method</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">uri</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">H</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">else</span><span class="p">:</span>
-</span><span class='line'>    <span class="c"># &quot;qop&quot; directive&#39;s value is &quot;auth&quot; or is unspecified</span>
-</span><span class='line'>    <span class="n">A2</span> <span class="o">=</span> <span class="n">method</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">uri</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c">#print &quot;A1: %s\nA2:%s&quot; % (A1, A2)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">if</span> <span class="n">qop</span> <span class="o">==</span> <span class="s">&#39;auth&#39;</span> <span class="ow">or</span> <span class="n">qop</span> <span class="o">==</span> <span class="s">&#39;auth-int&#39;</span><span class="p">:</span>
-</span><span class='line'>    <span class="c"># OMA</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">KD</span><span class="p">(</span><span class="n">H</span><span class="p">(</span><span class="n">A1</span><span class="p">),</span> <span class="n">nonce</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">nc</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">cnonce</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">qop</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">H</span><span class="p">(</span><span class="n">A2</span><span class="p">))</span>
-</span><span class='line'>  <span class="k">else</span><span class="p">:</span>
-</span><span class='line'>    <span class="c"># &quot;qop&quot; directive is not present (Ph0+)</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">KD</span><span class="p">(</span><span class="n">H</span><span class="p">(</span><span class="n">A1</span><span class="p">),</span> <span class="n">nonce</span><span class="o">+</span><span class="s">&#39;:&#39;</span><span class="o">+</span><span class="n">H</span><span class="p">(</span><span class="n">A2</span><span class="p">))</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">test_auth_response</span><span class="p">():</span>
-</span><span class='line'>  <span class="c"># Ph0+</span>
-</span><span class='line'>  <span class="c"># test auth</span>
-</span><span class='line'>  <span class="n">response</span> <span class="o">=</span> <span class="n">auth_response</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">auth_realm</span> <span class="o">=</span> <span class="s">&#39;PoC Service C1.0&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_username</span> <span class="o">=</span> <span class="s">&#39;user100801@henry.poc.com&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_password</span> <span class="o">=</span> <span class="s">&#39;password&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_uri</span> <span class="o">=</span> <span class="s">&#39;sip:henry.poc.com&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_algorithm</span> <span class="o">=</span> <span class="s">&#39;MD5&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_nonce</span> <span class="o">=</span> <span class="s">&#39;b2c015055a88faed30bae04fb2d600ba&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_qop</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_nc</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_cnonce</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_body</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
-</span><span class='line'>                          <span class="p">))</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c">#print response</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">expect_response</span> <span class="o">=</span> <span class="s">&#39;5249e6261d8d8268176230c9aea6bb69&#39;</span>
-</span><span class='line'>  <span class="k">if</span> <span class="n">response</span> <span class="o">==</span> <span class="n">expect_response</span><span class="p">:</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;auth - OK&quot;</span>
-</span><span class='line'>  <span class="k">else</span><span class="p">:</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;auth - Failed&quot;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># OMA</span>
-</span><span class='line'>  <span class="c"># test auth-int</span>
-</span><span class='line'>  <span class="n">response</span> <span class="o">=</span> <span class="n">auth_response</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">auth_realm</span> <span class="o">=</span> <span class="s">&#39;PoC Service C1.0&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_username</span> <span class="o">=</span> <span class="s">&#39;user100802@henry.poc.com&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_password</span> <span class="o">=</span> <span class="s">&#39;password&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_uri</span> <span class="o">=</span> <span class="s">&#39;sip:henry.poc.com;transport=UDP&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_algorithm</span> <span class="o">=</span> <span class="s">&#39;MD5&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_nonce</span> <span class="o">=</span> <span class="s">&#39;N0h9zqzvTnkAADgZVsBplA==&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_qop</span> <span class="o">=</span> <span class="s">&#39;auth-int&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_nc</span> <span class="o">=</span> <span class="s">&#39;00000001&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_cnonce</span> <span class="o">=</span> <span class="s">&#39;14d4043e584b63d901366cd5a64d8f66&#39;</span><span class="p">,</span>
-</span><span class='line'>                           <span class="n">auth_body</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
-</span><span class='line'>                          <span class="p">))</span>
-</span><span class='line'>  <span class="n">expect_response</span> <span class="o">=</span> <span class="s">&#39;76f8201f832b94e8120daaab94b55a63&#39;</span>
-</span><span class='line'>  <span class="k">if</span> <span class="n">response</span> <span class="o">==</span> <span class="n">expect_response</span><span class="p">:</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;auth-int - OK&quot;</span>
-</span><span class='line'>  <span class="k">else</span><span class="p">:</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;auth-int - Failed&quot;</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
-</span><span class='line'>  <span class="n">test_auth_response</span><span class="p">()</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2009/09/11/when-call-register-handle-in-ace/">ACE中register_handler()的调用时机</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-09-11T09:36:00+08:00" pubdate data-updated="true">Sep 11<span>th</span>, 2009</time>
-        
-         | <a href="/blog/2009/09/11/when-call-register-handle-in-ace/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>这个问题源自ACE邮件列表中使用Reactor来进行串口通信的问题，
-最后的根因时因为调用<code>register_handler()</code>的时机不对，
-还没有调用<code>connect()</code>，就调用了<code>register_handler()</code>，
-这个时候要注册的句柄因为没有建立连接，值还是-1，注册会失败，导致后续不能获得串口上的数据是理所当然的了。</p>
-
-<p>总结一下Reactor中<code>register_handler()</code>/<code>remove_handler()</code>的调用顺序就是：</p>
-
-<pre><code>connect()/accept()   -&gt;  register_handler()
-remove_handler() -&gt; close()
-</code></pre>
-
-<p>附讨论的原始信息：</p>
-
-<blockquote><p>Great news :)  Also, don&#8217;t forget to do the reverse when cleaning up:  Call remove_handler() *before* closing the port or you&#8217;ll see a fault on shutdown.  Basically, the sequence is &#8220;connect port -> register_handler() -> (do serial stuff) -> remove_handler() -> close port&#8221;.  Finally, don&#8217;t try this on Win32 platforms :)</p><p>- Bob</p><p><br/> &#8212;&#8212;<br/>Hi Bob,</p><p>that´s the error. When I&#8217;d started I had in the right order, but cause it wasn´t running (due to some further errors) I tried some things and totally forgot to change it back. Thank you so much^^.</p><p>Greetings,<br/>Daniel</p><p>@Andreas: I didn´t need to try your version.^^ But thx anyway&#8230;</p><p>&#8212;&#8212;&#8211; Original-Nachricht &#8212;&#8212;&#8211;<br/>> Datum: Fri, 6 Nov 2009 08:19:09 -0500<br/>> Von: robert.ciora@us.transport.bombardier.com<br/>> An: &#8220;Daniel Kempcke&#8221; <Daniel.Kempcke@gmx.net><br/>> CC: ace-users@list.isis.vanderbilt.edu, ace-users-bounces@list.isis.vanderbilt.edu<br/>> Betreff: Re: [ace-users] Problem reactor used with serial interface</p><p>> Daniel,<br/>><br/>> Another quick one:  You&#8217;re calling &#8220;reactor()->register_handler(&#8230;)&#8221;<br/>> before calling &#8220;connector->connect(&#8230;)&#8221;.  The register_handler() will use<br/>> your get_handle() to determine which handle to register.  Since you<br/>> haven&#8217;t connected the port yet, your get_handle() (which calls<br/>> peer_.get_handle()) is returning ACE_INVALID_HANDLE.  It&#8217;s in the<br/>> connect() call where the peer&#8217;s handle gets set to something valid.<br/>><br/>> Try calling register_handler() *after* calling connect().<br/>><br/>> - Bob<br/>><br/>><br/>><br/>> Please consider the environment before you print / Antes de imprimir,<br/>> piense en el medio ambiente<br/>><br/>> &#8220;Daniel Kempcke&#8221; <Daniel.Kempcke@gmx.net><br/>> Sent by: ace-users-bounces@list.isis.vanderbilt.edu<br/>> 11/06/2009 04:06 AM<br/>><br/>> To<br/>> ace-users@list.isis.vanderbilt.edu<br/>> cc<br/>><br/>> Subject<br/>> Re: [ace-users] Problem reactor used with serial interface<br/>><br/>><br/>> Hi Bob,<br/>><br/>> I tried it with -1 (and also with some other values). But the behaviour<br/>> didn&#8217;t change.<br/>> But anyway - thx for your response&#8230;<br/>><br/>> Daniel<br/>><br/>> &#8212;&#8212;&#8211; Original-Nachricht &#8212;&#8212;&#8211;<br/>> > Datum: Thu, 5 Nov 2009 10:41:30 -0500<br/>> > Von: robert.ciora@us.transport.bombardier.com<br/>> > An: &#8220;Daniel Kempcke&#8221; <Daniel.Kempcke@gmx.net><br/>> > CC: ace-users@list.isis.vanderbilt.edu,<br/>> ace-users-bounces@list.isis.vanderbilt.edu<br/>> > Betreff: Re: [ace-users] Problem reactor used with serial interface<br/>><br/>> > Daniel,<br/>> ><br/>> > As a quick guess: try setting your serial parameters&#8217; &#8220;readtimeoutmsec&#8221;<br/>> > field to -1.  This *should* cause the reactor (select() call) to<br/>> correctly<br/>> > block on the handle.<br/>> ><br/>> > - Bob<br/>> ><br/>> ><br/>> > Please consider the environment before you print / Antes de imprimir,<br/>> > piense en el medio ambiente<br/>> ><br/>> ><br/>> > &#8220;Daniel Kempcke&#8221; <Daniel.Kempcke@gmx.net><br/>> > Sent by: ace-users-bounces@list.isis.vanderbilt.edu<br/>> > 11/05/2009 10:21 AM<br/>> ><br/>> > To<br/>> > ace-users@list.isis.vanderbilt.edu<br/>> > cc<br/>> ><br/>> > Subject<br/>> > [ace-users] Problem reactor used with serial interface<br/>> ><br/>> > To: ace-bugs@cs.wustl.edu<br/>> > Subject: [area]: [synopsis]<br/>> ><br/>> >     ACE VERSION: 5.6.3<br/>> ><br/>> >     HOST MACHINE and OPERATING SYSTEM:<br/>> >     - Linux - Ubuntu 9.04 - Kernel 2.6.28<br/>> ><br/>> ><br/>> ><br/>> >     TARGET MACHINE and OPERATING SYSTEM, if different from HOST:<br/>> >     -<br/>> >     COMPILER NAME AND VERSION (AND PATCHLEVEL):<br/>> >     - g++ Version 4.3.3<br/>> ><br/>> ><br/>> >     BUILD METHOD USED:<br/>> > [Experimental ./configure or traditional makefile/project file?]<br/>> >     - makefile/project file<br/>> ><br/>> ><br/>> >     AREA/CLASS/EXAMPLE AFFECTED:<br/>> > [What example failed?  What module failed to compile?]<br/>> ><br/>> > Example for using the Reactor with a serial device and not with TCP/IP<br/>> as<br/>> > a data source. Compiling didn´t fail.<br/>> ><br/>> ><br/>> >     DOES THE PROBLEM AFFECT:<br/>> >         COMPILATION? -<br/>> >         LINKING? -<br/>> >             On Unix systems, did you run make realclean first?<br/>> >             - yes<br/>> >         EXECUTION?<br/>> >         - fails (no signal, caused by data input from the serial device,<br/>><br/>> > occurs)<br/>> ><br/>> ><br/>> >     DESCRIPTION:<br/>> ><br/>> >     The application uses the reactor. There is a serial device on which<br/>> > constantly data arrives. The applic just opens the serial connection and<br/>><br/>> > registers a handler to it. Then it starts the run_reactor_event_loop -<br/>> in<br/>> > this case without an exit conditions.<br/>> ><br/>> ><br/>> > The application uses the standard reactor methods:<br/>> ><br/>> > The &#8220;open()&#8221; method registers a handler, makes a connect to the serial<br/>> > device and sets the serial parameters.<br/>> > The &#8220;handle_input()&#8221; method doesn´t have to do anythng special. In this<br/>> > example it shall only dislay the received data.<br/>> > &#8220;Handle_close()&#8221; just removes the handler, closes the serial connection<br/>> > and deletes the object.<br/>> ><br/>> ><br/>> > Normally I would expect, that the reactor would get signals - cause of<br/>> the<br/>> > incoming data on the serial interface - from the OS, which causes calls<br/>> of<br/>> > the &#8220;handle_input()&#8221; method.<br/>> > But nothing happens - the &#8220;handle_input()&#8221; routine&#8217;s never been called,<br/>> > despite there´s always data arriving on the serial interface.<br/>> ><br/>> > I tried also other examples, which were available online. They are<br/>> similar<br/>> > structured and also never reach the &#8220;handle_input()&#8221;.<br/>> ><br/>> ><br/>> > here´s the code example:<br/>> ><br/>> ><br/>> > #include &#8220;ace/DEV_Connector.h&#8221;<br/>> > #include &#8220;ace/TTY_IO.h&#8221;<br/>> > #include &#8220;ace/Time_Value.h&#8221;<br/>> > #include &#8220;ace/Reactor.h&#8221;<br/>> ><br/>> > #include <iostream><br/>> ><br/>> > class Service : public ACE_Event_Handler{<br/>> > public:<br/>> >                  Service();<br/>> >                  virtual ~Service();<br/>> ><br/>> >                  int open(const char *, ACE_TTY_IO::Serial_Params&<br/>> > sSerialParams);<br/>> ><br/>> >                  virtual ACE_HANDLE get_handle(void) const<br/>> >                  {<br/>> >                                  return this->peer_.get_handle();<br/>> >                  }<br/>> ><br/>> >                  virtual int handle_input(ACE_HANDLE fd =<br/>> > ACE_INVALID_HANDLE);<br/>> ><br/>> >                  virtual int handle_close(ACE_HANDLE handle,<br/>> > ACE_Reactor_Mask close_mask);<br/>> ><br/>> > protected:<br/>> >                  ACE_DEV_Connector connector_;<br/>> >                  //ACE_Message_Queue<ACE_NULL_SYNC> output_queue;<br/>> ><br/>> > private:<br/>> >                  ACE_TTY_IO peer_;<br/>> > };<br/>> ><br/>> ><br/>> > int open(const char* name, ACE_TTY_IO::Serial_Params& sSerialParams) {<br/>> ><br/>> >                  int nResult = 0;<br/>> ><br/>> >                  ACE_Reactor::instance()->register_handler(this,<br/>> >  ACE_Event_Handler::READ_MASK);<br/>> > // Set our I/O handle to that of the peer_ object handling our<br/>> connection<br/>> > if (this->connector_.connect(peer_, ACE_DEV_Addr(name), 0,<br/>> >                                                  ACE_Addr::sap_any, 0,<br/>> > //reuse<br/>> >                                                  O_RDWR |<br/>> > FILE_FLAG_OVERLAPPED) != 0) {<br/>> >                                  ACE_ERROR((LM_ERROR, ACE_TEXT(&#8220;%p\n&#8221;),<br/>> >                  ACE_TEXT(&#8220;&#8212; SerialIOHandler connect\n&#8221;)));<br/>> >                                  nResult = -1;<br/>> >                  }<br/>> ><br/>> >                  if (peer_.control(ACE_TTY_IO::SETPARAMS,<br/>> &sSerialParams)<br/>> > != 0) {<br/>> >                                  ACE_ERROR((LM_ERROR, ACE_TEXT(&#8220;%p<br/>> > control\n&#8221;), name));<br/>> >                                  nResult = -1;<br/>> >                  }<br/>> ><br/>> ><br/>> >                  return nResult;<br/>> > }<br/>> ><br/>> > int handle_input(ACE_HANDLE) {<br/>> >                  char *readBack;<br/>> >                  peer_.recv((void *) &readBack, 1);<br/>> ><br/>> >                  cout << readBack << endl;<br/>> ><br/>> >                  return 0;<br/>> > }<br/>> ><br/>> > int handle_close(ACE_HANDLE handle, ACE_Reactor_Mask close_mask) {<br/>> ><br/>> >                  if (this->peer_.get_handle() != ACE_INVALID_HANDLE) {<br/>> >                                  ACE_Reactor_Mask m =<br/>> > ACE_Event_Handler::ACCEPT_MASK<br/>> >                                                                  |<br/>> > ACE_Event_Handler::DONT_CALL;<br/>> ><br/>> >                                  this->reactor()->remove_handler(this,<br/>> m);<br/>> >                                  this->peer_.close();<br/>> ><br/>> >                                  delete this;<br/>> >                                  return 0;<br/>> >                  }<br/>> >                  return 0;<br/>> > }<br/>> ><br/>> ><br/>> > int ACE_TMAIN(int, ACE_TCHAR *[]) {<br/>> ><br/>> >                  Service SerialIO0;<br/>> >                  Service SerialIO1;<br/>> ><br/>> >                  ACE_TTY_IO::Serial_Params sSerialParams;<br/>> >            sSerialPortParams.baudrate = 115200;<br/>> >                     sSerialPortParams.xonlim = 0;<br/>> >                     sSerialPortParams.xofflim = 0;<br/>> >                     sSerialPortParams.readmincharacters = 0;<br/>> >                     sSerialPortParams.readtimeoutmsec = 1000; // 1<br/>> second<br/>> >                     sSerialPortParams.paritymode = &#8220;none&#8221;;<br/>> >                     sSerialPortParams.ctsenb = false;<br/>> >                     sSerialPortParams.rtsenb = 0;<br/>> >                     sSerialPortParams.xinenb = false;<br/>> >                     sSerialPortParams.xoutenb = false;<br/>> >                     sSerialPortParams.modem = false;<br/>> >                     sSerialPortParams.rcvenb = true;<br/>> >                     sSerialPortParams.dsrenb = false;<br/>> >                     sSerialPortParams.dtrdisable = false;<br/>> >                     sSerialPortParams.databits = 8;<br/>> >                     sSerialPortParams.stopbits = 1;<br/>> ><br/>> ><br/>> >                  const char * serName0 = &#8220;/dev/ttyUSB0&#8221;;<br/>> >                  const char * serName1 = &#8220;/dev/ttyUSB1&#8221;;<br/>> ><br/>> ><br/>> >                  if (SerialIO0.open(serName0, sSerialParams) == -1)<br/>> >                  {<br/>> >                                  cout << "could not connect to: " <<<br/>> > serName0 << endl;<br/>> >                                  return 1;<br/>> >                  }<br/>> ><br/>> >                  if (SerialIO1.open(serName1, sSerialParams) == -1)<br/>> >                  {<br/>> >                                  cout << "could not connect to: " <<<br/>> > serName1 << endl;<br/>> >                                  return 1;<br/>> >                  }<br/>> ><br/>> >                  cout << "connected to: " << serName0 << " " << serName1<br/>><br/>> > << endl;<br/>> ><br/>> ><br/>> >                  ACE_Reactor::instance()->run_reactor_event_loop();<br/>> ><br/>> >                  return 0;<br/>> > }<br/>> ><br/>> > Would be great if somebody could give me a little help. Thanks a lot in<br/>> > advance.<br/>> > Best regards,<br/>> > Daniel<br/>> ></p></blockquote>
-
-
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -3128,6 +3090,18 @@ remove_handler() -&gt; close()
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/09/18/android-hardware-accel/">Android的硬件加速及可能导致的问题</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/25/python-tips/">Python Tips</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/08/21/protobuf-ios/">在iOS上使用protobuf</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/07/15/learn-octave/">学习一点octave</a>
@@ -3157,23 +3131,11 @@ remove_handler() -&gt; close()
         <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2012/01/13/install-wp7-sdk-on-xp/">在XP下安装WP7的SDK</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/01/02/how-to-use-wp7-as-usb-drive/">How to use WP7 as USB drive</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2011/12/29/web-developer-tools-bookmark/">网站开发书签</a>
-      </li>
-    
   </ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 104.28571428571429%'>android(1)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 104.28571428571429%'>django(1)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 108.57142857142857%'>python(2)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
+    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 108.57142857142857%'>android(2)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 104.28571428571429%'>django(1)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 112.85714285714286%'>python(3)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
 </section>
 
 <section>

@@ -159,12 +159,24 @@
         <lastmod>2012-07-18T16:18:05+08:00</lastmod>
     </url>
     <url>
+        <loc>http://blog.chenming.info/blog/2012/08/21/protobuf-ios/</loc>
+        <lastmod>2012-08-21T18:04:40+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://blog.chenming.info/blog/2012/08/25/python-tips/</loc>
+        <lastmod>2012-08-25T15:16:20+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://blog.chenming.info/blog/2012/09/18/android-hardware-accel/</loc>
+        <lastmod>2012-09-19T15:13:50+08:00</lastmod>
+    </url>
+    <url>
         <loc>http://blog.chenming.info/blog/about/</loc>
         <lastmod>2012-07-08T08:40:07+08:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/archives/</loc>
-        <lastmod>2012-08-21T17:48:23+08:00</lastmod>
+        <lastmod>2012-09-19T15:13:50+08:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/categories/</loc>
@@ -172,6 +184,6 @@
     </url>
     <url>
         <loc>http://blog.chenming.info/</loc>
-        <lastmod>2012-08-21T17:48:23+08:00</lastmod>
+        <lastmod>2012-09-19T15:13:50+08:00</lastmod>
     </url>
 </urlset>

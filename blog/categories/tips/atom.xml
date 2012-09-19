@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: tips | Ming's Blog]]></title>
+  <link href="http://blog.chenming.info/blog/categories/tips/atom.xml" rel="self"/>
+  <link href="http://blog.chenming.info/"/>
+  <updated>2012-09-19T15:16:20+08:00</updated>
+  <id>http://blog.chenming.info/</id>
+  <author>
+    <name><![CDATA[Ming]]></name>
+    <email><![CDATA[chenming_cd@hotmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Python Tips]]></title>
+    <link href="http://blog.chenming.info/blog/2012/08/25/python-tips/"/>
+    <updated>2012-08-25T15:13:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2012/08/25/python-tips</id>
+    <content type="html"><![CDATA[<h2>Python</h2>
+
+<h3>list常用操作</h3>
+
+<p>合并两个<code>list</code>并排序</p>
+
+<pre><code>&gt;&gt;&gt; l1 = [1, 3, 4, 7]
+&gt;&gt;&gt; l2 = [0, 2, 5, 6, 8, 9]
+&gt;&gt;&gt; l1.extend(l2)
+&gt;&gt;&gt; sorted(l1)
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+</code></pre>
+
+<h2>Django</h2>
+
+<h2>参考</h2>
+
+<ul>
+<li>http://stackoverflow.com/questions/464342/combining-two-sorted-lists-in-python</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
