@@ -5,13 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>CentOS Tips - Ming's Blog</title>
+  <title>Android的Library工程 - Ming's Blog</title>
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="小工具软件 安全删除文件 - wipe 要想安全的删除一个文件，可以使用wipe。 yum install wipe 用法 wipe foo.txt # wipe a file
-wipe -q foo.txt # use quick mode to wipe a file
-wipe -fr &hellip;">
+  <meta name="description" content="为什么要使用Android的Library工程？ 简单的说就是减少代码拷贝。 An Android library project is a development project that holds shared Android source code and resources. Other &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -20,7 +18,7 @@ wipe -fr &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.chenming.info/blog/2012/12/12/centos-tips/">
+  <link rel="canonical" href="http://blog.chenming.info/blog/2013/01/04/android-library-jar/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -83,7 +81,7 @@ wipe -fr &hellip;">
   
   <header>
     
-      <h1 class="entry-title">CentOS Tips</h1>
+      <h1 class="entry-title">Android的Library工程</h1>
     
     
       <p class="meta">
@@ -99,7 +97,7 @@ wipe -fr &hellip;">
   
 
 
-<time datetime="2012-12-12T07:22:00+08:00" pubdate data-updated="true">Dec 12<span>th</span>, 2012</time>
+<time datetime="2013-01-04T15:02:00+08:00" pubdate data-updated="true">Jan 4<span>th</span>, 2013</time>
         
          | <a href="#disqus_thread">Comments</a>
         
@@ -108,52 +106,87 @@ wipe -fr &hellip;">
   </header>
 
 
-<div class="entry-content"><h2>小工具软件</h2>
+<div class="entry-content"><h2>为什么要使用Android的Library工程？</h2>
 
-<h3>安全删除文件 - wipe</h3>
+<p>简单的说就是减少代码拷贝。</p>
 
-<p>要想安全的删除一个文件，可以使用wipe。</p>
+<blockquote><p>An Android library project is a development project that holds shared Android source code and resources. Other Android application projects can reference the library project and, at build time, include its compiled sources in their .apk files. Multiple application projects can reference the same library project and any single application project can reference multiple library projects.</p></blockquote>
 
-<pre><code>yum install wipe
+<h2>Android Library工程开发中需要考虑的问题</h2>
+
+<h3>能把Android的Library工程打成一个单独的jar包发布吗？</h3>
+
+<p>如果工程是纯粹的Java文件，那么这和一个普通的java library工程没有区别，
+可以打成jar包来发布。
+在<code>custom_rules.xml</code>里添加如下两个target即可使用<code>ant</code>来编译jar包了：</p>
+
+<pre><code>&lt;target name="jar" depends="-compile" description="Build binary jar"&gt;
+    &lt;jar destfile="${ant.project.name}.jar" basedir="${out.classes.absolute.dir}" &gt;
+        &lt;include name="com/example/android/**" /&gt;
+    &lt;/jar&gt;
+&lt;/target&gt;
+
+&lt;target name="src-jar" description="bundle sources in a jar"&gt;
+    &lt;jar destfile="${ant.project.name}-src.jar" basedir="src"/&gt;
+&lt;/target&gt;
 </code></pre>
 
-<p>用法</p>
+<p>但是如果Library工程有资源（string, layout等），针对 ADT r21 的答案是不行的。</p>
 
-<pre><code>wipe foo.txt        # wipe a file
-wipe -q foo.txt     # use quick mode to wipe a file
-wipe -fr yourdir    # wipe a directory
+<blockquote><p>You cannot export a library project to a JAR file.
+A library cannot be distributed as a binary file (such as a JAR file). This will be added in a future version of the SDK
+Tools.</p></blockquote>
+
+<p>针对Library工程有资源但又不想发布源代码的一种workaround的方法是把src目录进行编译后成jar包，然后发布的时候发布资源和jar包。在主工程中把Library工程的jar包放在libs目录下即可正常编译。
+当然如果工程文件的<code>AndroidManifest.xml</code>里的内容需要合并到主工程的<code>AndroidManifest.xml</code>里。
+合并<code>AndroidManifest.xml</code>的需求已经在Android Tools的<a href="http://tools.android.com/roadmap">Roadmap</a>里，但何时能实现还未知。</p>
+
+<h3>资源冲突</h3>
+
+<p>如果在Library的<code>strings.xml</code>和主工程的<code>strings.xml</code>都定义了<code>hello_world</code>，
+那么编译后的apk会优先使用主工程的<code>hello_world</code>。
+为了避免冲突，建议在Library的工程中对所有资源添加前缀。</p>
+
+<blockquote><p>Since the tools merge the resources of a library project with those of a dependent application project, a given resource ID might be defined in both projects. In this case, the tools select the resource from the application, or the library with highest priority, and discard the other resource. As you develop your applications, be aware that common resource IDs are likely to be defined in more than one project and will be merged, with the resource from the application or highest-priority library taking precedence.
+To avoid resource conflicts for common resource IDs, consider using a prefix or other consistent naming scheme that is unique to the project (or is unique across all projects).</p></blockquote>
+
+<h3>Library工程文件不能包含assets</h3>
+
+<p>Library工程不能在assets目录下存放raw资源，必须存放在主工程的assets目录下。</p>
+
+<p>但是支持使用res目录来存放资源。</p>
+
+<h3>每个Library工程都有自己的R文件</h3>
+
+<p>每个Library工程在编译后都会在gen目录生成自己的R.java文件。</p>
+
+<h3>为Library工程创建测试工程</h3>
+
+<p>要的测试工程本身可以直接引用Library工程，测试工程本身也是APK。</p>
+
+<p>通常的做法是在Library工程下创建一个tests目录用来存放测试工程。</p>
+
+<p>需要在测试工程的<code>AndroidManifest.xml</code>的<code>&lt;application&gt;</code>中加入让它成为一个测试工程。</p>
+
+<pre><code>&lt;uses-library android:name="android.test.runner" /&gt;
 </code></pre>
 
-<h3>加密解密 - truecrypt</h3>
+<p>同时在<code>project.properties</code>中加入对Library工程的引用：</p>
 
-<p>truecrypt依赖fuse-libs，需要先安装：</p>
-
-<pre><code>yum install fuse-libs fuse
+<pre><code># Project target.
+target=android-8
+android.library.reference.1=.. 
 </code></pre>
 
-<p>另外truecrypt需要用户能有sudo的权限，首先检查 /etc/sudoers 里wheel组的用户有sudo的权限，然后需要把用户加入 wheel 组，用root身份执行下面的命令</p>
+<h2>参考:</h2>
 
-<pre><code># usermod -G wheel &lt;username&gt;
-</code></pre>
+<ul>
+<li><a href="http://developer.android.com/tools/projects/index.html#LibraryProjects">Android SDK document - library project</a></li>
+<li><a href="http://tools.android.com/recent/buildchangesinrevision14">Build changes in revision 14</a></li>
+<li><a href="http://android-developers.blogspot.com/2011/10/changes-to-library-projects-in-android.html">Changes to Library Projects in Android SDK Tools, r14</a></li>
+<li><a href="http://tools.android.com/roadmap">Android Tools Roadmap</a></li>
+</ul>
 
-<p>truecrypt的用法示例。</p>
-
-<p>创建一个加密卷：</p>
-
-<pre><code>truecrypt -t -c
-</code></pre>
-
-<p>挂载一个加密卷：</p>
-
-<pre><code>truecrypt sandbox.tc sandbox
-</code></pre>
-
-<p>卸载一个加密卷：</p>
-
-<pre><code>truecrypt -d sandbox.tc
-</code></pre>
-
-<h2>参考</h2>
 </div>
 
 
@@ -176,12 +209,12 @@ wipe -fr yourdir    # wipe a directory
   
 
 
-<time datetime="2012-12-12T07:22:00+08:00" pubdate data-updated="true">Dec 12<span>th</span>, 2012</time>
+<time datetime="2013-01-04T15:02:00+08:00" pubdate data-updated="true">Jan 4<span>th</span>, 2013</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/linux/'>Linux</a>, <a class='category' href='/blog/categories/centos/'>centos</a>
+    <a class='category' href='/blog/categories/android/'>android</a>
   
 </span>
 
@@ -225,10 +258,8 @@ wipe -fr yourdir    # wipe a directory
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2012/09/18/android-hardware-accel/" title="Previous Post: Android的硬件加速及可能导致的问题">&laquo; Android的硬件加速及可能导致的问题</a>
+        <a class="basic-alignment left" href="/blog/2012/12/12/centos-tips/" title="Previous Post: CentOS Tips">&laquo; CentOS Tips</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2013/01/04/android-library-jar/" title="Next Post: Android的Library工程">Android的Library工程 &raquo;</a>
       
     </p>
   </footer>
@@ -336,8 +367,8 @@ wipe -fr yourdir    # wipe a directory
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.chenming.info/blog/2012/12/12/centos-tips/';
-        var disqus_url = 'http://blog.chenming.info/blog/2012/12/12/centos-tips/';
+        var disqus_identifier = 'http://blog.chenming.info/blog/2013/01/04/android-library-jar/';
+        var disqus_url = 'http://blog.chenming.info/blog/2013/01/04/android-library-jar/';
         var disqus_script = 'embed.js';
       
     (function () {

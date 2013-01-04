@@ -4,7 +4,7 @@
   <title><![CDATA[Ming's Blog]]></title>
   <link href="http://blog.chenming.info/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-01-04T10:37:47+08:00</updated>
+  <updated>2013-01-04T15:25:32+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -12,6 +12,95 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android的Library工程]]></title>
+    <link href="http://blog.chenming.info/blog/2013/01/04/android-library-jar/"/>
+    <updated>2013-01-04T15:02:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2013/01/04/android-library-jar</id>
+    <content type="html"><![CDATA[<h2>为什么要使用Android的Library工程？</h2>
+
+<p>简单的说就是减少代码拷贝。</p>
+
+<blockquote><p>An Android library project is a development project that holds shared Android source code and resources. Other Android application projects can reference the library project and, at build time, include its compiled sources in their .apk files. Multiple application projects can reference the same library project and any single application project can reference multiple library projects.</p></blockquote>
+
+<h2>Android Library工程开发中需要考虑的问题</h2>
+
+<h3>能把Android的Library工程打成一个单独的jar包发布吗？</h3>
+
+<p>如果工程是纯粹的Java文件，那么这和一个普通的java library工程没有区别，
+可以打成jar包来发布。
+在<code>custom_rules.xml</code>里添加如下两个target即可使用<code>ant</code>来编译jar包了：</p>
+
+<pre><code>&lt;target name="jar" depends="-compile" description="Build binary jar"&gt;
+    &lt;jar destfile="${ant.project.name}.jar" basedir="${out.classes.absolute.dir}" &gt;
+        &lt;include name="com/example/android/**" /&gt;
+    &lt;/jar&gt;
+&lt;/target&gt;
+
+&lt;target name="src-jar" description="bundle sources in a jar"&gt;
+    &lt;jar destfile="${ant.project.name}-src.jar" basedir="src"/&gt;
+&lt;/target&gt;
+</code></pre>
+
+<p>但是如果Library工程有资源（string, layout等），针对 ADT r21 的答案是不行的。</p>
+
+<blockquote><p>You cannot export a library project to a JAR file.
+A library cannot be distributed as a binary file (such as a JAR file). This will be added in a future version of the SDK
+Tools.</p></blockquote>
+
+<p>针对Library工程有资源但又不想发布源代码的一种workaround的方法是把src目录进行编译后成jar包，然后发布的时候发布资源和jar包。在主工程中把Library工程的jar包放在libs目录下即可正常编译。
+当然如果工程文件的<code>AndroidManifest.xml</code>里的内容需要合并到主工程的<code>AndroidManifest.xml</code>里。
+合并<code>AndroidManifest.xml</code>的需求已经在Android Tools的<a href="http://tools.android.com/roadmap">Roadmap</a>里，但何时能实现还未知。</p>
+
+<h3>资源冲突</h3>
+
+<p>如果在Library的<code>strings.xml</code>和主工程的<code>strings.xml</code>都定义了<code>hello_world</code>，
+那么编译后的apk会优先使用主工程的<code>hello_world</code>。
+为了避免冲突，建议在Library的工程中对所有资源添加前缀。</p>
+
+<blockquote><p>Since the tools merge the resources of a library project with those of a dependent application project, a given resource ID might be defined in both projects. In this case, the tools select the resource from the application, or the library with highest priority, and discard the other resource. As you develop your applications, be aware that common resource IDs are likely to be defined in more than one project and will be merged, with the resource from the application or highest-priority library taking precedence.
+To avoid resource conflicts for common resource IDs, consider using a prefix or other consistent naming scheme that is unique to the project (or is unique across all projects).</p></blockquote>
+
+<h3>Library工程文件不能包含assets</h3>
+
+<p>Library工程不能在assets目录下存放raw资源，必须存放在主工程的assets目录下。</p>
+
+<p>但是支持使用res目录来存放资源。</p>
+
+<h3>每个Library工程都有自己的R文件</h3>
+
+<p>每个Library工程在编译后都会在gen目录生成自己的R.java文件。</p>
+
+<h3>为Library工程创建测试工程</h3>
+
+<p>要的测试工程本身可以直接引用Library工程，测试工程本身也是APK。</p>
+
+<p>通常的做法是在Library工程下创建一个tests目录用来存放测试工程。</p>
+
+<p>需要在测试工程的<code>AndroidManifest.xml</code>的<code>&lt;application&gt;</code>中加入让它成为一个测试工程。</p>
+
+<pre><code>&lt;uses-library android:name="android.test.runner" /&gt;
+</code></pre>
+
+<p>同时在<code>project.properties</code>中加入对Library工程的引用：</p>
+
+<pre><code># Project target.
+target=android-8
+android.library.reference.1=.. 
+</code></pre>
+
+<h2>参考:</h2>
+
+<ul>
+<li><a href="http://developer.android.com/tools/projects/index.html#LibraryProjects">Android SDK document - library project</a></li>
+<li><a href="http://tools.android.com/recent/buildchangesinrevision14">Build changes in revision 14</a></li>
+<li><a href="http://android-developers.blogspot.com/2011/10/changes-to-library-projects-in-android.html">Changes to Library Projects in Android SDK Tools, r14</a></li>
+<li><a href="http://tools.android.com/roadmap">Android Tools Roadmap</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[CentOS Tips]]></title>
@@ -295,8 +384,8 @@ parent are executed again.</p>
 <h2>参考</h2>
 
 <ul>
-<li>http://stackoverflow.com/questions/464342/combining-two-sorted-lists-in-python</li>
-<li>http://stackoverflow.com/questions/610883/how-to-know-if-an-object-has-an-attribute-in-python</li>
+<li><a href="http://stackoverflow.com/questions/464342/combining-two-sorted-lists-in-python">http://stackoverflow.com/questions/464342/combining-two-sorted-lists-in-python</a></li>
+<li><a href="http://stackoverflow.com/questions/610883/how-to-know-if-an-object-has-an-attribute-in-python">http://stackoverflow.com/questions/610883/how-to-know-if-an-object-has-an-attribute-in-python</a></li>
 </ul>
 
 ]]></content>
@@ -1999,453 +2088,6 @@ filter tcp_dport 1234
 <li><a href="http://docs.hp.com/en/B2355-60105/netfmt.1M.html">http://docs.hp.com/en/B2355-60105/netfmt.1M.html</a></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[N皇后问题 - 使用随机爬山法实现其快速解法]]></title>
-    <link href="http://blog.chenming.info/blog/2009/11/08/using-hill-climbing-algorithm-to-solve-n-queues-problem/"/>
-    <updated>2009-11-08T10:11:00+08:00</updated>
-    <id>http://blog.chenming.info/blog/2009/11/08/using-hill-climbing-algorithm-to-solve-n-queues-problem</id>
-    <content type="html"><![CDATA[<p>N皇后问题是一个经典的问题，在很多地方都有讨论过。
-回溯法是经典的解法，但是随着N的增大，其复杂度的增加呈指数增长，
-如果N=100使用回溯解法的话，回溯要运行的时间估计你可以去喝一壶茶了。</p>
-
-<p>这段时间在看《人工智能》，里面也有对其的讨论，介绍了爬山法在N皇后问题中的应用。
-爬山法是一种向值增加的方向持续移动到简单循环过程，它将会在到达一个“峰顶”时终止，
-此时相邻状态中没有比该它更高的值。这个算法不维护搜索树。</p>
-
-<p>最基本的爬上搜索算法(节选自《人工智能》第二版)：</p>
-
-<figure class='code'><figcaption><span>随机爬山算法 </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>function HILL-CLIMBING(problem) return a state thate is a locak maximum
-</span><span class='line'>    inputs: problem
-</span><span class='line'>    local variables: current, a node
-</span><span class='line'>                         neighbor,a node
-</span><span class='line'>    current = MakeNode(INITAL-STATE(problem));
-</span><span class='line'>    loop do
-</span><span class='line'>        neighbor = a highest-valued successor of current ;
-</span><span class='line'>        if VALUE[neighbor] &lt;= VALUE[current] then return STATE[current];
-</span><span class='line'>        current = neighbor ;</span></code></pre></td></tr></table></div></figure>
-
-
-<p>爬山法属于一种局部的贪婪搜索方法，当它在搜索过程中遇到了局部最大值就很难继续向下搜索了。因此产生了爬山法的变种如随机爬山法及其变种如随机爬山法，随机重新开始的爬山法，
-模拟退火搜索能够非常有效的解决N皇后问题。</p>
-
-<p>结合实际，我使用了随机爬山法的一个测试程序，不试不知道，测试发现速度果然是非常的快，
-对于100皇后都是瞬间秒杀。不过这个程序要实现百万皇后的问题秒杀，估计还是一项很艰巨的工作。
-不过随机爬山法这种方法是一种很有效的解决复杂搜索问题的方法之一。</p>
-
-<p>程序如下，供以后参考：</p>
-
-<figure class='code'><figcaption><span>使用随机爬山法解决N皇后问题 </span></figcaption>
- <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-<span class='line-number'>115</span>
-<span class='line-number'>116</span>
-<span class='line-number'>117</span>
-<span class='line-number'>118</span>
-<span class='line-number'>119</span>
-<span class='line-number'>120</span>
-<span class='line-number'>121</span>
-<span class='line-number'>122</span>
-<span class='line-number'>123</span>
-<span class='line-number'>124</span>
-<span class='line-number'>125</span>
-<span class='line-number'>126</span>
-<span class='line-number'>127</span>
-<span class='line-number'>128</span>
-<span class='line-number'>129</span>
-<span class='line-number'>130</span>
-<span class='line-number'>131</span>
-<span class='line-number'>132</span>
-<span class='line-number'>133</span>
-<span class='line-number'>134</span>
-<span class='line-number'>135</span>
-<span class='line-number'>136</span>
-<span class='line-number'>137</span>
-<span class='line-number'>138</span>
-<span class='line-number'>139</span>
-<span class='line-number'>140</span>
-<span class='line-number'>141</span>
-<span class='line-number'>142</span>
-<span class='line-number'>143</span>
-<span class='line-number'>144</span>
-<span class='line-number'>145</span>
-<span class='line-number'>146</span>
-<span class='line-number'>147</span>
-<span class='line-number'>148</span>
-<span class='line-number'>149</span>
-<span class='line-number'>150</span>
-<span class='line-number'>151</span>
-<span class='line-number'>152</span>
-<span class='line-number'>153</span>
-<span class='line-number'>154</span>
-<span class='line-number'>155</span>
-<span class='line-number'>156</span>
-<span class='line-number'>157</span>
-<span class='line-number'>158</span>
-<span class='line-number'>159</span>
-<span class='line-number'>160</span>
-<span class='line-number'>161</span>
-<span class='line-number'>162</span>
-<span class='line-number'>163</span>
-<span class='line-number'>164</span>
-<span class='line-number'>165</span>
-<span class='line-number'>166</span>
-<span class='line-number'>167</span>
-<span class='line-number'>168</span>
-<span class='line-number'>169</span>
-<span class='line-number'>170</span>
-<span class='line-number'>171</span>
-<span class='line-number'>172</span>
-<span class='line-number'>173</span>
-<span class='line-number'>174</span>
-<span class='line-number'>175</span>
-<span class='line-number'>176</span>
-<span class='line-number'>177</span>
-<span class='line-number'>178</span>
-<span class='line-number'>179</span>
-<span class='line-number'>180</span>
-<span class='line-number'>181</span>
-<span class='line-number'>182</span>
-<span class='line-number'>183</span>
-<span class='line-number'>184</span>
-<span class='line-number'>185</span>
-<span class='line-number'>186</span>
-<span class='line-number'>187</span>
-<span class='line-number'>188</span>
-<span class='line-number'>189</span>
-<span class='line-number'>190</span>
-<span class='line-number'>191</span>
-<span class='line-number'>192</span>
-<span class='line-number'>193</span>
-<span class='line-number'>194</span>
-<span class='line-number'>195</span>
-<span class='line-number'>196</span>
-<span class='line-number'>197</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;iterator&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;vector&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">CollisionList_t</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">void</span> <span class="n">print_row_mark</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;+---&quot;</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;+&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">void</span> <span class="n">print_row</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="kt">int</span> <span class="n">fill</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;| &quot;</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="n">i</span><span class="o">==</span><span class="n">fill</span><span class="p">)</span> <span class="o">?</span> <span class="sc">&#39;X&#39;</span> <span class="o">:</span> <span class="sc">&#39; &#39;</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;|&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">print_row_mark</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// 皇后位置的表示方法:</span>
-</span><span class='line'><span class="c1">// 使用数组chessman[N]来表示N个皇后的位置</span>
-</span><span class='line'><span class="c1">// 第i个皇后chessman[i]的下标i表示其行所在的位置，</span>
-</span><span class='line'><span class="c1">// chessman[i]表示其列的位置。</span>
-</span><span class='line'><span class="c1">//</span>
-</span><span class='line'><span class="c1">// 一个四皇后问题的表示方法如下所示：</span>
-</span><span class='line'><span class="c1">// (0, 1) (1, 3) (2, 0) (3, 2)</span>
-</span><span class='line'><span class="c1">// +---+---+---+---+</span>
-</span><span class='line'><span class="c1">// |   | X |   |   |</span>
-</span><span class='line'><span class="c1">// +---+---+---+---+</span>
-</span><span class='line'><span class="c1">// |   |   |   | X |</span>
-</span><span class='line'><span class="c1">// +---+---+---+---+</span>
-</span><span class='line'><span class="c1">// | X |   |   |   |</span>
-</span><span class='line'><span class="c1">// +---+---+---+---+</span>
-</span><span class='line'><span class="c1">// |   |   | X |   |</span>
-</span><span class='line'><span class="c1">// +---+---+---+---+</span>
-</span><span class='line'><span class="c1">//</span>
-</span><span class='line'><span class="kt">void</span> <span class="n">print_chessboard</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;(&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;, &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;) &quot;</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">print_row_mark</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">print_row</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// 随机生成一个初始化状态，在每行每列上放置一个皇后</span>
-</span><span class='line'><span class="kt">void</span> <span class="n">generate_init_state</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">r</span> <span class="o">=</span> <span class="n">rand</span><span class="p">();</span>
-</span><span class='line'>    <span class="n">r</span> <span class="o">=</span> <span class="n">r</span> <span class="o">%</span> <span class="n">N</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">chessman</span><span class="p">[</span><span class="n">r</span><span class="p">],</span> <span class="n">chessman</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="n">r</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// 返回冲突的皇后个数</span>
-</span><span class='line'><span class="kt">int</span> <span class="n">h</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="n">CollisionList_t</span><span class="o">&amp;</span> <span class="n">collision_list</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>  <span class="n">collision_list</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kt">int</span> <span class="n">collision</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">row</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="n">row</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="n">row</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">if</span> <span class="p">((</span><span class="n">chessman</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">==</span> <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">row</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span>
-</span><span class='line'>          <span class="o">||</span> <span class="p">(</span><span class="n">chessman</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">==</span> <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">row</span> <span class="o">-</span> <span class="n">i</span><span class="p">)))</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">collision_list</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">row</span><span class="p">);</span>
-</span><span class='line'>        <span class="o">++</span><span class="n">collision</span><span class="p">;</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">return</span> <span class="n">collision</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// 如果交换后冲突不比原来的大，就进行交换</span>
-</span><span class='line'><span class="c1">// 只有交换成功后才改变cl为新的冲突列表</span>
-</span><span class='line'><span class="kt">int</span> <span class="n">try_exchange</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="kt">int</span> <span class="n">row1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">row2</span><span class="p">,</span> <span class="n">CollisionList_t</span><span class="o">&amp;</span> <span class="n">cl</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>  <span class="n">CollisionList_t</span> <span class="n">new_cl</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">// 交换两行的皇后的位置</span>
-</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">chessman</span><span class="p">[</span><span class="n">row1</span><span class="p">],</span> <span class="n">chessman</span><span class="p">[</span><span class="n">row2</span><span class="p">]);</span>
-</span><span class='line'>  <span class="kt">int</span> <span class="n">new_collision</span> <span class="o">=</span> <span class="n">h</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">new_cl</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">new_collision</span> <span class="o">&gt;</span> <span class="n">cl</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
-</span><span class='line'>    <span class="c1">// 取消之前的交换</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">chessman</span><span class="p">[</span><span class="n">row1</span><span class="p">],</span> <span class="n">chessman</span><span class="p">[</span><span class="n">row2</span><span class="p">]);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">cl</span> <span class="o">=</span> <span class="n">new_cl</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">return</span> <span class="n">new_cl</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">int</span> <span class="n">choose_next_state</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="n">CollisionList_t</span><span class="o">&amp;</span> <span class="n">cl</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>  <span class="kt">int</span> <span class="n">old_collision</span> <span class="o">=</span> <span class="n">cl</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
-</span><span class='line'>  <span class="kt">int</span> <span class="n">new_collision</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kt">int</span> <span class="n">row1</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>  <span class="kt">int</span> <span class="n">row2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">// 优化最后只有一个冲突的解</span>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">cl</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">cl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">try_exchange</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">cl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="p">,</span> <span class="n">cl</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">do</span> <span class="p">{</span>
-</span><span class='line'>    <span class="c1">// 最后的选择，随机的选择两个皇后调换其位置</span>
-</span><span class='line'>    <span class="n">row1</span> <span class="o">=</span> <span class="n">rand</span><span class="p">()</span> <span class="o">%</span> <span class="n">N</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">do</span> <span class="p">{</span>
-</span><span class='line'>      <span class="n">row2</span> <span class="o">=</span> <span class="n">rand</span><span class="p">()</span> <span class="o">%</span> <span class="n">N</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">row1</span> <span class="o">==</span> <span class="n">row2</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">new_collision</span> <span class="o">=</span> <span class="n">try_exchange</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">row1</span><span class="p">,</span> <span class="n">row2</span><span class="p">,</span> <span class="n">cl</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">new_collision</span> <span class="o">&gt;</span> <span class="n">old_collision</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">return</span> <span class="n">new_collision</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// 使用随机爬山法寻找一个N皇后问题的解</span>
-</span><span class='line'><span class="kt">int</span> <span class="n">queue_solution</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="p">[</span><span class="n">N</span><span class="p">];</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">max_tries</span> <span class="o">=</span> <span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">max_steps</span> <span class="o">=</span> <span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">tries</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">while</span> <span class="p">(</span><span class="n">tries</span> <span class="o">&lt;</span> <span class="n">max_tries</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="o">++</span><span class="n">tries</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="kt">int</span> <span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>      <span class="kt">int</span> <span class="n">collision</span><span class="p">;</span>
-</span><span class='line'>      <span class="n">CollisionList_t</span> <span class="n">collision_list</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="n">srand</span><span class="p">(</span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">+</span> <span class="n">tries</span> <span class="o">*</span> <span class="n">collision</span><span class="p">);</span>
-</span><span class='line'>      <span class="n">generate_init_state</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">);</span>
-</span><span class='line'>      <span class="n">collision</span> <span class="o">=</span> <span class="n">h</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span>  <span class="n">N</span><span class="p">,</span> <span class="n">collision_list</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="k">while</span> <span class="p">((</span><span class="n">collision</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">steps</span><span class="o">&lt;</span><span class="n">max_steps</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">collision</span> <span class="o">=</span> <span class="n">choose_next_state</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">collision_list</span><span class="p">);</span>
-</span><span class='line'>        <span class="o">++</span><span class="n">steps</span><span class="p">;</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">collision</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>          <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Found a solution. Tries: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">tries</span>
-</span><span class='line'>            <span class="o">&lt;&lt;</span> <span class="s">&quot; Steps: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">steps</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-</span><span class='line'>          <span class="n">print_chessboard</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">);</span>
-</span><span class='line'>          <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// 接受一个命令行参数，要求为整数N，表示要寻找的解是N皇后问题。</span>
-</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>  <span class="kt">int</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>    <span class="c1">// 缺省为寻找8皇后问题的一个解</span>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">N</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;N: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">N</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">N</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Input error: parameter must be a postive integer&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">srand</span><span class="p">(</span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">));</span>
-</span><span class='line'>  <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">queue_solution</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Failed, please try re-run to get a solution.&quot;</span>
-</span><span class='line'>      <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>TODO：在选择下一步的时候还有改进空间，比如优先从冲突的皇后中随机选择皇后进行下一次的位置调换等。</p>
 ]]></content>
   </entry>
   

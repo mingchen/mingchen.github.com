@@ -9,9 +9,9 @@
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="今天又看了一下了安全编程的指南。看到对异常的处理部分，不由想到前两天在客户的环境中出现一个问题，
-由于在捕获异常后没有完全释放之前获得锁，导致在程序出现异常后，某些资源一直处于被锁定状态。
-最后只有重新启动应用才能释放资源。对异常的处理要非常的小心才是。 编写安全的代码的参考资料： [ &hellip;">
+  <meta name="description" content="N皇后问题是一个经典的问题，在很多地方都有讨论过。
+回溯法是经典的解法，但是随着N的增大，其复杂度的增加呈指数增长，
+如果N=100使用回溯解法的话，回溯要运行的时间估计你可以去喝一壶茶了。 这段时间在看《人工智能》，里面也有对其的讨论，介绍了爬山法在N皇后问题中的应用。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -80,6 +80,482 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2009/11/08/using-hill-climbing-algorithm-to-solve-n-queues-problem/">N皇后问题 - 使用随机爬山法实现其快速解法</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-08T10:11:00+08:00" pubdate data-updated="true">Nov 8<span>th</span>, 2009</time>
+        
+         | <a href="/blog/2009/11/08/using-hill-climbing-algorithm-to-solve-n-queues-problem/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>N皇后问题是一个经典的问题，在很多地方都有讨论过。
+回溯法是经典的解法，但是随着N的增大，其复杂度的增加呈指数增长，
+如果N=100使用回溯解法的话，回溯要运行的时间估计你可以去喝一壶茶了。</p>
+
+<p>这段时间在看《人工智能》，里面也有对其的讨论，介绍了爬山法在N皇后问题中的应用。
+爬山法是一种向值增加的方向持续移动到简单循环过程，它将会在到达一个“峰顶”时终止，
+此时相邻状态中没有比该它更高的值。这个算法不维护搜索树。</p>
+
+<p>最基本的爬上搜索算法(节选自《人工智能》第二版)：</p>
+
+<figure class='code'><figcaption><span>随机爬山算法 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>function HILL-CLIMBING(problem) return a state thate is a locak maximum
+</span><span class='line'>    inputs: problem
+</span><span class='line'>    local variables: current, a node
+</span><span class='line'>                         neighbor,a node
+</span><span class='line'>    current = MakeNode(INITAL-STATE(problem));
+</span><span class='line'>    loop do
+</span><span class='line'>        neighbor = a highest-valued successor of current ;
+</span><span class='line'>        if VALUE[neighbor] &lt;= VALUE[current] then return STATE[current];
+</span><span class='line'>        current = neighbor ;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>爬山法属于一种局部的贪婪搜索方法，当它在搜索过程中遇到了局部最大值就很难继续向下搜索了。因此产生了爬山法的变种如随机爬山法及其变种如随机爬山法，随机重新开始的爬山法，
+模拟退火搜索能够非常有效的解决N皇后问题。</p>
+
+<p>结合实际，我使用了随机爬山法的一个测试程序，不试不知道，测试发现速度果然是非常的快，
+对于100皇后都是瞬间秒杀。不过这个程序要实现百万皇后的问题秒杀，估计还是一项很艰巨的工作。
+不过随机爬山法这种方法是一种很有效的解决复杂搜索问题的方法之一。</p>
+
+<p>程序如下，供以后参考：</p>
+
+<figure class='code'><figcaption><span>使用随机爬山法解决N皇后问题 </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;iterator&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;vector&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">CollisionList_t</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="n">print_row_mark</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;+---&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;+&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="n">print_row</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="kt">int</span> <span class="n">fill</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;| &quot;</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="n">i</span><span class="o">==</span><span class="n">fill</span><span class="p">)</span> <span class="o">?</span> <span class="sc">&#39;X&#39;</span> <span class="o">:</span> <span class="sc">&#39; &#39;</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;|&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">print_row_mark</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 皇后位置的表示方法:</span>
+</span><span class='line'><span class="c1">// 使用数组chessman[N]来表示N个皇后的位置</span>
+</span><span class='line'><span class="c1">// 第i个皇后chessman[i]的下标i表示其行所在的位置，</span>
+</span><span class='line'><span class="c1">// chessman[i]表示其列的位置。</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// 一个四皇后问题的表示方法如下所示：</span>
+</span><span class='line'><span class="c1">// (0, 1) (1, 3) (2, 0) (3, 2)</span>
+</span><span class='line'><span class="c1">// +---+---+---+---+</span>
+</span><span class='line'><span class="c1">// |   | X |   |   |</span>
+</span><span class='line'><span class="c1">// +---+---+---+---+</span>
+</span><span class='line'><span class="c1">// |   |   |   | X |</span>
+</span><span class='line'><span class="c1">// +---+---+---+---+</span>
+</span><span class='line'><span class="c1">// | X |   |   |   |</span>
+</span><span class='line'><span class="c1">// +---+---+---+---+</span>
+</span><span class='line'><span class="c1">// |   |   | X |   |</span>
+</span><span class='line'><span class="c1">// +---+---+---+---+</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="kt">void</span> <span class="n">print_chessboard</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;(&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;, &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;) &quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">print_row_mark</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">print_row</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 随机生成一个初始化状态，在每行每列上放置一个皇后</span>
+</span><span class='line'><span class="kt">void</span> <span class="n">generate_init_state</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">r</span> <span class="o">=</span> <span class="n">rand</span><span class="p">();</span>
+</span><span class='line'>    <span class="n">r</span> <span class="o">=</span> <span class="n">r</span> <span class="o">%</span> <span class="n">N</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">chessman</span><span class="p">[</span><span class="n">r</span><span class="p">],</span> <span class="n">chessman</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="n">r</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 返回冲突的皇后个数</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">h</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="n">CollisionList_t</span><span class="o">&amp;</span> <span class="n">collision_list</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">collision_list</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">collision</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">row</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="n">row</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="n">row</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">((</span><span class="n">chessman</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">==</span> <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">row</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span>
+</span><span class='line'>          <span class="o">||</span> <span class="p">(</span><span class="n">chessman</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">==</span> <span class="n">chessman</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">row</span> <span class="o">-</span> <span class="n">i</span><span class="p">)))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">collision_list</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">row</span><span class="p">);</span>
+</span><span class='line'>        <span class="o">++</span><span class="n">collision</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">collision</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 如果交换后冲突不比原来的大，就进行交换</span>
+</span><span class='line'><span class="c1">// 只有交换成功后才改变cl为新的冲突列表</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">try_exchange</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="kt">int</span> <span class="n">row1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">row2</span><span class="p">,</span> <span class="n">CollisionList_t</span><span class="o">&amp;</span> <span class="n">cl</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">CollisionList_t</span> <span class="n">new_cl</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// 交换两行的皇后的位置</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">chessman</span><span class="p">[</span><span class="n">row1</span><span class="p">],</span> <span class="n">chessman</span><span class="p">[</span><span class="n">row2</span><span class="p">]);</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">new_collision</span> <span class="o">=</span> <span class="n">h</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">new_cl</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">new_collision</span> <span class="o">&gt;</span> <span class="n">cl</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// 取消之前的交换</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">chessman</span><span class="p">[</span><span class="n">row1</span><span class="p">],</span> <span class="n">chessman</span><span class="p">[</span><span class="n">row2</span><span class="p">]);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">cl</span> <span class="o">=</span> <span class="n">new_cl</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">new_cl</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">choose_next_state</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="n">CollisionList_t</span><span class="o">&amp;</span> <span class="n">cl</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">old_collision</span> <span class="o">=</span> <span class="n">cl</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">new_collision</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">row1</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">row2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// 优化最后只有一个冲突的解</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">cl</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">cl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">try_exchange</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">cl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="p">,</span> <span class="n">cl</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">do</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// 最后的选择，随机的选择两个皇后调换其位置</span>
+</span><span class='line'>    <span class="n">row1</span> <span class="o">=</span> <span class="n">rand</span><span class="p">()</span> <span class="o">%</span> <span class="n">N</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">do</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">row2</span> <span class="o">=</span> <span class="n">rand</span><span class="p">()</span> <span class="o">%</span> <span class="n">N</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">row1</span> <span class="o">==</span> <span class="n">row2</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">new_collision</span> <span class="o">=</span> <span class="n">try_exchange</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">row1</span><span class="p">,</span> <span class="n">row2</span><span class="p">,</span> <span class="n">cl</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">new_collision</span> <span class="o">&gt;</span> <span class="n">old_collision</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">new_collision</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 使用随机爬山法寻找一个N皇后问题的解</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">queue_solution</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">int</span><span class="o">*</span> <span class="n">chessman</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="p">[</span><span class="n">N</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">max_tries</span> <span class="o">=</span> <span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">max_steps</span> <span class="o">=</span> <span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">tries</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">while</span> <span class="p">(</span><span class="n">tries</span> <span class="o">&lt;</span> <span class="n">max_tries</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="o">++</span><span class="n">tries</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kt">int</span> <span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="kt">int</span> <span class="n">collision</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">CollisionList_t</span> <span class="n">collision_list</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">srand</span><span class="p">(</span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">+</span> <span class="n">tries</span> <span class="o">*</span> <span class="n">collision</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">generate_init_state</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">collision</span> <span class="o">=</span> <span class="n">h</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span>  <span class="n">N</span><span class="p">,</span> <span class="n">collision_list</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">while</span> <span class="p">((</span><span class="n">collision</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">steps</span><span class="o">&lt;</span><span class="n">max_steps</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">collision</span> <span class="o">=</span> <span class="n">choose_next_state</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">collision_list</span><span class="p">);</span>
+</span><span class='line'>        <span class="o">++</span><span class="n">steps</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">collision</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Found a solution. Tries: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">tries</span>
+</span><span class='line'>            <span class="o">&lt;&lt;</span> <span class="s">&quot; Steps: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">steps</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>          <span class="n">print_chessboard</span><span class="p">(</span><span class="n">chessman</span><span class="p">,</span> <span class="n">N</span><span class="p">);</span>
+</span><span class='line'>          <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 接受一个命令行参数，要求为整数N，表示要寻找的解是N皇后问题。</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>    <span class="c1">// 缺省为寻找8皇后问题的一个解</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">N</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;N: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">N</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">N</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Input error: parameter must be a postive integer&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">srand</span><span class="p">(</span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">));</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">queue_solution</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Failed, please try re-run to get a solution.&quot;</span>
+</span><span class='line'>      <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>TODO：在选择下一步的时候还有改进空间，比如优先从冲突的皇后中随机选择皇后进行下一次的位置调换等。</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -5775,173 +6251,6 @@ $ make -j2
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2007/04/17/debian-apt-commands/">Debian 的 Apt-get 系列命令</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-04-17T08:51:00+08:00" pubdate data-updated="true">Apr 17<span>th</span>, 2007</time>
-        
-         | <a href="/blog/2007/04/17/debian-apt-commands/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>配置文件</h3>
-
-<p>APT的主配置文件为<code>/etc/apt/sources.list</code></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># See sources.list(5) for more information, especially
-</span><span class='line'>     # Remember that you can only use http, ftp or file URIs
-</span><span class='line'>     # CDROMs are managed through the apt-cdrom tool.
-</span><span class='line'>     deb ftp://ftp.linuxforum.net/debian stable main contrib non-free
-</span><span class='line'>     deb http://debian.cn99.com/debian stable main contrib non-free
-</span><span class='line'>     deb http://http.us.debian.org/debian stable main contrib non-free
-</span><span class='line'>     deb http://non-us.debian.org/debian-non-US stable/non-US main contrib non-free
-</span><span class='line'>     deb http://security.debian.org stable/updates main contrib non-free
-</span><span class='line'>
-</span><span class='line'>     # Uncomment if you want the apt-get source function to work
-</span><span class='line'>     #deb-src http://http.us.debian.org/debian stable main contrib non-free
-</span><span class='line'>     #deb-src http://non-us.debian.org/debian-non-US stable/non-US main contrib non-free</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>更新数据库</h3>
-
-<pre><code>apt-get update
-</code></pre>
-
-<p>  如果出现下面的错误：</p>
-
-<pre><code>E: Dynamic MMap ran out of room
-</code></pre>
-
-<p>  把下面这行加入到/etc/apt/apt.conf里面去就可以了。</p>
-
-<pre><code>APT::Cache-Limit "10000000";
-</code></pre>
-
-<h3>搜索软件</h3>
-
-<pre><code>apt-cache search pkgname
-</code></pre>
-
-<p>  示例：</p>
-
-<pre><code>apt-cache search kernel-image
-</code></pre>
-
-<h3>安装软件</h3>
-
-<pre><code>apt-get install pkgname
-</code></pre>
-
-<p>  示例：</p>
-
-<pre><code>apt-get install kernel-image-2.6-686
-apt-get install python lynx wget ntp ntp-server ntpdate
-</code></pre>
-
-<h3>升级软件</h3>
-
-<pre><code>apt-get upgrade pkgname
-</code></pre>
-
-<p>  示例:</p>
-
-<pre><code>apt-get upgrade glibc6
-</code></pre>
-
-<h3>删除软件</h3>
-
-<pre><code>apt-get remove pkgname
-</code></pre>
-
-<h3>清理下载的安装文件</h3>
-
-<pre><code>apt-get clean
-</code></pre>
-
-<p>  这条命会释放硬盘空间，把这两个文件夹下的文件删除掉啦：</p>
-
-<pre><code>/var/cache/apt/archives/
-/var/cache/apt/archives/partial/
-</code></pre>
-
-<h3>最后的招数</h3>
-
-<pre><code>/usr/sbin/base-config
-</code></pre>
-
-<h3>附：一次升级过程(升级到2.6的内核)</h3>
-
-<pre><code>apt-get dist-upgrade
-apt-get install kernel-image-2.6-686
-apt-get install ssh ftp vsftpd wget ntp ntp-server ntpdate vim \
-    cdecl ctags gcc g++ gcc-4.1-base gdb make flex bison python \
-    lynx  perl subversion cvs openssl manpages-posix manpages-posix-dev bzip2
-</code></pre>
-
-<p>如果遇到下面的错误：</p>
-
-<pre><code>E: This installation run will require temporarily removing the essential package e2fsprogs
-due to a Conflicts/Pre-Depends loop. This is often bad, but if you really want to do it,
-
-activate the APT::Force-LoopBreak option.
-E: Internal Error, Could not early remove e2fsprogs
-</code></pre>
-
-<p>解决方法：</p>
-
-<pre><code>apt-get -o APT::Force-LoopBreak=yes install e2fsprogs
-apt-get -f install # 一路回车就行了
-</code></pre>
-
-<p>然后再重新执行遇到错误的命令</p>
-
-<p>升级内核过程中的重要提示：</p>
-
-<pre><code>configure LILO, you need to add an 'initrd=/initrd.img' to the
-image=/vmlinuz stanza of your /etc/lilo.conf
-
-I repeat, You need to configure your boot loader
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -5957,6 +6266,10 @@ I repeat, You need to configure your boot loader
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/01/04/android-library-jar/">Android的Library工程</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/12/12/centos-tips/">CentOS Tips</a>
@@ -5994,15 +6307,11 @@ I repeat, You need to configure your boot loader
         <a href="/blog/2012/06/25/learn-git/">学习一点git</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
-      </li>
-    
   </ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 108.57142857142857%'>android(2)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/centos' style='font-size: 104.28571428571429%'>centos(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 108.57142857142857%'>django(2)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 104.28571428571429%'>Linux(1)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 112.85714285714286%'>python(3)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
+    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 112.85714285714286%'>android(3)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/centos' style='font-size: 104.28571428571429%'>centos(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 108.57142857142857%'>django(2)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 104.28571428571429%'>Linux(1)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 112.85714285714286%'>python(3)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
 </section>
 
 <section>

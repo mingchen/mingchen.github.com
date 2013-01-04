@@ -9,8 +9,19 @@
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="Putty默认的设置下，使用ssh登录到Linux的主机上，使用ls查看目录的颜色很暗，
-而且默认的vim的配色也不是很好看，当然可以使用vim的 :set bg=dark 来让vim的语法加亮变得好看点。 原来有此抱怨的人不仅我一人，在网上搜了一下发现已经有人对这个问题进行总结， &hellip;">
+  <meta name="description" content="配置文件 APT的主配置文件为/etc/apt/sources.list 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+# See sources.list(5) for more information, especially # Remember that you can only &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -79,6 +90,173 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2007/04/17/debian-apt-commands/">Debian 的 Apt-get 系列命令</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-04-17T08:51:00+08:00" pubdate data-updated="true">Apr 17<span>th</span>, 2007</time>
+        
+         | <a href="/blog/2007/04/17/debian-apt-commands/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>配置文件</h3>
+
+<p>APT的主配置文件为<code>/etc/apt/sources.list</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># See sources.list(5) for more information, especially
+</span><span class='line'>     # Remember that you can only use http, ftp or file URIs
+</span><span class='line'>     # CDROMs are managed through the apt-cdrom tool.
+</span><span class='line'>     deb ftp://ftp.linuxforum.net/debian stable main contrib non-free
+</span><span class='line'>     deb http://debian.cn99.com/debian stable main contrib non-free
+</span><span class='line'>     deb http://http.us.debian.org/debian stable main contrib non-free
+</span><span class='line'>     deb http://non-us.debian.org/debian-non-US stable/non-US main contrib non-free
+</span><span class='line'>     deb http://security.debian.org stable/updates main contrib non-free
+</span><span class='line'>
+</span><span class='line'>     # Uncomment if you want the apt-get source function to work
+</span><span class='line'>     #deb-src http://http.us.debian.org/debian stable main contrib non-free
+</span><span class='line'>     #deb-src http://non-us.debian.org/debian-non-US stable/non-US main contrib non-free</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>更新数据库</h3>
+
+<pre><code>apt-get update
+</code></pre>
+
+<p>  如果出现下面的错误：</p>
+
+<pre><code>E: Dynamic MMap ran out of room
+</code></pre>
+
+<p>  把下面这行加入到/etc/apt/apt.conf里面去就可以了。</p>
+
+<pre><code>APT::Cache-Limit "10000000";
+</code></pre>
+
+<h3>搜索软件</h3>
+
+<pre><code>apt-cache search pkgname
+</code></pre>
+
+<p>  示例：</p>
+
+<pre><code>apt-cache search kernel-image
+</code></pre>
+
+<h3>安装软件</h3>
+
+<pre><code>apt-get install pkgname
+</code></pre>
+
+<p>  示例：</p>
+
+<pre><code>apt-get install kernel-image-2.6-686
+apt-get install python lynx wget ntp ntp-server ntpdate
+</code></pre>
+
+<h3>升级软件</h3>
+
+<pre><code>apt-get upgrade pkgname
+</code></pre>
+
+<p>  示例:</p>
+
+<pre><code>apt-get upgrade glibc6
+</code></pre>
+
+<h3>删除软件</h3>
+
+<pre><code>apt-get remove pkgname
+</code></pre>
+
+<h3>清理下载的安装文件</h3>
+
+<pre><code>apt-get clean
+</code></pre>
+
+<p>  这条命会释放硬盘空间，把这两个文件夹下的文件删除掉啦：</p>
+
+<pre><code>/var/cache/apt/archives/
+/var/cache/apt/archives/partial/
+</code></pre>
+
+<h3>最后的招数</h3>
+
+<pre><code>/usr/sbin/base-config
+</code></pre>
+
+<h3>附：一次升级过程(升级到2.6的内核)</h3>
+
+<pre><code>apt-get dist-upgrade
+apt-get install kernel-image-2.6-686
+apt-get install ssh ftp vsftpd wget ntp ntp-server ntpdate vim \
+    cdecl ctags gcc g++ gcc-4.1-base gdb make flex bison python \
+    lynx  perl subversion cvs openssl manpages-posix manpages-posix-dev bzip2
+</code></pre>
+
+<p>如果遇到下面的错误：</p>
+
+<pre><code>E: This installation run will require temporarily removing the essential package e2fsprogs
+due to a Conflicts/Pre-Depends loop. This is often bad, but if you really want to do it,
+
+activate the APT::Force-LoopBreak option.
+E: Internal Error, Could not early remove e2fsprogs
+</code></pre>
+
+<p>解决方法：</p>
+
+<pre><code>apt-get -o APT::Force-LoopBreak=yes install e2fsprogs
+apt-get -f install # 一路回车就行了
+</code></pre>
+
+<p>然后再重新执行遇到错误的命令</p>
+
+<p>升级内核过程中的重要提示：</p>
+
+<pre><code>configure LILO, you need to add an 'initrd=/initrd.img' to the
+image=/vmlinuz stanza of your /etc/lilo.conf
+
+I repeat, You need to configure your boot loader
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -258,6 +436,10 @@ time.nist.gov
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/01/04/android-library-jar/">Android的Library工程</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/12/12/centos-tips/">CentOS Tips</a>
       </li>
     
@@ -293,15 +475,11 @@ time.nist.gov
         <a href="/blog/2012/06/25/learn-git/">学习一点git</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
-      </li>
-    
   </ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 108.57142857142857%'>android(2)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/centos' style='font-size: 104.28571428571429%'>centos(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 108.57142857142857%'>django(2)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 104.28571428571429%'>Linux(1)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 112.85714285714286%'>python(3)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
+    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 112.85714285714286%'>android(3)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/centos' style='font-size: 104.28571428571429%'>centos(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 108.57142857142857%'>django(2)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 104.28571428571429%'>Linux(1)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 112.85714285714286%'>python(3)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
 </section>
 
 <section>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: android | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-01-04T10:37:47+08:00</updated>
+  <updated>2013-01-04T15:25:32+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -12,6 +12,95 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android的Library工程]]></title>
+    <link href="http://blog.chenming.info/blog/2013/01/04/android-library-jar/"/>
+    <updated>2013-01-04T15:02:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2013/01/04/android-library-jar</id>
+    <content type="html"><![CDATA[<h2>为什么要使用Android的Library工程？</h2>
+
+<p>简单的说就是减少代码拷贝。</p>
+
+<blockquote><p>An Android library project is a development project that holds shared Android source code and resources. Other Android application projects can reference the library project and, at build time, include its compiled sources in their .apk files. Multiple application projects can reference the same library project and any single application project can reference multiple library projects.</p></blockquote>
+
+<h2>Android Library工程开发中需要考虑的问题</h2>
+
+<h3>能把Android的Library工程打成一个单独的jar包发布吗？</h3>
+
+<p>如果工程是纯粹的Java文件，那么这和一个普通的java library工程没有区别，
+可以打成jar包来发布。
+在<code>custom_rules.xml</code>里添加如下两个target即可使用<code>ant</code>来编译jar包了：</p>
+
+<pre><code>&lt;target name="jar" depends="-compile" description="Build binary jar"&gt;
+    &lt;jar destfile="${ant.project.name}.jar" basedir="${out.classes.absolute.dir}" &gt;
+        &lt;include name="com/example/android/**" /&gt;
+    &lt;/jar&gt;
+&lt;/target&gt;
+
+&lt;target name="src-jar" description="bundle sources in a jar"&gt;
+    &lt;jar destfile="${ant.project.name}-src.jar" basedir="src"/&gt;
+&lt;/target&gt;
+</code></pre>
+
+<p>但是如果Library工程有资源（string, layout等），针对 ADT r21 的答案是不行的。</p>
+
+<blockquote><p>You cannot export a library project to a JAR file.
+A library cannot be distributed as a binary file (such as a JAR file). This will be added in a future version of the SDK
+Tools.</p></blockquote>
+
+<p>针对Library工程有资源但又不想发布源代码的一种workaround的方法是把src目录进行编译后成jar包，然后发布的时候发布资源和jar包。在主工程中把Library工程的jar包放在libs目录下即可正常编译。
+当然如果工程文件的<code>AndroidManifest.xml</code>里的内容需要合并到主工程的<code>AndroidManifest.xml</code>里。
+合并<code>AndroidManifest.xml</code>的需求已经在Android Tools的<a href="http://tools.android.com/roadmap">Roadmap</a>里，但何时能实现还未知。</p>
+
+<h3>资源冲突</h3>
+
+<p>如果在Library的<code>strings.xml</code>和主工程的<code>strings.xml</code>都定义了<code>hello_world</code>，
+那么编译后的apk会优先使用主工程的<code>hello_world</code>。
+为了避免冲突，建议在Library的工程中对所有资源添加前缀。</p>
+
+<blockquote><p>Since the tools merge the resources of a library project with those of a dependent application project, a given resource ID might be defined in both projects. In this case, the tools select the resource from the application, or the library with highest priority, and discard the other resource. As you develop your applications, be aware that common resource IDs are likely to be defined in more than one project and will be merged, with the resource from the application or highest-priority library taking precedence.
+To avoid resource conflicts for common resource IDs, consider using a prefix or other consistent naming scheme that is unique to the project (or is unique across all projects).</p></blockquote>
+
+<h3>Library工程文件不能包含assets</h3>
+
+<p>Library工程不能在assets目录下存放raw资源，必须存放在主工程的assets目录下。</p>
+
+<p>但是支持使用res目录来存放资源。</p>
+
+<h3>每个Library工程都有自己的R文件</h3>
+
+<p>每个Library工程在编译后都会在gen目录生成自己的R.java文件。</p>
+
+<h3>为Library工程创建测试工程</h3>
+
+<p>要的测试工程本身可以直接引用Library工程，测试工程本身也是APK。</p>
+
+<p>通常的做法是在Library工程下创建一个tests目录用来存放测试工程。</p>
+
+<p>需要在测试工程的<code>AndroidManifest.xml</code>的<code>&lt;application&gt;</code>中加入让它成为一个测试工程。</p>
+
+<pre><code>&lt;uses-library android:name="android.test.runner" /&gt;
+</code></pre>
+
+<p>同时在<code>project.properties</code>中加入对Library工程的引用：</p>
+
+<pre><code># Project target.
+target=android-8
+android.library.reference.1=.. 
+</code></pre>
+
+<h2>参考:</h2>
+
+<ul>
+<li><a href="http://developer.android.com/tools/projects/index.html#LibraryProjects">Android SDK document - library project</a></li>
+<li><a href="http://tools.android.com/recent/buildchangesinrevision14">Build changes in revision 14</a></li>
+<li><a href="http://android-developers.blogspot.com/2011/10/changes-to-library-projects-in-android.html">Changes to Library Projects in Android SDK Tools, r14</a></li>
+<li><a href="http://tools.android.com/roadmap">Android Tools Roadmap</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android的硬件加速及可能导致的问题]]></title>
