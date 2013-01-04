@@ -9,11 +9,9 @@
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="问题 在Android 4.0的某些设备上，在View刷新时会出现花屏和屏幕上的某些View错位的现象。
-经过调查后发现adb logcat中出现很多OpenGLRenderer: 0x501的错位： 1
-2
-3
-09-18 14:34:39.090: DEBUG/OpenGLRenderer( &hellip;">
+  <meta name="description" content="小工具软件 安全删除文件 - wipe 要想安全的删除一个文件，可以使用wipe。 yum install wipe 用法 wipe foo.txt # wipe a file
+wipe -q foo.txt # use quick mode to wipe a file
+wipe -fr &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -82,6 +80,89 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/12/centos-tips/">CentOS Tips</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-12T07:22:00+08:00" pubdate data-updated="true">Dec 12<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/12/12/centos-tips/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>小工具软件</h2>
+
+<h3>安全删除文件 - wipe</h3>
+
+<p>要想安全的删除一个文件，可以使用wipe。</p>
+
+<pre><code>yum install wipe
+</code></pre>
+
+<p>用法</p>
+
+<pre><code>wipe foo.txt        # wipe a file
+wipe -q foo.txt     # use quick mode to wipe a file
+wipe -fr yourdir    # wipe a directory
+</code></pre>
+
+<h3>加密解密 - truecrypt</h3>
+
+<p>truecrypt依赖fuse-libs，需要先安装：</p>
+
+<pre><code>yum install fuse-libs fuse
+</code></pre>
+
+<p>另外truecrypt需要用户能有sudo的权限，首先检查 /etc/sudoers 里wheel组的用户有sudo的权限，然后需要把用户加入 wheel 组，用root身份执行下面的命令</p>
+
+<pre><code># usermod -G wheel &lt;username&gt;
+</code></pre>
+
+<p>truecrypt的用法示例。</p>
+
+<p>创建一个加密卷：</p>
+
+<pre><code>truecrypt -t -c
+</code></pre>
+
+<p>挂载一个加密卷：</p>
+
+<pre><code>truecrypt sandbox.tc sandbox
+</code></pre>
+
+<p>卸载一个加密卷：</p>
+
+<pre><code>truecrypt -d sandbox.tc
+</code></pre>
+
+<h2>参考</h2>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1385,7 +1466,8 @@ plot(x, y);
 <h3>GUI</h3>
 
 <p><code>git</code>自带了个简单的GUI工具<code>gitk</code>。
-在Mac下可以使用<code>SourceTree</code>（在app store）可以免费下载。</p>
+在Mac下可以使用<code>SourceTree</code>（在app store）可以免费下载。
+Windows下可以使用github提供的客户端，既有图形界面，又有命令行。</p>
 
 <h3>获得帮助</h3>
 
@@ -1656,13 +1738,13 @@ $ git commit -a
 
 <p>从远程仓库clone：</p>
 
-<pre><code>$ git clone https://foobar@bitbucket.org/foobar/sandbox.git
+<pre><code>$ git clone https://foo@bitbucket.org/foo/sandbox.git
 </code></pre>
 
 <p>把本地仓库同步到远程仓库上去：</p>
 
 <pre><code>$ cd /path/to/my/repo
-$ git remote add origin https://foobar@bitbucket.org/foobar/sandbox.git
+$ git remote add origin https://foo@bitbucket.org/foo/sandbox.git
 $ git push -u origin master   # to push changes for the first time
 </code></pre>
 
@@ -3006,77 +3088,6 @@ filter tcp_dport 1234
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2009/11/06/write-secure-code/">编写安全的代码 Secure Coding</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-06T09:57:00+08:00" pubdate data-updated="true">Nov 6<span>th</span>, 2009</time>
-        
-         | <a href="/blog/2009/11/06/write-secure-code/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>今天又看了一下了安全编程的指南。看到对异常的处理部分，不由想到前两天在客户的环境中出现一个问题，
-由于在捕获异常后没有完全释放之前获得锁，导致在程序出现异常后，某些资源一直处于被锁定状态。
-最后只有重新启动应用才能释放资源。对异常的处理要非常的小心才是。</p>
-
-<p>编写安全的代码的参考资料：</p>
-
-<ul>
-<li><p>[CERTSecCod] – CERT Secure Coding Standards
-  <a href="https://www.securecoding.cert.org/confluence/display/seccode/CERT+Secure+Coding+Standards">https://www.securecoding.cert.org/confluence/display/seccode/CERT+Secure+Coding+Standards</a></p></li>
-<li><p><a href="http://www.owasp.org/">http://www.owasp.org/</a> - Web Applications</p></li>
-<li><p>[Posix] – The Open Group Base Specifications Issue 7, IEEE Std 1003.1-2008
-  <a href="http://www.opengroup.org/onlinepubs/9699919799/nframe.html">http://www.opengroup.org/onlinepubs/9699919799/nframe.html</a></p></li>
-<li><p>[STRLCPY] – strlcpy and strlcat&#8211;Consistent, Safe, String Copy and Concatenation
-  <a href="http://www.usenix.org/events/usenix99/millert.html">http://www.usenix.org/events/usenix99/millert.html</a></p></li>
-<li><p>[CppStdLib] – C++ Library Reference
-  <a href="http://www.cplusplus.com/reference/">http://www.cplusplus.com/reference/</a></p></li>
-</ul>
-
-
-<p>Books:</p>
-
-<ul>
-<li>“The CERT C Secure Coding Standard”, Robert C. Seacord, Addison-Wesley Professional, 2008, ISBN-10: 0321563212, ISBN-13: 978-0321563217</li>
-<li>“Secure Coding in C and C++”, Robert C. Seacord, Addison-Wesley Professional, 2005, ISBN-10: 0321335724, ISBN-13: 978-0321335722</li>
-</ul>
-
-
-<p>Papers:</p>
-
-<ul>
-<li>ISO/IEC PDTR 24772, Information technology – Programming languages – Guidelines to avoiding vulnerabilities in language selection and use
-<a href="http://isotc.iso.org/livelink/livelink/SC22-N-4420.pdf?func=doc.Fetch&amp;nodeId=7716670&amp;docTitle=SC22-N-4420">http://isotc.iso.org/livelink/livelink/SC22-N-4420.pdf?func=doc.Fetch&amp;nodeId=7716670&amp;docTitle=SC22-N-4420</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -3090,6 +3101,10 @@ filter tcp_dport 1234
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/12/12/centos-tips/">CentOS Tips</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/09/18/android-hardware-accel/">Android的硬件加速及可能导致的问题</a>
@@ -3127,15 +3142,11 @@ filter tcp_dport 1234
         <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
-      </li>
-    
   </ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 108.57142857142857%'>android(2)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 104.28571428571429%'>django(1)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 112.85714285714286%'>python(3)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
+    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 108.57142857142857%'>android(2)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/centos' style='font-size: 104.28571428571429%'>centos(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 104.28571428571429%'>django(1)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 104.28571428571429%'>Linux(1)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 112.85714285714286%'>python(3)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
 </section>
 
 <section>
@@ -3166,7 +3177,7 @@ filter tcp_dport 1234
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2012 - Ming -
+  Copyright &copy; 2013 - Ming -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

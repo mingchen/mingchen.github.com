@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Linux | Ming's Blog]]></title>
-  <link href="http://blog.chenming.info/blog/categories/linux/atom.xml" rel="self"/>
+  <title><![CDATA[Category: centos | Ming's Blog]]></title>
+  <link href="http://blog.chenming.info/blog/categories/centos/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
   <updated>2013-01-04T10:31:29+08:00</updated>
   <id>http://blog.chenming.info/</id>

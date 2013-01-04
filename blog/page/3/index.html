@@ -9,9 +9,8 @@
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="我的计算机需要一个准确的时间, 所以我选择了NTP 安装ntp (Debian Linux) # apt-get install ntp
-# apt-get install ntp-server
-# apt-get install ntpdate 配置 配置文件：/etc/ntp.conf &hellip;">
+  <meta name="description" content="Putty默认的设置下，使用ssh登录到Linux的主机上，使用ls查看目录的颜色很暗，
+而且默认的vim的配色也不是很好看，当然可以使用vim的 :set bg=dark 来让vim的语法加亮变得好看点。 原来有此抱怨的人不仅我一人，在网上搜了一下发现已经有人对这个问题进行总结， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -80,6 +79,79 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2007/04/15/make-putty-pretty/">让Putty在Windows上好看点</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-04-15T19:32:00+08:00" pubdate data-updated="true">Apr 15<span>th</span>, 2007</time>
+        
+         | <a href="/blog/2007/04/15/make-putty-pretty/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Putty默认的设置下，使用ssh登录到Linux的主机上，使用ls查看目录的颜色很暗，
+而且默认的vim的配色也不是很好看，当然可以使用vim的 :set bg=dark 来让vim的语法加亮变得好看点。</p>
+
+<p>原来有此抱怨的人不仅我一人，在网上搜了一下发现已经有人对这个问题进行总结，
+并给出了建议的Putty的默认设置， 摘要如下：</p>
+
+<pre><code>Putty settings summary.
+Category: Session
+Connection type: SSH
+
+Category: Window
+Lines of scrollback: 20000
+
+Category: Window &gt; Appearance
+Font: Lucida Console, 9-point
+Font quality: ClearType
+Gap between text and window edge: 3
+
+Category: Window &gt; Translation
+Character set: UTF-8
+Handling of line drawing characters: Unicode
+
+Category: Window &gt; Selection
+Action of mouse buttons: xterm (Right extends, Middle pastes)
+Paste to clipboard in RTF as well as plain text: enabled
+
+Category: Window &gt; Colours
+ANSI Blue: Red:74 Green:74 Blue:255
+ANSI Blue Bold: Red:140: Green:140 Blue:255
+
+Category: Connection
+Seconds between keepalives (0 to turn off): 25
+
+Category: Connection &gt; SSH &gt; X11
+Enable X11 forwarding: enabled
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -186,6 +258,10 @@ time.nist.gov
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/12/12/centos-tips/">CentOS Tips</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/09/18/android-hardware-accel/">Android的硬件加速及可能导致的问题</a>
       </li>
     
@@ -221,15 +297,11 @@ time.nist.gov
         <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
-      </li>
-    
   </ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 108.57142857142857%'>android(2)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 104.28571428571429%'>django(1)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 112.85714285714286%'>python(3)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
+    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 108.57142857142857%'>android(2)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/centos' style='font-size: 104.28571428571429%'>centos(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 104.28571428571429%'>django(1)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 104.28571428571429%'>Linux(1)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 112.85714285714286%'>python(3)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
 </section>
 
 <section>
@@ -260,7 +332,7 @@ time.nist.gov
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2012 - Ming -
+  Copyright &copy; 2013 - Ming -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

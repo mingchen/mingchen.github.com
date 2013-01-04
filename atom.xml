@@ -4,7 +4,7 @@
   <title><![CDATA[Ming's Blog]]></title>
   <link href="http://blog.chenming.info/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2012-09-19T15:16:20+08:00</updated>
+  <updated>2013-01-04T10:31:29+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -12,6 +12,60 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[CentOS Tips]]></title>
+    <link href="http://blog.chenming.info/blog/2012/12/12/centos-tips/"/>
+    <updated>2012-12-12T07:22:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2012/12/12/centos-tips</id>
+    <content type="html"><![CDATA[<h2>小工具软件</h2>
+
+<h3>安全删除文件 - wipe</h3>
+
+<p>要想安全的删除一个文件，可以使用wipe。</p>
+
+<pre><code>yum install wipe
+</code></pre>
+
+<p>用法</p>
+
+<pre><code>wipe foo.txt        # wipe a file
+wipe -q foo.txt     # use quick mode to wipe a file
+wipe -fr yourdir    # wipe a directory
+</code></pre>
+
+<h3>加密解密 - truecrypt</h3>
+
+<p>truecrypt依赖fuse-libs，需要先安装：</p>
+
+<pre><code>yum install fuse-libs fuse
+</code></pre>
+
+<p>另外truecrypt需要用户能有sudo的权限，首先检查 /etc/sudoers 里wheel组的用户有sudo的权限，然后需要把用户加入 wheel 组，用root身份执行下面的命令</p>
+
+<pre><code># usermod -G wheel &lt;username&gt;
+</code></pre>
+
+<p>truecrypt的用法示例。</p>
+
+<p>创建一个加密卷：</p>
+
+<pre><code>truecrypt -t -c
+</code></pre>
+
+<p>挂载一个加密卷：</p>
+
+<pre><code>truecrypt sandbox.tc sandbox
+</code></pre>
+
+<p>卸载一个加密卷：</p>
+
+<pre><code>truecrypt -d sandbox.tc
+</code></pre>
+
+<h2>参考</h2>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android的硬件加速及可能导致的问题]]></title>
@@ -1087,7 +1141,8 @@ plot(x, y);
 <h3>GUI</h3>
 
 <p><code>git</code>自带了个简单的GUI工具<code>gitk</code>。
-在Mac下可以使用<code>SourceTree</code>（在app store）可以免费下载。</p>
+在Mac下可以使用<code>SourceTree</code>（在app store）可以免费下载。
+Windows下可以使用github提供的客户端，既有图形界面，又有命令行。</p>
 
 <h3>获得帮助</h3>
 
@@ -1358,13 +1413,13 @@ $ git commit -a
 
 <p>从远程仓库clone：</p>
 
-<pre><code>$ git clone https://foobar@bitbucket.org/foobar/sandbox.git
+<pre><code>$ git clone https://foo@bitbucket.org/foo/sandbox.git
 </code></pre>
 
 <p>把本地仓库同步到远程仓库上去：</p>
 
 <pre><code>$ cd /path/to/my/repo
-$ git remote add origin https://foobar@bitbucket.org/foobar/sandbox.git
+$ git remote add origin https://foo@bitbucket.org/foo/sandbox.git
 $ git push -u origin master   # to push changes for the first time
 </code></pre>
 
@@ -2382,48 +2437,6 @@ filter tcp_dport 1234
 
 
 <p>TODO：在选择下一步的时候还有改进空间，比如优先从冲突的皇后中随机选择皇后进行下一次的位置调换等。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[编写安全的代码 Secure Coding]]></title>
-    <link href="http://blog.chenming.info/blog/2009/11/06/write-secure-code/"/>
-    <updated>2009-11-06T09:57:00+08:00</updated>
-    <id>http://blog.chenming.info/blog/2009/11/06/write-secure-code</id>
-    <content type="html"><![CDATA[<p>今天又看了一下了安全编程的指南。看到对异常的处理部分，不由想到前两天在客户的环境中出现一个问题，
-由于在捕获异常后没有完全释放之前获得锁，导致在程序出现异常后，某些资源一直处于被锁定状态。
-最后只有重新启动应用才能释放资源。对异常的处理要非常的小心才是。</p>
-
-<p>编写安全的代码的参考资料：</p>
-
-<ul>
-<li><p>[CERTSecCod] – CERT Secure Coding Standards
-  <a href="https://www.securecoding.cert.org/confluence/display/seccode/CERT+Secure+Coding+Standards">https://www.securecoding.cert.org/confluence/display/seccode/CERT+Secure+Coding+Standards</a></p></li>
-<li><p><a href="http://www.owasp.org/">http://www.owasp.org/</a> - Web Applications</p></li>
-<li><p>[Posix] – The Open Group Base Specifications Issue 7, IEEE Std 1003.1-2008
-  <a href="http://www.opengroup.org/onlinepubs/9699919799/nframe.html">http://www.opengroup.org/onlinepubs/9699919799/nframe.html</a></p></li>
-<li><p>[STRLCPY] – strlcpy and strlcat&#8211;Consistent, Safe, String Copy and Concatenation
-  <a href="http://www.usenix.org/events/usenix99/millert.html">http://www.usenix.org/events/usenix99/millert.html</a></p></li>
-<li><p>[CppStdLib] – C++ Library Reference
-  <a href="http://www.cplusplus.com/reference/">http://www.cplusplus.com/reference/</a></p></li>
-</ul>
-
-
-<p>Books:</p>
-
-<ul>
-<li>“The CERT C Secure Coding Standard”, Robert C. Seacord, Addison-Wesley Professional, 2008, ISBN-10: 0321563212, ISBN-13: 978-0321563217</li>
-<li>“Secure Coding in C and C++”, Robert C. Seacord, Addison-Wesley Professional, 2005, ISBN-10: 0321335724, ISBN-13: 978-0321335722</li>
-</ul>
-
-
-<p>Papers:</p>
-
-<ul>
-<li>ISO/IEC PDTR 24772, Information technology – Programming languages – Guidelines to avoiding vulnerabilities in language selection and use
-<a href="http://isotc.iso.org/livelink/livelink/SC22-N-4420.pdf?func=doc.Fetch&amp;nodeId=7716670&amp;docTitle=SC22-N-4420">http://isotc.iso.org/livelink/livelink/SC22-N-4420.pdf?func=doc.Fetch&amp;nodeId=7716670&amp;docTitle=SC22-N-4420</a></li>
-</ul>
-
 ]]></content>
   </entry>
   

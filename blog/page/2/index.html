@@ -9,12 +9,9 @@
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="今天参加了第二次的成都Scrum聚会，听到了一些新的Agile工具，在此列出以作备忘： Hudson，持续集成的工具。CruiseControl并不是唯一的选择。
-NetBean，Eclipse的竞争者。
-Mercurial，一个分布式的版本控制工具
-xUnit
-Sonar
-Review &hellip;">
+  <meta name="description" content="今天又看了一下了安全编程的指南。看到对异常的处理部分，不由想到前两天在客户的环境中出现一个问题，
+由于在捕获异常后没有完全释放之前获得锁，导致在程序出现异常后，某些资源一直处于被锁定状态。
+最后只有重新启动应用才能释放资源。对异常的处理要非常的小心才是。 编写安全的代码的参考资料： [ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -83,6 +80,77 @@ Review &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2009/11/06/write-secure-code/">编写安全的代码 Secure Coding</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-06T09:57:00+08:00" pubdate data-updated="true">Nov 6<span>th</span>, 2009</time>
+        
+         | <a href="/blog/2009/11/06/write-secure-code/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>今天又看了一下了安全编程的指南。看到对异常的处理部分，不由想到前两天在客户的环境中出现一个问题，
+由于在捕获异常后没有完全释放之前获得锁，导致在程序出现异常后，某些资源一直处于被锁定状态。
+最后只有重新启动应用才能释放资源。对异常的处理要非常的小心才是。</p>
+
+<p>编写安全的代码的参考资料：</p>
+
+<ul>
+<li><p>[CERTSecCod] – CERT Secure Coding Standards
+  <a href="https://www.securecoding.cert.org/confluence/display/seccode/CERT+Secure+Coding+Standards">https://www.securecoding.cert.org/confluence/display/seccode/CERT+Secure+Coding+Standards</a></p></li>
+<li><p><a href="http://www.owasp.org/">http://www.owasp.org/</a> - Web Applications</p></li>
+<li><p>[Posix] – The Open Group Base Specifications Issue 7, IEEE Std 1003.1-2008
+  <a href="http://www.opengroup.org/onlinepubs/9699919799/nframe.html">http://www.opengroup.org/onlinepubs/9699919799/nframe.html</a></p></li>
+<li><p>[STRLCPY] – strlcpy and strlcat&#8211;Consistent, Safe, String Copy and Concatenation
+  <a href="http://www.usenix.org/events/usenix99/millert.html">http://www.usenix.org/events/usenix99/millert.html</a></p></li>
+<li><p>[CppStdLib] – C++ Library Reference
+  <a href="http://www.cplusplus.com/reference/">http://www.cplusplus.com/reference/</a></p></li>
+</ul>
+
+
+<p>Books:</p>
+
+<ul>
+<li>“The CERT C Secure Coding Standard”, Robert C. Seacord, Addison-Wesley Professional, 2008, ISBN-10: 0321563212, ISBN-13: 978-0321563217</li>
+<li>“Secure Coding in C and C++”, Robert C. Seacord, Addison-Wesley Professional, 2005, ISBN-10: 0321335724, ISBN-13: 978-0321335722</li>
+</ul>
+
+
+<p>Papers:</p>
+
+<ul>
+<li>ISO/IEC PDTR 24772, Information technology – Programming languages – Guidelines to avoiding vulnerabilities in language selection and use
+<a href="http://isotc.iso.org/livelink/livelink/SC22-N-4420.pdf?func=doc.Fetch&amp;nodeId=7716670&amp;docTitle=SC22-N-4420">http://isotc.iso.org/livelink/livelink/SC22-N-4420.pdf?func=doc.Fetch&amp;nodeId=7716670&amp;docTitle=SC22-N-4420</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -5874,79 +5942,6 @@ I repeat, You need to configure your boot loader
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2007/04/15/make-putty-pretty/">让Putty在Windows上好看点</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-04-15T19:32:00+08:00" pubdate data-updated="true">Apr 15<span>th</span>, 2007</time>
-        
-         | <a href="/blog/2007/04/15/make-putty-pretty/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Putty默认的设置下，使用ssh登录到Linux的主机上，使用ls查看目录的颜色很暗，
-而且默认的vim的配色也不是很好看，当然可以使用vim的 :set bg=dark 来让vim的语法加亮变得好看点。</p>
-
-<p>原来有此抱怨的人不仅我一人，在网上搜了一下发现已经有人对这个问题进行总结，
-并给出了建议的Putty的默认设置， 摘要如下：</p>
-
-<pre><code>Putty settings summary.
-Category: Session
-Connection type: SSH
-
-Category: Window
-Lines of scrollback: 20000
-
-Category: Window &gt; Appearance
-Font: Lucida Console, 9-point
-Font quality: ClearType
-Gap between text and window edge: 3
-
-Category: Window &gt; Translation
-Character set: UTF-8
-Handling of line drawing characters: Unicode
-
-Category: Window &gt; Selection
-Action of mouse buttons: xterm (Right extends, Middle pastes)
-Paste to clipboard in RTF as well as plain text: enabled
-
-Category: Window &gt; Colours
-ANSI Blue: Red:74 Green:74 Blue:255
-ANSI Blue Bold: Red:140: Green:140 Blue:255
-
-Category: Connection
-Seconds between keepalives (0 to turn off): 25
-
-Category: Connection &gt; SSH &gt; X11
-Enable X11 forwarding: enabled
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -5962,6 +5957,10 @@ Enable X11 forwarding: enabled
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/12/12/centos-tips/">CentOS Tips</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/09/18/android-hardware-accel/">Android的硬件加速及可能导致的问题</a>
@@ -5999,15 +5998,11 @@ Enable X11 forwarding: enabled
         <a href="/blog/2012/06/22/html5-resources/">学习一点HTML5</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2012/01/16/windows-phone-debug-message-output/">WP7中写调试消息</a>
-      </li>
-    
   </ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 108.57142857142857%'>android(2)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 104.28571428571429%'>django(1)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 112.85714285714286%'>python(3)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
+    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 108.57142857142857%'>android(2)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/centos' style='font-size: 104.28571428571429%'>centos(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 104.28571428571429%'>django(1)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 104.28571428571429%'>Linux(1)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 112.85714285714286%'>python(3)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
 </section>
 
 <section>
@@ -6038,7 +6033,7 @@ Enable X11 forwarding: enabled
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2012 - Ming -
+  Copyright &copy; 2013 - Ming -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
