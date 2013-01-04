@@ -4,7 +4,7 @@
   <title><![CDATA[Category: python | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/python/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-01-04T10:31:29+08:00</updated>
+  <updated>2013-01-04T10:37:47+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -31,12 +31,21 @@
 [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 </code></pre>
 
+<h3>看一个对象是否有特定的属性</h3>
+
+<p>使用<code>hasattr</code>可以检查一个对象是否有指定的属性：</p>
+
+<pre><code>if hasattr(foo,'attr1'):
+    print foo.attr1
+</code></pre>
+
 <h2>Django</h2>
 
 <h2>参考</h2>
 
 <ul>
 <li>http://stackoverflow.com/questions/464342/combining-two-sorted-lists-in-python</li>
+<li>http://stackoverflow.com/questions/610883/how-to-know-if-an-object-has-an-attribute-in-python</li>
 </ul>
 
 ]]></content>
