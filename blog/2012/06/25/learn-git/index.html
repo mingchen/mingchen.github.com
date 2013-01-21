@@ -373,6 +373,35 @@ $ git commit -a
 
 <p>该命令不会检查分支的合并状态，在分支上的修改会丢失。</p>
 
+<h3>tag管理</h3>
+
+<p>创建一个tag。
+使用-a参数来创建一个tag，-m参数可以指定tag的注释信息。</p>
+
+<pre><code>$ git tag -a v1.0 -m "version 1.0"
+</code></pre>
+
+<p>删除一个tag：</p>
+
+<pre><code>$ git tag –d &lt;tagname&gt;
+</code></pre>
+
+<p>列出所有的tag</p>
+
+<pre><code>$ git tag
+v1.0
+</code></pre>
+
+<p>查看一个tag的详细信息</p>
+
+<pre><code>$ git show v1.0
+</code></pre>
+
+<p>默认情况下<code>git push</code>是不会把<code>tag</code>信息push到远程的repo，如果需要把tag信息push到远程repo。需要使用<code>--tags</code>参数：</p>
+
+<pre><code>$ git push --tags
+</code></pre>
+
 <h3>和远程仓库同步</h3>
 
 <p>从远程仓库clone：</p>
@@ -419,6 +448,7 @@ $ git push -u origin master   # to push changes for the first time
 <li><a href="http://www.kernel.org/pub/software/scm/git/docs/gitworkflows.html">gitworkflows - An overview of recommended workflows with git</a></li>
 <li><a href="http://three20.info/article/2010-10-15-Editing-A-GitHub-Article">怎样使用github的协作功能</a></li>
 <li><a href="http://code.google.com/p/support/wiki/DVCSAnalysis">Analysis of Git and Mercurial</a></li>
+<li><a href="http://git-scm.com/book/en/Git-Basics-Tagging">Git Basic - Tagging</a></li>
 </ul>
 
 
@@ -506,7 +536,7 @@ $ git push -u origin master   # to push changes for the first time
     
   <section>
   <h1>Content</h1>
-  <ol style="margin-left: 1.3em;"><li style="list-style:inherit;"><a href="#id-8f143d7ef7606f0ebe729949a1f7bcae">git是什么东东？</a></li><li style="list-style:inherit;"><a href="#id-bfc1859cbdec2ffcb936e1cc9479ea4c">git用法</a><ul style="margin-left: 1.3em;"><li style="list-style:inherit;"><a href="#id-1e3042b2e2a5550b412b37edd1c36b34">GUI</a></li> <li style="list-style:inherit;"><a href="#id-d3278cebc08f8e523727aa3c4cc970c6">获得帮助</a></li> <li style="list-style:inherit;"><a href="#id-b9418623b4b4951f9236dcee35531215">设置你的个人信息</a></li> <li style="list-style:inherit;"><a href="#id-6dcc7508b6d951ec09de897728f6fb72">创建一个新的git仓库</a></li> <li style="list-style:inherit;"><a href="#id-43658c4fd9170ad08433e6caa1e7f498">提交修改过的文件</a></li> <li style="list-style:inherit;"><a href="#id-4e874fc6fe095d1993755cfe1f89ed66">修订历史</a></li> <li style="list-style:inherit;"><a href="#id-5aa528690fd771f89683a7f00868f39e">分支管理</a></li> <li style="list-style:inherit;"><a href="#id-45991d9ec5d40bf1c3c72e848fe843ef">和远程仓库同步</a></li> <li style="list-style:inherit;"><a href="#id-904e740d4414ad2488046f85e8af8a4c">协作</a></li></ul></li><li style="list-style:inherit;"><a href="#id-9444985fe269e696bd306fc1122607c1">git的竞争对手</a></li><li style="list-style:inherit;"><a href="#id-d17a0f0bae4b2d07e3367db4796a9180">参考</a></li></ol>
+  <ol style="margin-left: 1.3em;"><li style="list-style:inherit;"><a href="#id-8f143d7ef7606f0ebe729949a1f7bcae">git是什么东东？</a></li><li style="list-style:inherit;"><a href="#id-bfc1859cbdec2ffcb936e1cc9479ea4c">git用法</a><ul style="margin-left: 1.3em;"><li style="list-style:inherit;"><a href="#id-1e3042b2e2a5550b412b37edd1c36b34">GUI</a></li> <li style="list-style:inherit;"><a href="#id-d3278cebc08f8e523727aa3c4cc970c6">获得帮助</a></li> <li style="list-style:inherit;"><a href="#id-b9418623b4b4951f9236dcee35531215">设置你的个人信息</a></li> <li style="list-style:inherit;"><a href="#id-6dcc7508b6d951ec09de897728f6fb72">创建一个新的git仓库</a></li> <li style="list-style:inherit;"><a href="#id-43658c4fd9170ad08433e6caa1e7f498">提交修改过的文件</a></li> <li style="list-style:inherit;"><a href="#id-4e874fc6fe095d1993755cfe1f89ed66">修订历史</a></li> <li style="list-style:inherit;"><a href="#id-5aa528690fd771f89683a7f00868f39e">分支管理</a></li> <li style="list-style:inherit;"><a href="#id-aed8a420d6e977701817d97ed117413e">tag管理</a></li> <li style="list-style:inherit;"><a href="#id-45991d9ec5d40bf1c3c72e848fe843ef">和远程仓库同步</a></li> <li style="list-style:inherit;"><a href="#id-904e740d4414ad2488046f85e8af8a4c">协作</a></li></ul></li><li style="list-style:inherit;"><a href="#id-9444985fe269e696bd306fc1122607c1">git的竞争对手</a></li><li style="list-style:inherit;"><a href="#id-d17a0f0bae4b2d07e3367db4796a9180">参考</a></li></ol>
   </section>
 
 
