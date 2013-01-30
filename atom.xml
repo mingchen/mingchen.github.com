@@ -4,7 +4,7 @@
   <title><![CDATA[Ming's Blog]]></title>
   <link href="http://blog.chenming.info/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-01-21T13:17:56+08:00</updated>
+  <updated>2013-01-30T13:13:54+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -1336,6 +1336,11 @@ $ git commit -m "First commit"
 <pre><code>$ git commit -m "comments here..."
 </code></pre>
 
+<p>如果提交后发现写的comment不是很准确，想要修改刚刚提交的comment，可以使用下面的命令：</p>
+
+<pre><code>$ git commit --amend -m "new comments for last commit here..."
+</code></pre>
+
 <p>有时候你只想把某个时间点之后的所有改动都回滚掉，因为这些的改动是不正确的。
 可以使用：</p>
 
@@ -1361,8 +1366,7 @@ $ git commit -m "First commit"
 
 <p>我的<code>.gitignore</code>如下</p>
 
-<pre>
-.DS_Store
+<pre><code>.DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
@@ -1375,8 +1379,7 @@ Thumbs.db
 # xcode user settings
 #
 xcuserdata
-</pre>
-
+</code></pre>
 
 <p>更多的<code>.gitignore</code>可以参考<a href="https://github.com/github/gitignore">这里</a></p>
 
@@ -1390,15 +1393,13 @@ xcuserdata
 
 <p>要查看提交的历史记录，使用<code>log</code>命令：</p>
 
-<pre>
-$ git log
+<pre><code>$ git log
 commit c82a22c39cbc32576f64f5c6b3f24b99ea8149c7
-Author: Junio C Hamano <junkio@cox.net>
+Author: Junio C Hamano &lt;junkio@cox.net&gt;
 Date:   Tue May 16 17:18:22 2006 -0700
 
     merge-base: Clarify the comments on post processing.
-</pre>
-
+</code></pre>
 
 <p>要查看每次提交到底有哪些改动，加<code>-p</code>参数：</p>
 
@@ -1418,13 +1419,11 @@ Date:   Tue May 16 17:18:22 2006 -0700
 <p>c82a22c39cbc32576f64f5c6b3f24b99ea8149c7是某次提交的hash值。
 在使用<code>show</code>命令是不用每次都完整的输入，只需要输入前面的几个字符能唯一标识一次提交即可：</p>
 
-<pre>
-$ git show c82a22c39c   # the first few characters of the name are
+<pre><code>$ git show c82a22c39c   # the first few characters of the name are
                         # usually enough
 $ git show HEAD         # the tip of the current branch
 $ git show experimental # the tip of the "experimental" branch
-</pre>
-
+</code></pre>
 
 <p>如果要想使用图形界面查看，使用<code>gitk</code>：</p>
 
