@@ -9,9 +9,8 @@
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="N皇后问题是一个经典的问题，在很多地方都有讨论过。
-回溯法是经典的解法，但是随着N的增大，其复杂度的增加呈指数增长，
-如果N=100使用回溯解法的话，回溯要运行的时间估计你可以去喝一壶茶了。 这段时间在看《人工智能》，里面也有对其的讨论，介绍了爬山法在N皇后问题中的应用。 &hellip;">
+  <meta name="description" content="HP-UX 自己提供了抓包工具nettl 。
+在tcpdump不能用的时候它（比如tcpdump在HP-UX上就不能抓回环上的包）就派上用场了。 总结一下nettl的主要用法，备查。 开始抓包 使用nettl -tn开始抓包，下面是一些常用的命令： # nettl -tn all -e all - &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -80,6 +79,135 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2009/12/04/how-to-use-nettl-on-hpux/">在HP-UX上使用nettl抓包</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-12-04T10:16:00+08:00" pubdate data-updated="true">Dec 4<span>th</span>, 2009</time>
+        
+         | <a href="/blog/2009/12/04/how-to-use-nettl-on-hpux/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>HP-UX 自己提供了抓包工具<code>nettl</code> 。
+在<code>tcpdump</code>不能用的时候它（比如<code>tcpdump</code>在HP-UX上就不能抓回环上的包）就派上用场了。</p>
+
+<p>总结一下<code>nettl</code>的主要用法，备查。</p>
+
+<h2>开始抓包</h2>
+
+<p>使用<code>nettl -tn</code>开始抓包，下面是一些常用的命令：</p>
+
+<pre><code># nettl -tn all -e all -maxtrace 99999 -f /tmp/tx
+# nettl -tn loopback -e ns_ls_tcp -maxtrace 99999 -f /tmp/tx
+# nettl -tn pduin pduout -e ns_ls_loopback -tm 100000 -f /tmp/local
+# nettl -tn pduin pduout -e ns_ls_loopback -m 56 -tm 100000 -f /tmp/local
+# nettl -tn pduin -e ns_ls_loopback -m 56 -tm 100000 -f /tmp/local
+</code></pre>
+
+<p>-m size 限制每个包的大小。我们不一定对所有的包都感兴趣，在只对包头干兴趣的时候这个选项就非常有效。
+比如某协议使用的包头为16个字节，再加上IP头的20个字节，TCP头的20个字节，
+也就是我们只需要总共56个字节就能确定一个包的基本信息了。</p>
+
+<p>-e subsytem 要抓包的类型，可以使用<code>nettl -status</code>来获取。</p>
+
+<pre><code>ns_ls_loopback
+ns_ls_ip
+ns_ls_tcp
+ns_ls_udp
+ns_ls_icmp
+</code></pre>
+
+<p>-tm maxsize 每个文件的最大大小，如果超过此大小，会使用下一个抓包文件。
+单位：KB。有效值：100~99999</p>
+
+<p>抓包的输出文件为 <code>/tmp/tx.xxxx</code>，使用<code>ls -l /tmp/tx.*</code>来检查</p>
+
+<p>说明：</p>
+
+<p>在<code>ns_ls_loopback</code>上抓包如果指定了<code>pduin</code>和<code>pduout</code>每个包会抓到2份，因为一进一出就是两份。
+如果指定<code>-tn all -e all</code>一个包也会抓到多份，因为一个包可能属于不同的<code>subsystem</code>，
+比如一个<code>tcp</code>包既属于<code>tcp</code>，也属于<code>ip</code>等。</p>
+
+<p>抓的包可以使用<code>wireshark</code>来直接打开并进行分析。也可以使用HP-UX自带的<code>netfmt</code>来分析。</p>
+
+<p>查看状态及<code>-entity</code>可用的信息：</p>
+
+<pre><code># nettl -status
+</code></pre>
+
+<h2>停止抓包</h2>
+
+<p>使用<code>nettl -tf</code>来停止抓包。</p>
+
+<pre><code># nettl -tf -e all
+</code></pre>
+
+<h2>对包的分析</h2>
+
+<p>我们可以使用netfmt来查看捕获的包：</p>
+
+<pre><code>netfmt -N -l -f /tmp/nettl_t* | more
+</code></pre>
+
+<p>可以过滤我们感兴趣的包，使用<code>-c</code>来传入过滤文件</p>
+
+<pre><code>netfmt -N -l -c filter -f /tmp/nettl_t* | more
+</code></pre>
+
+<p>filter 为过滤文件，文件内容的类似如下：</p>
+
+<pre><code>filter tcp_sport 1234
+filter tcp_dport 1234
+</code></pre>
+
+<p>每一行为一个过滤条件，行与行之间是或的关系。</p>
+
+<p>使用行模式来显示（这种模式下不会看到包的具体数据）</p>
+
+<pre><code>netfmt -N -n -l -1 -f /tmp/nettl_t* | more
+</code></pre>
+
+<p>在每行的显示前加上时间戳</p>
+
+<pre><code>netfmt -T -n -l -1 -f /tmp/nettl_t* | more
+</code></pre>
+
+<p>参考：</p>
+
+<ul>
+<li><a href="http://www.compute-aid.com/nettl.html">http://www.compute-aid.com/nettl.html</a></li>
+<li><a href="http://docs.hp.com/en/B2355-60105/nettl.1M.html">http://docs.hp.com/en/B2355-60105/nettl.1M.html</a></li>
+<li><a href="http://docs.hp.com/en/B2355-60105/netfmt.1M.html">http://docs.hp.com/en/B2355-60105/netfmt.1M.html</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -5899,358 +6027,6 @@ $ make -j2
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2007/04/24/using_windbg/">使用windbg来调试程序</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-04-24T21:39:00+08:00" pubdate data-updated="true">Apr 24<span>th</span>, 2007</time>
-        
-         | <a href="/blog/2007/04/24/using_windbg/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><code>windbg</code>是Windows上的调试工具。据说功能比较强大，我用它是因为它能支持JIT和
-利用程序的<code>mini dump</code>来进行Postmortem调试。
-发现其确实是一个不错的工具。</p>
-
-<h2>windbg命令</h2>
-
-<h3>断点相关命令</h3>
-
-<figure class='code'><figcaption><span>断点相关命令 </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>bl
-</span><span class='line'>    列出当前的所有断点
-</span><span class='line'>
-</span><span class='line'>bc id
-</span><span class='line'>    Clear断点
-</span><span class='line'>
-</span><span class='line'>be id
-</span><span class='line'>    Enable断点
-</span><span class='line'>
-</span><span class='line'>bd id
-</span><span class='line'>    Disable断点
-</span><span class='line'>
-</span><span class='line'>bp address
-</span><span class='line'>    设置断点。比如在main()入口处设置断点：
-</span><span class='line'>    bp main</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>运行相关命令</h3>
-
-<figure class='code'><figcaption><span>运行相关命令 </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>g
-</span><span class='line'>    运行程序
-</span><span class='line'>
-</span><span class='line'>lm
-</span><span class='line'>    列出进程使用到的模块
-</span><span class='line'>
-</span><span class='line'>q
-</span><span class='line'>    退出windbg
-</span><span class='line'>
-</span><span class='line'>p
-</span><span class='line'>    单步到下一行（step）
-</span><span class='line'>    The p command executes a single instruction or source line, and
-</span><span class='line'>    optionally displays the resulting values of all registers and flags.
-</span><span class='line'>    When subroutine calls or interrupts occur, they are treated as a single step.
-</span><span class='line'>
-</span><span class='line'>pc
-</span><span class='line'>    单步到下一条指令(step to next call)
-</span><span class='line'>    The pc command executes the program until a call instruction is reached.
-</span><span class='line'>
-</span><span class='line'>t
-</span><span class='line'>    trace
-</span><span class='line'>    The t command executes a single instruction or source line,
-</span><span class='line'>    and optionally displays the resulting values of all registers and flags.
-</span><span class='line'>    When subroutine calls or interrupts occur,
-</span><span class='line'>    each of their steps is traced as well.
-</span><span class='line'>
-</span><span class='line'>tb
-</span><span class='line'>    Trace to Next Branch
-</span><span class='line'>    The tb command executes the program until a branch instruction is reached.
-</span><span class='line'>
-</span><span class='line'>dv
-</span><span class='line'>    打印函数的局部变量，类似gdb的info locals。
-</span><span class='line'>
-</span><span class='line'>? express
-</span><span class='line'>    对express进行求值</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>堆栈相关命令</h3>
-
-<figure class='code'><figcaption><span>堆栈相关命令 </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>kb
-</span><span class='line'>    显示当前线程的堆栈
-</span><span class='line'>
-</span><span class='line'>kp
-</span><span class='line'>    显示当前线程的堆栈，加上参数信息
-</span><span class='line'>
-</span><span class='line'>kP
-</span><span class='line'>    同kp，只是把函数打印在第二行而已
-</span><span class='line'>
-</span><span class='line'>kn
-</span><span class='line'>    要打印是第几帧</span></code></pre></td></tr></table></div></figure>
-
-
-<p>对具体的一帧，看看各个命令的输出就知道它们的区别了：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>kb:
-</span><span class='line'>0012ff0c 0040128c 00000000 0012ff28 00401260 x!strlen+0x30
-</span><span class='line'>
-</span><span class='line'>kp:
-</span><span class='line'>0012ff0c 0040128c x!strlen(unsigned char * buf = 0x00000000 "")+0x30
-</span><span class='line'>
-</span><span class='line'>kP:
-</span><span class='line'>0012ff0c 0040128c x!strlen(
-</span><span class='line'>unsigned char * buf = 0x00000000 "")+0x30
-</span><span class='line'>
-</span><span class='line'>kn:
-</span><span class='line'>00 0012feac 0040137c x!strlen+0x30</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>线程相关命令</h3>
-
-<figure class='code'><figcaption><span>线程相关命令 </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>~
-</span><span class='line'>    列出当前的所有线程信息
-</span><span class='line'>
-</span><span class='line'>~ * cmd
-</span><span class='line'>    对每个线程执行cmd命令。类似gdb下的thread apply all cmd。
-</span><span class='line'>    示例：显示所有线程的堆栈
-</span><span class='line'>    ~ * kb
-</span><span class='line'>
-</span><span class='line'>~ N s
-</span><span class='line'>    切换到线程N。这里N是windbg的线程编号，而非真实的线程号。
-</span><span class='line'>    示例：切换到第2个线程
-</span><span class='line'>    ~ 2 s</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>其它命令</h3>
-
-<figure class='code'><figcaption><span>其它命令 </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>.hh
-</span><span class='line'>    打开windbg的帮助文件。
-</span><span class='line'>    如要获取命令x的帮助信息：
-</span><span class='line'>    .hh x
-</span><span class='line'>
-</span><span class='line'>.cls
-</span><span class='line'>    清除当前屏幕
-</span><span class='line'>
-</span><span class='line'>.shell cmd
-</span><span class='line'>    执行外部命令cmd
-</span><span class='line'>
-</span><span class='line'>.dump
-</span><span class='line'>    创建dump文件。如果加参数/m表示创建mini dump，如：
-</span><span class='line'>    .dump /m x.dump
-</span><span class='line'>
-</span><span class='line'>.sympath
-</span><span class='line'>    设置.pdb文件的路径，路径之间使用分号分隔
-</span><span class='line'>    .sympath C:\users\sandbox;
-</span><span class='line'>
-</span><span class='line'>    加入Windows的调试信息
-</span><span class='line'>    .sympath  SRV*c:\Temp*http://msdl.microsoft.com/download/symbols
-</span><span class='line'>    这个也可以通过环境变量_NT_SYMBOL_PATH来进行控制
-</span><span class='line'>
-</span><span class='line'>!handle
-</span><span class='line'>    获取当前进程的句柄信息
-</span><span class='line'>
-</span><span class='line'>!gle
-</span><span class='line'>    获取当前线程上执行GetLastError()的结果
-</span><span class='line'>
-</span><span class='line'>!error
-</span><span class='line'>    获取错误码的描述信息</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>JIT(Just In Time)调试</h2>
-
-<p>执行如下命令把windbg注册为默认的调试器：</p>
-
-<pre><code>windbg -I
-</code></pre>
-
-<p>它会修改如下的注册表项：</p>
-
-<pre><code>HKLM\Software\Microsoft\Windows NT\CurrentVersion\AeDebug
-</code></pre>
-
-<p>设置之后windbg就成为默认的调试器了，当程序挂了之后他就会跳出来。
-如果你不想要它自动调用windbg，可以把注册表项下面的Auto这个值改为0，
-这样就会先弹出一个对话框问你是否调试了。</p>
-
-<h2>分析mini-dump文件</h2>
-
-<p>可以使用windbg来分析mini-dump文件,使用-z参数即可。
-比如要调试一个x.dmp的mini-dump文件，可以使用如下的命令:</p>
-
-<pre><code>windbg -z x.dmp -c "!analyze -v; q" -o logo x.txt
-</code></pre>
-
-<h2>windbg的命令行选项</h2>
-
-<figure class='code'><figcaption><span>windbg的命令行选项 </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>-logo file 把调试过程的输出写入指定文件
-</span><span class='line'>-p pid attach到一个进程上进行调试
-</span><span class='line'>-y sympath 指定.pdb的路径信息,路径之间使用分号分隔
-</span><span class='line'>-c "cmd" 在启动windbg后立即运行cmd命令
-</span><span class='line'>-z dumpfile 指定要调试的dump文件</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>更多信息</h2>
-
-<ul>
-<li><a href="http://www.microsoft.com/whdc/devtools/debugging/installx86.mspx">下载windbg</a></li>
-<li><a href="http://www.microsoft.com/whdc/driver/kernel/KB-drv.mspx">KB articles</a></li>
-<li><a href="http://msdn2.microsoft.com/en-us/library/bb204861.aspx">Crash Dump Analysis</a></li>
-<li><a href="http://www.debuginfo.com/articles/effminidumps.html">Effective minidumps</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -6266,6 +6042,10 @@ $ make -j2
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/03/02/using-sphinx-to-generate-chinese-pdf/">在Mac上使用Sphinx产生文档并生成中文PDF文档</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/01/04/android-library-jar/">Android的Library工程</a>
@@ -6303,15 +6083,11 @@ $ make -j2
         <a href="/blog/2012/06/29/install-octave-on-mac/">在Mac上安装octave</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2012/06/25/learn-git/">学习一点git</a>
-      </li>
-    
   </ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 112.85714285714286%'>android(3)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/centos' style='font-size: 104.28571428571429%'>centos(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 108.57142857142857%'>django(2)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 104.28571428571429%'>Linux(1)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 112.85714285714286%'>python(3)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
+    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 112.85714285714286%'>android(3)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/centos' style='font-size: 104.28571428571429%'>centos(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 108.57142857142857%'>django(2)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/linux' style='font-size: 104.28571428571429%'>Linux(1)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 117.14285714285714%'>python(4)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/sphinx' style='font-size: 104.28571428571429%'>sphinx(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
 </section>
 
 <section>

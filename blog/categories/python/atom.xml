@@ -4,7 +4,7 @@
   <title><![CDATA[Category: python | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/python/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-01-30T13:13:54+08:00</updated>
+  <updated>2013-03-03T19:23:23+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -12,6 +12,103 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[在Mac上使用Sphinx产生文档并生成中文PDF文档]]></title>
+    <link href="http://blog.chenming.info/blog/2013/03/02/using-sphinx-to-generate-chinese-pdf/"/>
+    <updated>2013-03-02T07:22:00+08:00</updated>
+    <id>http://blog.chenming.info/blog/2013/03/02/using-sphinx-to-generate-chinese-pdf</id>
+    <content type="html"><![CDATA[<p>什么是sphinx ?</p>
+
+<blockquote><p>Sphinx is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.</p>
+
+<p>It was originally created for the new Python documentation, and it has excellent facilities for the documentation of Python projects, but C/C++ is already supported as well, and it is planned to add special support for other languages as well.</p></blockquote>
+
+<p>安装Sphinx</p>
+
+<pre><code>pip install sphinx
+</code></pre>
+
+<p>使用Sphinx创建文档工程</p>
+
+<pre><code>mkdir docs
+sphinx-quickstart
+</code></pre>
+
+<p><code>sphinx-quickstart</code>会问你一连串的问题，完成之后会创建基本的文档工程文件。其中配置文件为<code>conf.py</code>。</p>
+
+<p>Sphinx支持输出html和pdf文档。输出html很简单：</p>
+
+<pre><code>make html
+</code></pre>
+
+<p>它会把生成的html文档存放在<code>_build/html</code>目录下。</p>
+
+<p>要生成pdf的话，需要先安装Latex，推荐使用<a href="http://www.tug.org/mactex/">MacTex</a>，它的安装包约有2GB，安装需要4GB的空间。</p>
+
+<p>如果文档是纯英文文档，要生成pdf很简单，只需要执行下面的命令即可：</p>
+
+<pre><code>make latexpdf
+</code></pre>
+
+<p>它会把生成的html文档存放在<code>_build/pdf</code>目录下。</p>
+
+<p>如果在文档中有中文，使用这种方法产生pdf的话<code>pdflatex</code>会提示错误。</p>
+
+<p>要解决这个问题，需要修改<code>conf.py</code>中的latex配置，在生成的latex文件中添加对中文的支持。
+在<code>conf.py</code>中找到<code>latex_elements</code>并修改为如下：</p>
+
+<pre><code>latex_elements = {
+# The paper size ('letterpaper' or 'a4paper').
+'papersize': 'a4paper',
+
+# The font size ('10pt', '11pt' or '12pt').
+'pointsize': '12pt',
+
+'label': '\\usepackage[english]{babel}',
+
+# Additional stuff for the LaTeX preamble.
+'preamble': '''
+\usepackage{xeCJK}
+\usepackage{indentfirst}
+\setlength{\parindent}{2em}
+\setCJKmainfont[BoldFont=SimHei, ItalicFont=STKaiti]{SimSun}
+\setCJKmonofont[Scale=0.9]{STKaiti}
+\setCJKfamilyfont{song}[BoldFont=SimSun]{SimSun}
+\setCJKfamilyfont{sf}[BoldFont=SimSun]{SimSun}
+\XeTeXlinebreaklocale "zh"
+\XeTeXlinebreakskip = 0pt plus 1pt
+'''
+}
+</code></pre>
+
+<p>其中字体的设置是需要根据你系统中可用的中文字体来确定，
+可以使用<code>fc-list</code>命令来查看系统支持的中文字体：</p>
+
+<pre><code>fc-list :lang=zh
+</code></pre>
+
+<p>在获取到系统支持的中文字体后，选择喜欢的字体即可。</p>
+
+<p>要在latex中支持中文，需要使用<code>xelatex</code>命令来产生pdf文档。</p>
+
+<pre><code>make latex
+cd _build/latex
+xelatex *.tex
+</code></pre>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://sphinx-doc.org/tutorial.html">http://sphinx-doc.org/tutorial.html</a></li>
+<li><a href="http://sphinx-doc.org/rest.html">http://sphinx-doc.org/rest.html</a></li>
+<li><a href="http://people.ee.ethz.ch/~creller/web/tricks/reST.html">http://people.ee.ethz.ch/~creller/web/tricks/reST.html</a></li>
+<li><a href="http://kkdevs.tumblr.com/post/38275843739/sphinx-latex-pdf">http://kkdevs.tumblr.com/post/38275843739/sphinx-latex-pdf</a></li>
+<li><a href="http://www.tug.org/mactex/">http://www.tug.org/mactex/</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Python Tips]]></title>
