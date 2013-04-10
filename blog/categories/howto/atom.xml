@@ -4,7 +4,7 @@
   <title><![CDATA[Category: howto | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/howto/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-03-03T19:23:23+08:00</updated>
+  <updated>2013-04-10T09:00:34+08:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -294,6 +294,19 @@ $ git commit -a
 
 <p>该命令不会检查分支的合并状态，在分支上的修改会丢失。</p>
 
+<p>如果要把一个分支push到远程仓库，比如把mybranch分支push到远程仓库：</p>
+
+<pre><code>$ git checkout mybranch
+$ git push origin mybranch
+</code></pre>
+
+<p>如果mybranch分支开发完成了，并且已经merge到master了，需要删除远程的分支，
+使用下面的命令，它不会删除本地的分支，需要再自己删除本地分支：</p>
+
+<pre><code>$ git push origin :mybranch
+$ git branch -d mybranch
+</code></pre>
+
 <h3>tag管理</h3>
 
 <p>创建一个tag。
@@ -370,6 +383,7 @@ $ git push -u origin master   # to push changes for the first time
 <li><a href="http://three20.info/article/2010-10-15-Editing-A-GitHub-Article">怎样使用github的协作功能</a></li>
 <li><a href="http://code.google.com/p/support/wiki/DVCSAnalysis">Analysis of Git and Mercurial</a></li>
 <li><a href="http://git-scm.com/book/en/Git-Basics-Tagging">Git Basic - Tagging</a></li>
+<li><a href="http://gitready.com/beginner/2009/02/02/push-and-delete-branches.html">push and delete remote branches</a></li>
 </ul>
 
 ]]></content>
