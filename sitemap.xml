@@ -183,12 +183,16 @@
         <lastmod>2013-03-03T19:20:34+08:00</lastmod>
     </url>
     <url>
+        <loc>http://blog.chenming.info/blog/2013/05/02/android-hack-tools/</loc>
+        <lastmod>2013-05-02T17:10:50+08:00</lastmod>
+    </url>
+    <url>
         <loc>http://blog.chenming.info/blog/about/</loc>
         <lastmod>2012-07-08T08:40:07+08:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/archives/</loc>
-        <lastmod>2013-04-10T08:59:08+08:00</lastmod>
+        <lastmod>2013-05-02T17:10:50+08:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/categories/</loc>
@@ -196,6 +200,6 @@
     </url>
     <url>
         <loc>http://blog.chenming.info/</loc>
-        <lastmod>2013-04-10T08:59:08+08:00</lastmod>
+        <lastmod>2013-05-02T17:10:50+08:00</lastmod>
     </url>
 </urlset>

@@ -5,13 +5,13 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>编译CentOS 5的内核 - Ming's Blog</title>
+  <title>Android APK解析及反编译 - Ming's Blog</title>
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="这段时间因为需要接触Linux内核，CentOS/RHEL的内核源代码缺省安装时并不会安装，
-需要单独的安装。 CentOS 5提供了自己的内核编译方法，详见 http://wiki.centos.org/HowTos/Custom_Kernel。
-但这只能编译CentOS 5的主流内核版本2.6 &hellip;">
+  <meta name="description" content="APK文件格式 APK实质上是一个压缩文件(基于Java的jar包格式）。
+它的MIME类型为：application/vnd.android.package-archive。 你可以直接使用 unzip 命令进行解压缩并查看里面的内容。
+解压缩一个标准的APK文件包含如下内容： META-INF &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -20,7 +20,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.chenming.info/blog/2007/09/14/compile-centos-5-kernel/">
+  <link rel="canonical" href="http://blog.chenming.info/blog/2013/05/02/android-hack-tools/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -83,7 +83,7 @@
   
   <header>
     
-      <h1 class="entry-title">编译CentOS 5的内核</h1>
+      <h1 class="entry-title">Android APK解析及反编译</h1>
     
     
       <p class="meta">
@@ -99,7 +99,7 @@
   
 
 
-<time datetime="2007-09-14T22:52:00+08:00" pubdate data-updated="true">Sep 14<span>th</span>, 2007</time>
+<time datetime="2013-05-02T15:22:00+08:00" pubdate data-updated="true">May 2<span>nd</span>, 2013</time>
         
          | <a href="#disqus_thread">Comments</a>
         
@@ -108,62 +108,170 @@
   </header>
 
 
-<div class="entry-content"><p>这段时间因为需要接触Linux内核，CentOS/RHEL的内核源代码缺省安装时并不会安装，
-需要单独的安装。</p>
+<div class="entry-content"><h2>APK文件格式</h2>
 
-<p><code>CentOS 5</code>提供了自己的内核编译方法，详见 <a href="http://wiki.centos.org/HowTos/Custom_Kernel">http://wiki.centos.org/HowTos/Custom_Kernel</a>。
-但这只能编译CentOS 5的主流内核版本2.6.18，
-如果要编译其它版本的内核还是需要从<a href="http://www.kernel.org">http://www.kernel.org</a>下载后进行编译。</p>
+<p>APK实质上是一个压缩文件(基于Java的jar包格式）。
+它的MIME类型为：<code>application/vnd.android.package-archive</code>。</p>
 
-<p>第一步，获取内核源代码</p>
-
-<pre><code>$ mkdir linux
-$ cd linux
-$ wget http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.30.9.tar.bz2
-$ bzip2 -dc linux-2.6.30.9.tar.bz2 | tar xvf -
-</code></pre>
-
-<p>第二步，配置和编译内核</p>
-
-<pre><code>$ cd linux-2.6.30.9
-$ make config       # 创建一个缺省的配置文件
-$ make menuconfig   # 基于刚才创建的配置文件修改配置，在这一步可以定制内核
-$ make -j2
-</code></pre>
-
-<p>第三步，安装新的内核（需要root的身份）</p>
-
-<p>安装 mkinitrd 来获取 installkernel 这个脚本：</p>
-
-<pre><code># yum install mkinitrd
-</code></pre>
-
-<p>安装内核模块：</p>
-
-<pre><code># make modules_install
-</code></pre>
-
-<p>安装目标目录为<code>/lib/modules/kernel-version/</code>。
-<code>kernel-version</code>为要安装的内核版本，可以使用如下命令查看：</p>
-
-<pre><code># make kernelversion
-</code></pre>
-
-<p>如果这个目录不存在，它会自动创建。</p>
-
-<p>安装内核：</p>
-
-<pre><code># make install
-</code></pre>
-
-<p>它会自动添加新内核到Grub（Lilo也支持，不过估计现在用Lilo的人应该越来越少了）的引导菜单中的。</p>
-
-<p>然后重新启动就可以再Grub中选择新的内核进行启动了。</p>
-
-<p>参考</p>
+<p>你可以直接使用 <code>unzip</code> 命令进行解压缩并查看里面的内容。
+解压缩一个标准的APK文件包含如下内容：</p>
 
 <ul>
-<li><a href="http://www.kroah.com/lkn/">Linux Kernel in a Nutshell</a></li>
+<li>META-INF directory:
+
+<ul>
+<li>MANIFEST.MF: the Manifest file</li>
+<li>CERT.RSA: The certificate of the application.</li>
+<li>CERT.SF: The list of resources and SHA-1 digest;</li>
+</ul>
+</li>
+<li>lib: the directory containing the compiled code that is specific
+to a software layer of a processor, the folder is split into more folders within it:
+
+<ul>
+<li>armeabi: compiled code for all ARM based processors only</li>
+<li>armeabi-v7a: compiled code for all ARMv7 and above based processors only</li>
+<li>x86: compiled code for x86 processors only</li>
+<li>mips: compiled code for MIPS processors only</li>
+</ul>
+</li>
+<li>res: the directory containing resources not compiled into resources.arsc (see below).</li>
+<li>assets: a directory containing applications assets,
+which can be retrieved by AssetManager.</li>
+<li>AndroidManifest.xml: An additional Android manifest file, describing the name,
+version, access rights, referenced library files for the application.
+This file may be in Android binary XML that can be converted into human-readable
+plaintext XML with tools such as AXMLPrinter2, apktool, or Androguard.</li>
+<li>classes.dex: The classes compiled in the dex file format understandable
+by the Dalvik virtual machine</li>
+<li>resources.arsc : a file containing pre-compiled resources,
+such as binary XML for example.</li>
+</ul>
+
+
+<p>使用 <code>unzip</code> 加压缩后的内容是不可读的：</p>
+
+<ul>
+<li>AndroidManifest.xml 是二进制格式的，无法直接阅读。</li>
+<li>资源文件（比如layout，string等）也是二进制格式</li>
+<li>可执行代码是 .dex格式，也无法直接读取。</li>
+</ul>
+
+
+<h2>反编译APK</h2>
+
+<h3>android-apktool</h3>
+
+<p>为了能顺利的阅读这些进过编码的文件，需要对APK进行反编译， <a href="https://code.google.com/p/android-apktool">android-apktool</a> 就是专门用来干这个事的。</p>
+
+<blockquote><p>It is a tool for reverse engineering 3rd party, closed, binary Android apps. It can decode resources to nearly original form and rebuild them after making some modifications; it makes possible to debug smali code step by step. Also it makes working with app easier because of project-like files structure and automation of some repetitive tasks like building apk, etc.</p></blockquote>
+
+<p>下载后解压缩后能得到 <code>apktool.jar</code>，<code>apktool</code> 和 <code>aapt</code> 三个程序。
+其中 <code>apktool</code> 是 <code>apktool.jar</code> 的封装。使用的时候使用 <code>apktool</code> 即可。</p>
+
+<p><code>apktool</code> 能对 <code>apk</code> 文件进行反编译，包括反编译 <code>AndroidManifest.xml</code> 和资源文件。
+它会dex文件反编译成 <code>smali</code> 的格式，类似java的字节码。</p>
+
+<pre><code>$ apktool
+Apktool v1.5.2 - a tool for reengineering Android apk files
+Copyright 2010 Ryszard Wi?niewski &lt;brut.alll@gmail.com&gt;
+with smali v1.4.1, and baksmali v1.4.1
+Updated by @iBotPeaches &lt;connor.tumbleson@gmail.com&gt;
+Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+
+Usage: apktool [-q|--quiet OR -v|--verbose] COMMAND [...]
+
+COMMANDs are:
+
+    d[ecode] [OPTS] &lt;file.apk&gt; [&lt;dir&gt;]
+        Decode &lt;file.apk&gt; to &lt;dir&gt;.
+
+        OPTS:
+
+        -s, --no-src
+            Do not decode sources.
+        -r, --no-res
+            Do not decode resources.
+        -d, --debug
+            Decode in debug mode. Check project page for more info.
+        -b, --no-debug-info
+            Baksmali -- don't write out debug info (.local, .param, .line, etc.)
+        -f, --force
+            Force delete destination directory.
+        -t &lt;tag&gt;, --frame-tag &lt;tag&gt;
+            Try to use framework files tagged by &lt;tag&gt;.
+        --frame-path &lt;dir&gt;
+            Use the specified directory for framework files
+        --keep-broken-res
+            Use if there was an error and some resources were dropped, e.g.:
+            "Invalid config flags detected. Dropping resources", but you
+            want to decode them anyway, even with errors. You will have to
+            fix them manually before building.
+
+    b[uild] [OPTS] [&lt;app_path&gt;] [&lt;out_file&gt;]
+        Build an apk from already decoded application located in &lt;app_path&gt;.
+
+        It will automatically detect, whether files was changed and perform
+        needed steps only.
+
+        If you omit &lt;app_path&gt; then current directory will be used.
+        If you omit &lt;out_file&gt; then &lt;app_path&gt;/dist/&lt;name_of_original.apk&gt;
+        will be used.
+
+        OPTS:
+
+        -f, --force-all
+            Skip changes detection and build all files.
+        -d, --debug
+            Build in debug mode. Check project page for more info.
+        -a, --aapt
+            Loads aapt from specified location.
+
+    if|install-framework &lt;framework.apk&gt; [&lt;tag&gt;] --frame-path [&lt;location&gt;]
+        Install framework file to your system.
+
+For additional info, see: http://code.google.com/p/android-apktool/
+For smali/baksmali info, see: http://code.google.com/p/smali/
+</code></pre>
+
+<p>要反编译一个apk文件，可以执行如下命令:</p>
+
+<pre><code>$ apktool d foo.apk
+</code></pre>
+
+<p>它会生成一个 foo 的目录来存放反编译的结果。</p>
+
+<h3>dextojar + jd-gui</h3>
+
+<p>另外一个反编译的工具是 <a href="">dextojar</a>，它能把 <code>.dex</code> 文件反编译成 <code>.jar</code> 文件。</p>
+
+<p><code>dex2jar</code> 包含4个工具：</p>
+
+<ul>
+<li><em>dex-reader</em> is designed to read the Dalvik Executable (.dex/.odex) format. It has a light weight API similar with ASM.</li>
+<li><em>dex-translator</em> is designed to do the convert job. It reads the dex instruction to * dex-ir format, after some optimize, convert to ASM format.</li>
+<li><em>dex-ir</em> used by dex-translator, is designed to represent the dex instruction</li>
+<li><em>dex-tools</em> tools to work with .class files. here are examples:
+<strong> Modify a apk
+</strong> DeObfuscate a jar</li>
+</ul>
+
+
+<p><code>dex2jar</code> 的用法也很简单：</p>
+
+<pre><code>$ d2j-dex2jar.sh classes.dex
+dex2jar classes.dex -&gt; classes-dex2jar.jar
+</code></pre>
+
+<p>反编译之后获得 <code>.jar</code> 文件，这个时候就可以使用java的反编译工具如<a href="http://java.decompiler.free.fr/?q=jdgui">jd-gui</a>来查看java代码了。</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/APK_(file_format)">APK (file format)</a></li>
+<li><a href="https://code.google.com/p/android-apktool">android-apktool</a></li>
+<li><a href="http://java.decompiler.free.fr/?q=jdgui">jd-gui</a></li>
+<li><a href="https://code.google.com/p/dex2jar/">dex2jar</a></li>
 </ul>
 
 </div>
@@ -188,12 +296,12 @@ $ make -j2
   
 
 
-<time datetime="2007-09-14T22:52:00+08:00" pubdate data-updated="true">Sep 14<span>th</span>, 2007</time>
+<time datetime="2013-05-02T15:22:00+08:00" pubdate data-updated="true">May 2<span>nd</span>, 2013</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/kernel/'>kernel</a>, <a class='category' href='/blog/categories/linux/'>linux</a>
+    <a class='category' href='/blog/categories/android/'>android</a>
   
 </span>
 
@@ -237,10 +345,8 @@ $ make -j2
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2007/08/15/use-vmware-debug-linux-oops/" title="Previous Post: 使用VMware捕获Linux的串口输出来调试内核的Oops">&laquo; 使用VMware捕获Linux的串口输出来调试内核的Oops</a>
+        <a class="basic-alignment left" href="/blog/2013/03/02/using-sphinx-to-generate-chinese-pdf/" title="Previous Post: 在Mac上使用Sphinx产生文档并生成中文PDF文档">&laquo; 在Mac上使用Sphinx产生文档并生成中文PDF文档</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2007/09/17/understand-linux-oops/" title="Next Post: 解读Linux内核的Oops">解读Linux内核的Oops &raquo;</a>
       
     </p>
   </footer>
@@ -348,8 +454,8 @@ $ make -j2
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.chenming.info/blog/2007/09/14/compile-centos-5-kernel/';
-        var disqus_url = 'http://blog.chenming.info/blog/2007/09/14/compile-centos-5-kernel/';
+        var disqus_identifier = 'http://blog.chenming.info/blog/2013/05/02/android-hack-tools/';
+        var disqus_url = 'http://blog.chenming.info/blog/2013/05/02/android-hack-tools/';
         var disqus_script = 'embed.js';
       
     (function () {
