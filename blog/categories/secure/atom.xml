@@ -4,7 +4,7 @@
   <title><![CDATA[Category: secure | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/secure/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[编写安全的代码 Secure Coding]]></title>
     <link href="http://blog.chenming.info/blog/2009/11/06/write-secure-code/"/>
-    <updated>2009-11-06T09:57:00+08:00</updated>
+    <updated>2009-11-06T09:57:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2009/11/06/write-secure-code</id>
     <content type="html"><![CDATA[<p>今天又看了一下了安全编程的指南。看到对异常的处理部分，不由想到前两天在客户的环境中出现一个问题，
 由于在捕获异常后没有完全释放之前获得锁，导致在程序出现异常后，某些资源一直处于被锁定状态。

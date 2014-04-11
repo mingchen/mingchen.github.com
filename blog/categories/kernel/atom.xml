@@ -4,7 +4,7 @@
   <title><![CDATA[Category: kernel | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/kernel/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[How to setup RHEL kdump]]></title>
     <link href="http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump/"/>
-    <updated>2009-05-05T22:39:00+08:00</updated>
+    <updated>2009-05-05T22:39:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump</id>
     <content type="html"><![CDATA[<p><code>Kdump</code>是一种调试Linux内核的方法，
 用于在Linux内核出现<code>Oops</code>之后自动dump内核映像到指定位置的机制，
@@ -82,7 +82,7 @@ reboot
   <entry>
     <title type="html"><![CDATA[sys_call_table符号链接失败及如何替换系统调用]]></title>
     <link href="http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall/"/>
-    <updated>2008-11-24T22:15:00+08:00</updated>
+    <updated>2008-11-24T22:15:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall</id>
     <content type="html"><![CDATA[<p>2.4的内核中可以通过修改<code>sys_call_table</code>来很轻松的替换系统调用，
 来完成很多trick，很多的<code>rootkit</code>就是基于这种手法来完成的。
@@ -277,7 +277,7 @@ lpp: Unknown symbol sys_call_table
   <entry>
     <title type="html"><![CDATA[找不到 tasklist_lock 的问题]]></title>
     <link href="http://blog.chenming.info/blog/2007/10/18/linux-tasklist-lock-undefined-issue/"/>
-    <updated>2007-10-18T20:50:00+08:00</updated>
+    <updated>2007-10-18T20:50:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2007/10/18/linux-tasklist-lock-undefined-issue</id>
     <content type="html"><![CDATA[<p>在测试使用<code>for_each_process()</code>的时候需要获取<code>tasklist_lock</code>的读锁：</p>
 
@@ -312,7 +312,7 @@ Kernel的变化就是快，又out一次。</p>
   <entry>
     <title type="html"><![CDATA[解读Linux内核的Oops]]></title>
     <link href="http://blog.chenming.info/blog/2007/09/17/understand-linux-oops/"/>
-    <updated>2007-09-17T21:35:00+08:00</updated>
+    <updated>2007-09-17T21:35:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2007/09/17/understand-linux-oops</id>
     <content type="html"><![CDATA[<p>Oops是内核编程中比较容易遇到的问题，为了跟多的了解Oops来便于调试，我对Oops提供的信息进行一个总结，以及如何调试Oops。</p>
 
@@ -667,7 +667,7 @@ Kernel的变化就是快，又out一次。</p>
   <entry>
     <title type="html"><![CDATA[编译CentOS 5的内核]]></title>
     <link href="http://blog.chenming.info/blog/2007/09/14/compile-centos-5-kernel/"/>
-    <updated>2007-09-14T22:52:00+08:00</updated>
+    <updated>2007-09-14T22:52:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2007/09/14/compile-centos-5-kernel</id>
     <content type="html"><![CDATA[<p>这段时间因为需要接触Linux内核，CentOS/RHEL的内核源代码缺省安装时并不会安装，
 需要单独的安装。</p>

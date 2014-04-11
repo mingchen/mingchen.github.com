@@ -93,7 +93,7 @@
   
 
 
-<time datetime="2012-06-25T21:29:00+08:00" pubdate data-updated="true">Jun 25<span>th</span>, 2012</time></p>
+<time datetime="2012-06-25T21:29:00-07:00" pubdate data-updated="true">Jun 25<span>th</span>, 2012</time></p>
   </header>
   
   <h2>git是什么东东？</h2>
@@ -363,7 +363,13 @@ $ git commit -a
 <pre><code>$ git branch -d experimental
 </code></pre>
 
-<p>该命令会确保分支上的修改已经合并到“master”分支。</p>
+<p>该命令会确保分支上的修改已经合并到“master”分支。
+如果这个分支没有完全合并到“master”分支，会出现类型下面的错误：</p>
+
+<pre><code>$ git branch -d experimental
+error: The branch 'experimental' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D experimental'.
+</code></pre>
 
 <p>如果要强制删除一个分支，可以使用<code>git branch -D</code>来完成：</p>
 
@@ -396,6 +402,24 @@ $ git branch -d mybranch
 <p>删除一个tag：</p>
 
 <pre><code>$ git tag –d &lt;tagname&gt;
+</code></pre>
+
+<p>说明，<code>git tag -d</code> 不会删除远程服务器上tag，
+要删除一个远程的tag，push一个空的reference即可，命令如下：</p>
+
+<pre><code>$ git push origin :tagname
+</code></pre>
+
+<p>或者明确的使用<code>--delete</code>选项：</p>
+
+<pre><code>$ git push --delete origin tagname
+</code></pre>
+
+<p>示例：</p>
+
+<pre><code>$ git push origin :v2.1
+To git@github.com:example/foo.git
+ - [deleted]         v2.1
 </code></pre>
 
 <p>列出所有的tag</p>
@@ -485,7 +509,7 @@ $ git push -u origin master   # to push changes for the first time
   
 
 
-<time datetime="2012-06-25T21:29:00+08:00" pubdate data-updated="true">Jun 25<span>th</span>, 2012</time>
+<time datetime="2012-06-25T21:29:00-07:00" pubdate data-updated="true">Jun 25<span>th</span>, 2012</time>
         
 
 <span class="categories">
@@ -561,7 +585,7 @@ $ git push -u origin master   # to push changes for the first time
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - Ming -
+  Copyright &copy; 2014 - Ming -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

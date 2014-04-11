@@ -4,7 +4,7 @@
   <title><![CDATA[Category: protobuf | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/protobuf/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[在iOS上使用protobuf]]></title>
     <link href="http://blog.chenming.info/blog/2012/08/21/protobuf-ios/"/>
-    <updated>2012-08-21T17:57:00+08:00</updated>
+    <updated>2012-08-21T17:57:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/08/21/protobuf-ios</id>
     <content type="html"><![CDATA[<p>由于现有的iOS的protobuf库不支持delimited写和读到stream中，
 在Java已经由下面的API实现了类似的支持：</p>

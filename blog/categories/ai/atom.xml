@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ai | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/ai/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[N皇后问题 - 使用随机爬山法实现其快速解法]]></title>
     <link href="http://blog.chenming.info/blog/2009/11/08/using-hill-climbing-algorithm-to-solve-n-queues-problem/"/>
-    <updated>2009-11-08T10:11:00+08:00</updated>
+    <updated>2009-11-08T10:11:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2009/11/08/using-hill-climbing-algorithm-to-solve-n-queues-problem</id>
     <content type="html"><![CDATA[<p>N皇后问题是一个经典的问题，在很多地方都有讨论过。
 回溯法是经典的解法，但是随着N的增大，其复杂度的增加呈指数增长，

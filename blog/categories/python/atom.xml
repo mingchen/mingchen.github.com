@@ -4,7 +4,7 @@
   <title><![CDATA[Category: python | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/python/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[在Mac上使用Sphinx产生文档并生成中文PDF文档]]></title>
     <link href="http://blog.chenming.info/blog/2013/03/02/using-sphinx-to-generate-chinese-pdf/"/>
-    <updated>2013-03-02T07:22:00+08:00</updated>
+    <updated>2013-03-02T07:22:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2013/03/02/using-sphinx-to-generate-chinese-pdf</id>
     <content type="html"><![CDATA[<p>什么是sphinx ?</p>
 
@@ -113,7 +113,7 @@ xelatex *.tex
   <entry>
     <title type="html"><![CDATA[Python Tips]]></title>
     <link href="http://blog.chenming.info/blog/2012/08/25/python-tips/"/>
-    <updated>2012-08-25T15:13:00+08:00</updated>
+    <updated>2012-08-25T15:13:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/08/25/python-tips</id>
     <content type="html"><![CDATA[<h2>Python</h2>
 
@@ -151,7 +151,7 @@ xelatex *.tex
   <entry>
     <title type="html"><![CDATA[Python的virtualenv和pip]]></title>
     <link href="http://blog.chenming.info/blog/2012/07/08/python-pip-virtualenv/"/>
-    <updated>2012-07-08T22:53:00+08:00</updated>
+    <updated>2012-07-08T22:53:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/07/08/python-pip-virtualenv</id>
     <content type="html"><![CDATA[<h2>什么是virtualenv</h2>
 
@@ -242,7 +242,7 @@ $ pip install http://my.package.repo/SomePackage-1.0.4.zip
   <entry>
     <title type="html"><![CDATA[使用Python实现HTTP的digest认证算法]]></title>
     <link href="http://blog.chenming.info/blog/2009/10/15/http-digest-auth-with-python/"/>
-    <updated>2009-10-15T09:39:00+08:00</updated>
+    <updated>2009-10-15T09:39:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2009/10/15/http-digest-auth-with-python</id>
     <content type="html"><![CDATA[<p>因为测试需要，使用Python实现的的一个HTTP的digest认证算法。</p>
 

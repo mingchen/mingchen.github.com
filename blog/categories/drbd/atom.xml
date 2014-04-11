@@ -4,7 +4,7 @@
   <title><![CDATA[Category: drbd | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/drbd/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[DRBD实践]]></title>
     <link href="http://blog.chenming.info/blog/2009/03/06/drbd/"/>
-    <updated>2009-03-06T22:31:00+08:00</updated>
+    <updated>2009-03-06T22:31:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2009/03/06/drbd</id>
     <content type="html"><![CDATA[<h2>实验环境</h2>
 

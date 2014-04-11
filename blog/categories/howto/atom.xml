@@ -4,7 +4,7 @@
   <title><![CDATA[Category: howto | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/howto/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[学习一点git]]></title>
     <link href="http://blog.chenming.info/blog/2012/06/25/learn-git/"/>
-    <updated>2012-06-25T21:29:00+08:00</updated>
+    <updated>2012-06-25T21:29:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/06/25/learn-git</id>
     <content type="html"><![CDATA[<h2>git是什么东东？</h2>
 
@@ -285,7 +285,13 @@ $ git commit -a
 <pre><code>$ git branch -d experimental
 </code></pre>
 
-<p>该命令会确保分支上的修改已经合并到“master”分支。</p>
+<p>该命令会确保分支上的修改已经合并到“master”分支。
+如果这个分支没有完全合并到“master”分支，会出现类型下面的错误：</p>
+
+<pre><code>$ git branch -d experimental
+error: The branch 'experimental' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D experimental'.
+</code></pre>
 
 <p>如果要强制删除一个分支，可以使用<code>git branch -D</code>来完成：</p>
 
@@ -318,6 +324,24 @@ $ git branch -d mybranch
 <p>删除一个tag：</p>
 
 <pre><code>$ git tag –d &lt;tagname&gt;
+</code></pre>
+
+<p>说明，<code>git tag -d</code> 不会删除远程服务器上tag，
+要删除一个远程的tag，push一个空的reference即可，命令如下：</p>
+
+<pre><code>$ git push origin :tagname
+</code></pre>
+
+<p>或者明确的使用<code>--delete</code>选项：</p>
+
+<pre><code>$ git push --delete origin tagname
+</code></pre>
+
+<p>示例：</p>
+
+<pre><code>$ git push origin :v2.1
+To git@github.com:example/foo.git
+ - [deleted]         v2.1
 </code></pre>
 
 <p>列出所有的tag</p>
@@ -392,7 +416,7 @@ $ git push -u origin master   # to push changes for the first time
   <entry>
     <title type="html"><![CDATA[How to setup RHEL kdump]]></title>
     <link href="http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump/"/>
-    <updated>2009-05-05T22:39:00+08:00</updated>
+    <updated>2009-05-05T22:39:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump</id>
     <content type="html"><![CDATA[<p><code>Kdump</code>是一种调试Linux内核的方法，
 用于在Linux内核出现<code>Oops</code>之后自动dump内核映像到指定位置的机制，
@@ -458,7 +482,7 @@ reboot
   <entry>
     <title type="html"><![CDATA[NTP MINI HOWTO]]></title>
     <link href="http://blog.chenming.info/blog/2007/04/14/ntp-mini-howto/"/>
-    <updated>2007-04-14T19:51:00+08:00</updated>
+    <updated>2007-04-14T19:51:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2007/04/14/ntp-mini-howto</id>
     <content type="html"><![CDATA[<p>我的计算机需要一个准确的时间, 所以我选择了NTP</p>
 

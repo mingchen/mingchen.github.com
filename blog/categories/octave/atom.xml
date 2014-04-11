@@ -4,7 +4,7 @@
   <title><![CDATA[Category: octave | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/octave/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[学习一点octave]]></title>
     <link href="http://blog.chenming.info/blog/2012/07/15/learn-octave/"/>
-    <updated>2012-07-15T17:51:00+08:00</updated>
+    <updated>2012-07-15T17:51:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/07/15/learn-octave</id>
     <content type="html"><![CDATA[<h2>入门</h2>
 
@@ -596,7 +596,7 @@ octave:3&gt; n=1:5; m=2.^n; disp(m)
   <entry>
     <title type="html"><![CDATA[在Mac上安装octave]]></title>
     <link href="http://blog.chenming.info/blog/2012/06/29/install-octave-on-mac/"/>
-    <updated>2012-06-29T21:02:00+08:00</updated>
+    <updated>2012-06-29T21:02:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/06/29/install-octave-on-mac</id>
     <content type="html"><![CDATA[<p><a href="http://www.gnu.org/software/octave/">octave</a>
 是类似<code>matlab</code>的用于科学计算（比如矩阵的算法）的免费工具。

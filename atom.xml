@@ -4,7 +4,7 @@
   <title><![CDATA[Ming's Blog]]></title>
   <link href="http://blog.chenming.info/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -14,9 +14,40 @@
 
   
   <entry>
+    <title type="html"><![CDATA[OpenSSL Heartbleed漏洞对Android的影响]]></title>
+    <link href="http://blog.chenming.info/blog/2014/04/10/openssl-heartbleed-impact-on-android/"/>
+    <updated>2014-04-10T12:12:00-07:00</updated>
+    <id>http://blog.chenming.info/blog/2014/04/10/openssl-heartbleed-impact-on-android</id>
+    <content type="html"><![CDATA[<p>前两天爆出来的<a href="http://heartbleed.com/">OpenSSL Heartbleed高危漏洞</a>是如此的重要，
+以至于有一个<a href="http://heartbleed.com/">专门的网站</a>为它诞生。
+它的影响主要是在服务器侧，但是它同样能对客户端造成影响。</p>
+
+<blockquote><p>Bug is in the OpenSSL&#8217;s implementation of the TLS/DTLS (transport layer security protocols) heartbeat extension (RFC6520). When it is exploited it leads to the leak of memory contents from the server to the client and from the client to the server.</p></blockquote>
+
+
+<p>因为Android上的程序一般都不作为HTTPS服务器运行，所以一般情况下该漏洞不会对Android有影响。那它在什么样的情况下能对客户端造成影响呢？</p>
+
+<p>一种典型的情况是当你使用有漏洞的浏览器（比如某些版本的Chrome）访问一个利用了该漏洞的HTTPS服务器，服务器就能利用该漏洞读取客户端的额外的内存信息。
+这里有一个<a href="http://www.digitaltrends.com/mobile/heartbleed-bug-apps-affected-list/">列表</a>列出了Android系统的app的受影响情况。</p>
+
+<p>基本上来说虽然存在被攻击的可能性，但是这种可能性很小，不用担心你Android手机的安全。</p>
+
+<h3>参考</h3>
+
+<ul>
+<li><a href="http://heartbleed.com/">Heartbleed主页</a></li>
+<li><a href="https://www.openssl.org/news/secadv_20140407.txt">OpenSSL security advisory</a></li>
+<li><a href="http://www.digitaltrends.com/mobile/heartbleed-bug-apps-affected-list/">Heartbleed影响的mobile app列表</a></li>
+<li><a href="https://play.google.com/store/apps/details?id=com.lookout.heartbleeddetector">Heartbleed Detector</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Android APK解析及反编译]]></title>
     <link href="http://blog.chenming.info/blog/2013/05/02/android-hack-tools/"/>
-    <updated>2013-05-02T15:22:00+08:00</updated>
+    <updated>2013-05-02T15:22:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2013/05/02/android-hack-tools</id>
     <content type="html"><![CDATA[<h2>APK文件格式</h2>
 
@@ -190,7 +221,7 @@ dex2jar classes.dex -&gt; classes-dex2jar.jar
   <entry>
     <title type="html"><![CDATA[在Mac上使用Sphinx产生文档并生成中文PDF文档]]></title>
     <link href="http://blog.chenming.info/blog/2013/03/02/using-sphinx-to-generate-chinese-pdf/"/>
-    <updated>2013-03-02T07:22:00+08:00</updated>
+    <updated>2013-03-02T07:22:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2013/03/02/using-sphinx-to-generate-chinese-pdf</id>
     <content type="html"><![CDATA[<p>什么是sphinx ?</p>
 
@@ -287,7 +318,7 @@ xelatex *.tex
   <entry>
     <title type="html"><![CDATA[Android的Library工程]]></title>
     <link href="http://blog.chenming.info/blog/2013/01/04/android-library-jar/"/>
-    <updated>2013-01-04T15:02:00+08:00</updated>
+    <updated>2013-01-04T15:02:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2013/01/04/android-library-jar</id>
     <content type="html"><![CDATA[<h2>为什么要使用Android的Library工程？</h2>
 
@@ -376,7 +407,7 @@ android.library.reference.1=..
   <entry>
     <title type="html"><![CDATA[CentOS Tips]]></title>
     <link href="http://blog.chenming.info/blog/2012/12/12/centos-tips/"/>
-    <updated>2012-12-12T07:22:00+08:00</updated>
+    <updated>2012-12-12T07:22:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2012/12/12/centos-tips</id>
     <content type="html"><![CDATA[<h2>小工具软件</h2>
 
@@ -430,7 +461,7 @@ wipe -fr yourdir    # wipe a directory
   <entry>
     <title type="html"><![CDATA[Android的硬件加速及可能导致的问题]]></title>
     <link href="http://blog.chenming.info/blog/2012/09/18/android-hardware-accel/"/>
-    <updated>2012-09-18T14:39:00+08:00</updated>
+    <updated>2012-09-18T14:39:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/09/18/android-hardware-accel</id>
     <content type="html"><![CDATA[<h2>问题</h2>
 
@@ -627,7 +658,7 @@ parent are executed again.</p>
   <entry>
     <title type="html"><![CDATA[Python Tips]]></title>
     <link href="http://blog.chenming.info/blog/2012/08/25/python-tips/"/>
-    <updated>2012-08-25T15:13:00+08:00</updated>
+    <updated>2012-08-25T15:13:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/08/25/python-tips</id>
     <content type="html"><![CDATA[<h2>Python</h2>
 
@@ -665,7 +696,7 @@ parent are executed again.</p>
   <entry>
     <title type="html"><![CDATA[在iOS上使用protobuf]]></title>
     <link href="http://blog.chenming.info/blog/2012/08/21/protobuf-ios/"/>
-    <updated>2012-08-21T17:57:00+08:00</updated>
+    <updated>2012-08-21T17:57:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/08/21/protobuf-ios</id>
     <content type="html"><![CDATA[<p>由于现有的iOS的protobuf库不支持delimited写和读到stream中，
 在Java已经由下面的API实现了类似的支持：</p>
@@ -689,7 +720,7 @@ parent are executed again.</p>
   <entry>
     <title type="html"><![CDATA[学习一点octave]]></title>
     <link href="http://blog.chenming.info/blog/2012/07/15/learn-octave/"/>
-    <updated>2012-07-15T17:51:00+08:00</updated>
+    <updated>2012-07-15T17:51:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/07/15/learn-octave</id>
     <content type="html"><![CDATA[<h2>入门</h2>
 
@@ -1264,7 +1295,7 @@ octave:3&gt; n=1:5; m=2.^n; disp(m)
   <entry>
     <title type="html"><![CDATA[Python的virtualenv和pip]]></title>
     <link href="http://blog.chenming.info/blog/2012/07/08/python-pip-virtualenv/"/>
-    <updated>2012-07-08T22:53:00+08:00</updated>
+    <updated>2012-07-08T22:53:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/07/08/python-pip-virtualenv</id>
     <content type="html"><![CDATA[<h2>什么是virtualenv</h2>
 
@@ -1356,7 +1387,7 @@ $ pip install http://my.package.repo/SomePackage-1.0.4.zip
   <entry>
     <title type="html"><![CDATA[Android上使用SparseArray来替代HashMap]]></title>
     <link href="http://blog.chenming.info/blog/2012/07/04/android-sparsearray/"/>
-    <updated>2012-07-04T10:50:00+08:00</updated>
+    <updated>2012-07-04T10:50:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/07/04/android-sparsearray</id>
     <content type="html"><![CDATA[<p>在android上做lint时，下面的代码会收到警告，提示使用<code>SparseArray</code>来代替<code>HashMap</code>来提高性能。</p>
 
@@ -1388,7 +1419,7 @@ $ pip install http://my.package.repo/SomePackage-1.0.4.zip
   <entry>
     <title type="html"><![CDATA[在Mac上安装octave]]></title>
     <link href="http://blog.chenming.info/blog/2012/06/29/install-octave-on-mac/"/>
-    <updated>2012-06-29T21:02:00+08:00</updated>
+    <updated>2012-06-29T21:02:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/06/29/install-octave-on-mac</id>
     <content type="html"><![CDATA[<p><a href="http://www.gnu.org/software/octave/">octave</a>
 是类似<code>matlab</code>的用于科学计算（比如矩阵的算法）的免费工具。
@@ -1499,7 +1530,7 @@ plot(x, y);
   <entry>
     <title type="html"><![CDATA[学习一点git]]></title>
     <link href="http://blog.chenming.info/blog/2012/06/25/learn-git/"/>
-    <updated>2012-06-25T21:29:00+08:00</updated>
+    <updated>2012-06-25T21:29:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/06/25/learn-git</id>
     <content type="html"><![CDATA[<h2>git是什么东东？</h2>
 
@@ -1768,7 +1799,13 @@ $ git commit -a
 <pre><code>$ git branch -d experimental
 </code></pre>
 
-<p>该命令会确保分支上的修改已经合并到“master”分支。</p>
+<p>该命令会确保分支上的修改已经合并到“master”分支。
+如果这个分支没有完全合并到“master”分支，会出现类型下面的错误：</p>
+
+<pre><code>$ git branch -d experimental
+error: The branch 'experimental' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D experimental'.
+</code></pre>
 
 <p>如果要强制删除一个分支，可以使用<code>git branch -D</code>来完成：</p>
 
@@ -1801,6 +1838,24 @@ $ git branch -d mybranch
 <p>删除一个tag：</p>
 
 <pre><code>$ git tag –d &lt;tagname&gt;
+</code></pre>
+
+<p>说明，<code>git tag -d</code> 不会删除远程服务器上tag，
+要删除一个远程的tag，push一个空的reference即可，命令如下：</p>
+
+<pre><code>$ git push origin :tagname
+</code></pre>
+
+<p>或者明确的使用<code>--delete</code>选项：</p>
+
+<pre><code>$ git push --delete origin tagname
+</code></pre>
+
+<p>示例：</p>
+
+<pre><code>$ git push origin :v2.1
+To git@github.com:example/foo.git
+ - [deleted]         v2.1
 </code></pre>
 
 <p>列出所有的tag</p>
@@ -1875,7 +1930,7 @@ $ git push -u origin master   # to push changes for the first time
   <entry>
     <title type="html"><![CDATA[学习一点HTML5]]></title>
     <link href="http://blog.chenming.info/blog/2012/06/22/html5-resources/"/>
-    <updated>2012-06-22T22:13:00+08:00</updated>
+    <updated>2012-06-22T22:13:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/06/22/html5-resources</id>
     <content type="html"><![CDATA[<h2>HTML5是什么</h2>
 
@@ -2042,7 +2097,7 @@ $ git push -u origin master   # to push changes for the first time
   <entry>
     <title type="html"><![CDATA[WP7中写调试消息]]></title>
     <link href="http://blog.chenming.info/blog/2012/01/16/windows-phone-debug-message-output/"/>
-    <updated>2012-01-16T21:55:00+08:00</updated>
+    <updated>2012-01-16T21:55:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2012/01/16/windows-phone-debug-message-output</id>
     <content type="html"><![CDATA[<p>在WP7中写调试消息</p>
 
@@ -2062,7 +2117,7 @@ $ git push -u origin master   # to push changes for the first time
   <entry>
     <title type="html"><![CDATA[在XP下安装WP7的SDK]]></title>
     <link href="http://blog.chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp/"/>
-    <updated>2012-01-13T22:12:00+08:00</updated>
+    <updated>2012-01-13T22:12:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp</id>
     <content type="html"><![CDATA[<ol>
 <li><p>下载 WP7 SDK 的安装文件: <code>vm_web.exe</code></p></li>
@@ -2096,7 +2151,7 @@ $ git push -u origin master   # to push changes for the first time
   <entry>
     <title type="html"><![CDATA[How to use WP7 as USB drive]]></title>
     <link href="http://blog.chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive/"/>
-    <updated>2012-01-02T21:21:00+08:00</updated>
+    <updated>2012-01-02T21:21:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive</id>
     <content type="html"><![CDATA[<p>How to use WP7 as usb drive ?</p>
 
@@ -2121,7 +2176,7 @@ $ git push -u origin master   # to push changes for the first time
   <entry>
     <title type="html"><![CDATA[网站开发书签]]></title>
     <link href="http://blog.chenming.info/blog/2011/12/29/web-developer-tools-bookmark/"/>
-    <updated>2011-12-29T20:32:00+08:00</updated>
+    <updated>2011-12-29T20:32:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2011/12/29/web-developer-tools-bookmark</id>
     <content type="html"><![CDATA[<ul>
 <li>一个在线调试和共享js代码的网站：<a href="http://jsfiddle.net">http://jsfiddle.net</a></li>
@@ -2139,7 +2194,7 @@ $ git push -u origin master   # to push changes for the first time
   <entry>
     <title type="html"><![CDATA[jQuery reverse selection]]></title>
     <link href="http://blog.chenming.info/blog/2011/12/28/jquery-revert-selection/"/>
-    <updated>2011-12-28T22:12:00+08:00</updated>
+    <updated>2011-12-28T22:12:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2011/12/28/jquery-revert-selection</id>
     <content type="html"><![CDATA[<p>TODO&#8230;</p>
 
@@ -2213,7 +2268,7 @@ $('li').css('background-color','gray')
   <entry>
     <title type="html"><![CDATA[实现jQuery的treeview的filter]]></title>
     <link href="http://blog.chenming.info/blog/2011/12/24/jquery-tree-filter/"/>
-    <updated>2011-12-24T21:21:00+08:00</updated>
+    <updated>2011-12-24T21:21:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2011/12/24/jquery-tree-filter</id>
     <content type="html"><![CDATA[<p>使用jQuery的treeview插件做了一个tree，遇到一个tree特别长的问题，
 需要做一下filter，方便查找。</p>
@@ -2268,23 +2323,6 @@ $('li').css('background-color','gray')
 <ul>
 <li><a href="http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-based-on-search-criteria">http://stackoverflow.com/questions/3691201/jquery-how-hide-show-tree-elements-based-on-search-criteria</a></li>
 </ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[在Linux下清屏是clear还是reset]]></title>
-    <link href="http://blog.chenming.info/blog/2011/12/22/linux-reset-terminal/"/>
-    <updated>2011-12-22T19:21:00+08:00</updated>
-    <id>http://blog.chenming.info/blog/2011/12/22/linux-reset-terminal</id>
-    <content type="html"><![CDATA[<p>在终端中<code>Ctrl+L</code>或者<code>clear</code>会重绘屏幕。
-它能清除由系统广播消息导致的屏幕混乱情况。
-但如果是由于屏幕上打印了一些控制字符引起的屏幕混乱，
-<code>Ctrl+L</code>就没有效果了，这个时候需要使用<code>reset</code>命令。</p>
-
-<blockquote><p>There is garbage on the screen, or all your keystrokes are echoed as line drawing characters. What to do?</p><p>Many programs will redraw the screen when `Ctrl-L` is typed. This might help when there is some modem noise or broadcast<br/>message on your screen. The command `clear` will clear the screen.</p><p>The command `reset` will reset the console driver. This helps when the screen is full of funny graphic characters, and<br/>also if it is reduced to the bottom line.</p><footer><strong>Resetting your terminal</strong> <cite><a href='http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-4.html'>Linux Howto</a></cite></footer></blockquote>
-
-
 
 ]]></content>
   </entry>

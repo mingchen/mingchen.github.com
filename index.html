@@ -9,9 +9,9 @@
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="APK文件格式 APK实质上是一个压缩文件(基于Java的jar包格式）。
-它的MIME类型为：application/vnd.android.package-archive。 你可以直接使用 unzip 命令进行解压缩并查看里面的内容。
-解压缩一个标准的APK文件包含如下内容： META-INF &hellip;">
+  <meta name="description" content="前两天爆出来的OpenSSL Heartbleed高危漏洞是如此的重要，
+以至于有一个专门的网站为它诞生。
+它的影响主要是在服务器侧，但是它同样能对客户端造成影响。 Bug is in the OpenSSL&#8217;s implementation of the TLS/DTLS ( &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -86,6 +86,66 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2014/04/10/openssl-heartbleed-impact-on-android/">OpenSSL Heartbleed漏洞对Android的影响</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-10T12:12:00-07:00" pubdate data-updated="true">Apr 10<span>th</span>, 2014</time>
+        
+         | <a href="/blog/2014/04/10/openssl-heartbleed-impact-on-android/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>前两天爆出来的<a href="http://heartbleed.com/">OpenSSL Heartbleed高危漏洞</a>是如此的重要，
+以至于有一个<a href="http://heartbleed.com/">专门的网站</a>为它诞生。
+它的影响主要是在服务器侧，但是它同样能对客户端造成影响。</p>
+
+<blockquote><p>Bug is in the OpenSSL&#8217;s implementation of the TLS/DTLS (transport layer security protocols) heartbeat extension (RFC6520). When it is exploited it leads to the leak of memory contents from the server to the client and from the client to the server.</p></blockquote>
+
+
+<p>因为Android上的程序一般都不作为HTTPS服务器运行，所以一般情况下该漏洞不会对Android有影响。那它在什么样的情况下能对客户端造成影响呢？</p>
+
+<p>一种典型的情况是当你使用有漏洞的浏览器（比如某些版本的Chrome）访问一个利用了该漏洞的HTTPS服务器，服务器就能利用该漏洞读取客户端的额外的内存信息。
+这里有一个<a href="http://www.digitaltrends.com/mobile/heartbleed-bug-apps-affected-list/">列表</a>列出了Android系统的app的受影响情况。</p>
+
+<p>基本上来说虽然存在被攻击的可能性，但是这种可能性很小，不用担心你Android手机的安全。</p>
+
+<h3>参考</h3>
+
+<ul>
+<li><a href="http://heartbleed.com/">Heartbleed主页</a></li>
+<li><a href="https://www.openssl.org/news/secadv_20140407.txt">OpenSSL security advisory</a></li>
+<li><a href="http://www.digitaltrends.com/mobile/heartbleed-bug-apps-affected-list/">Heartbleed影响的mobile app列表</a></li>
+<li><a href="https://play.google.com/store/apps/details?id=com.lookout.heartbleeddetector">Heartbleed Detector</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2013/05/02/android-hack-tools/">Android APK解析及反编译</a></h1>
     
     
@@ -102,7 +162,7 @@
   
 
 
-<time datetime="2013-05-02T15:22:00+08:00" pubdate data-updated="true">May 2<span>nd</span>, 2013</time>
+<time datetime="2013-05-02T15:22:00-07:00" pubdate data-updated="true">May 2<span>nd</span>, 2013</time>
         
          | <a href="/blog/2013/05/02/android-hack-tools/#disqus_thread">Comments</a>
         
@@ -305,7 +365,7 @@ dex2jar classes.dex -&gt; classes-dex2jar.jar
   
 
 
-<time datetime="2013-03-02T07:22:00+08:00" pubdate data-updated="true">Mar 2<span>nd</span>, 2013</time>
+<time datetime="2013-03-02T07:22:00-08:00" pubdate data-updated="true">Mar 2<span>nd</span>, 2013</time>
         
          | <a href="/blog/2013/03/02/using-sphinx-to-generate-chinese-pdf/#disqus_thread">Comments</a>
         
@@ -431,7 +491,7 @@ xelatex *.tex
   
 
 
-<time datetime="2013-01-04T15:02:00+08:00" pubdate data-updated="true">Jan 4<span>th</span>, 2013</time>
+<time datetime="2013-01-04T15:02:00-08:00" pubdate data-updated="true">Jan 4<span>th</span>, 2013</time>
         
          | <a href="/blog/2013/01/04/android-library-jar/#disqus_thread">Comments</a>
         
@@ -549,7 +609,7 @@ android.library.reference.1=..
   
 
 
-<time datetime="2012-12-12T07:22:00+08:00" pubdate data-updated="true">Dec 12<span>th</span>, 2012</time>
+<time datetime="2012-12-12T07:22:00-08:00" pubdate data-updated="true">Dec 12<span>th</span>, 2012</time>
         
          | <a href="/blog/2012/12/12/centos-tips/#disqus_thread">Comments</a>
         
@@ -632,7 +692,7 @@ wipe -fr yourdir    # wipe a directory
   
 
 
-<time datetime="2012-09-18T14:39:00+08:00" pubdate data-updated="true">Sep 18<span>th</span>, 2012</time>
+<time datetime="2012-09-18T14:39:00-07:00" pubdate data-updated="true">Sep 18<span>th</span>, 2012</time>
         
          | <a href="/blog/2012/09/18/android-hardware-accel/#disqus_thread">Comments</a>
         
@@ -858,7 +918,7 @@ parent are executed again.</p>
   
 
 
-<time datetime="2012-08-25T15:13:00+08:00" pubdate data-updated="true">Aug 25<span>th</span>, 2012</time>
+<time datetime="2012-08-25T15:13:00-07:00" pubdate data-updated="true">Aug 25<span>th</span>, 2012</time>
         
          | <a href="/blog/2012/08/25/python-tips/#disqus_thread">Comments</a>
         
@@ -925,7 +985,7 @@ parent are executed again.</p>
   
 
 
-<time datetime="2012-08-21T17:57:00+08:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
+<time datetime="2012-08-21T17:57:00-07:00" pubdate data-updated="true">Aug 21<span>st</span>, 2012</time>
         
          | <a href="/blog/2012/08/21/protobuf-ios/#disqus_thread">Comments</a>
         
@@ -978,7 +1038,7 @@ parent are executed again.</p>
   
 
 
-<time datetime="2012-07-15T17:51:00+08:00" pubdate data-updated="true">Jul 15<span>th</span>, 2012</time>
+<time datetime="2012-07-15T17:51:00-07:00" pubdate data-updated="true">Jul 15<span>th</span>, 2012</time>
         
          | <a href="/blog/2012/07/15/learn-octave/#disqus_thread">Comments</a>
         
@@ -1582,7 +1642,7 @@ octave:3&gt; n=1:5; m=2.^n; disp(m)
   
 
 
-<time datetime="2012-07-08T22:53:00+08:00" pubdate data-updated="true">Jul 8<span>th</span>, 2012</time>
+<time datetime="2012-07-08T22:53:00-07:00" pubdate data-updated="true">Jul 8<span>th</span>, 2012</time>
         
          | <a href="/blog/2012/07/08/python-pip-virtualenv/#disqus_thread">Comments</a>
         
@@ -1703,7 +1763,7 @@ $ pip install http://my.package.repo/SomePackage-1.0.4.zip
   
 
 
-<time datetime="2012-07-04T10:50:00+08:00" pubdate data-updated="true">Jul 4<span>th</span>, 2012</time>
+<time datetime="2012-07-04T10:50:00-07:00" pubdate data-updated="true">Jul 4<span>th</span>, 2012</time>
         
          | <a href="/blog/2012/07/04/android-sparsearray/#disqus_thread">Comments</a>
         
@@ -1764,7 +1824,7 @@ $ pip install http://my.package.repo/SomePackage-1.0.4.zip
   
 
 
-<time datetime="2012-06-29T21:02:00+08:00" pubdate data-updated="true">Jun 29<span>th</span>, 2012</time>
+<time datetime="2012-06-29T21:02:00-07:00" pubdate data-updated="true">Jun 29<span>th</span>, 2012</time>
         
          | <a href="/blog/2012/06/29/install-octave-on-mac/#disqus_thread">Comments</a>
         
@@ -1904,7 +1964,7 @@ plot(x, y);
   
 
 
-<time datetime="2012-06-25T21:29:00+08:00" pubdate data-updated="true">Jun 25<span>th</span>, 2012</time>
+<time datetime="2012-06-25T21:29:00-07:00" pubdate data-updated="true">Jun 25<span>th</span>, 2012</time>
         
          | <a href="/blog/2012/06/25/learn-git/#disqus_thread">Comments</a>
         
@@ -2180,7 +2240,13 @@ $ git commit -a
 <pre><code>$ git branch -d experimental
 </code></pre>
 
-<p>该命令会确保分支上的修改已经合并到“master”分支。</p>
+<p>该命令会确保分支上的修改已经合并到“master”分支。
+如果这个分支没有完全合并到“master”分支，会出现类型下面的错误：</p>
+
+<pre><code>$ git branch -d experimental
+error: The branch 'experimental' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D experimental'.
+</code></pre>
 
 <p>如果要强制删除一个分支，可以使用<code>git branch -D</code>来完成：</p>
 
@@ -2213,6 +2279,24 @@ $ git branch -d mybranch
 <p>删除一个tag：</p>
 
 <pre><code>$ git tag –d &lt;tagname&gt;
+</code></pre>
+
+<p>说明，<code>git tag -d</code> 不会删除远程服务器上tag，
+要删除一个远程的tag，push一个空的reference即可，命令如下：</p>
+
+<pre><code>$ git push origin :tagname
+</code></pre>
+
+<p>或者明确的使用<code>--delete</code>选项：</p>
+
+<pre><code>$ git push --delete origin tagname
+</code></pre>
+
+<p>示例：</p>
+
+<pre><code>$ git push origin :v2.1
+To git@github.com:example/foo.git
+ - [deleted]         v2.1
 </code></pre>
 
 <p>列出所有的tag</p>
@@ -2309,7 +2393,7 @@ $ git push -u origin master   # to push changes for the first time
   
 
 
-<time datetime="2012-06-22T22:13:00+08:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2012</time>
+<time datetime="2012-06-22T22:13:00-07:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2012</time>
         
          | <a href="/blog/2012/06/22/html5-resources/#disqus_thread">Comments</a>
         
@@ -2505,7 +2589,7 @@ $ git push -u origin master   # to push changes for the first time
   
 
 
-<time datetime="2012-01-16T21:55:00+08:00" pubdate data-updated="true">Jan 16<span>th</span>, 2012</time>
+<time datetime="2012-01-16T21:55:00-08:00" pubdate data-updated="true">Jan 16<span>th</span>, 2012</time>
         
          | <a href="/blog/2012/01/16/windows-phone-debug-message-output/#disqus_thread">Comments</a>
         
@@ -2554,7 +2638,7 @@ $ git push -u origin master   # to push changes for the first time
   
 
 
-<time datetime="2012-01-13T22:12:00+08:00" pubdate data-updated="true">Jan 13<span>th</span>, 2012</time>
+<time datetime="2012-01-13T22:12:00-08:00" pubdate data-updated="true">Jan 13<span>th</span>, 2012</time>
         
          | <a href="/blog/2012/01/13/install-wp7-sdk-on-xp/#disqus_thread">Comments</a>
         
@@ -2617,7 +2701,7 @@ $ git push -u origin master   # to push changes for the first time
   
 
 
-<time datetime="2012-01-02T21:21:00+08:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2012</time>
+<time datetime="2012-01-02T21:21:00-08:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2012</time>
         
          | <a href="/blog/2012/01/02/how-to-use-wp7-as-usb-drive/#disqus_thread">Comments</a>
         
@@ -2671,7 +2755,7 @@ $ git push -u origin master   # to push changes for the first time
   
 
 
-<time datetime="2011-12-29T20:32:00+08:00" pubdate data-updated="true">Dec 29<span>th</span>, 2011</time>
+<time datetime="2011-12-29T20:32:00-08:00" pubdate data-updated="true">Dec 29<span>th</span>, 2011</time>
         
          | <a href="/blog/2011/12/29/web-developer-tools-bookmark/#disqus_thread">Comments</a>
         
@@ -2718,7 +2802,7 @@ $ git push -u origin master   # to push changes for the first time
   
 
 
-<time datetime="2011-12-28T22:12:00+08:00" pubdate data-updated="true">Dec 28<span>th</span>, 2011</time>
+<time datetime="2011-12-28T22:12:00-08:00" pubdate data-updated="true">Dec 28<span>th</span>, 2011</time>
         
          | <a href="/blog/2011/12/28/jquery-revert-selection/#disqus_thread">Comments</a>
         
@@ -2821,7 +2905,7 @@ $('li').css('background-color','gray')
   
 
 
-<time datetime="2011-12-24T21:21:00+08:00" pubdate data-updated="true">Dec 24<span>th</span>, 2011</time>
+<time datetime="2011-12-24T21:21:00-08:00" pubdate data-updated="true">Dec 24<span>th</span>, 2011</time>
         
          | <a href="/blog/2011/12/24/jquery-tree-filter/#disqus_thread">Comments</a>
         
@@ -2891,52 +2975,6 @@ $('li').css('background-color','gray')
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/12/22/linux-reset-terminal/">在Linux下清屏是clear还是reset</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-22T19:21:00+08:00" pubdate data-updated="true">Dec 22<span>nd</span>, 2011</time>
-        
-         | <a href="/blog/2011/12/22/linux-reset-terminal/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>在终端中<code>Ctrl+L</code>或者<code>clear</code>会重绘屏幕。
-它能清除由系统广播消息导致的屏幕混乱情况。
-但如果是由于屏幕上打印了一些控制字符引起的屏幕混乱，
-<code>Ctrl+L</code>就没有效果了，这个时候需要使用<code>reset</code>命令。</p>
-
-<blockquote><p>There is garbage on the screen, or all your keystrokes are echoed as line drawing characters. What to do?</p><p>Many programs will redraw the screen when `Ctrl-L` is typed. This might help when there is some modem noise or broadcast<br/>message on your screen. The command `clear` will clear the screen.</p><p>The command `reset` will reset the console driver. This helps when the screen is full of funny graphic characters, and<br/>also if it is reduced to the bottom line.</p><footer><strong>Resetting your terminal</strong> <cite><a href='http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-4.html'>Linux Howto</a></cite></footer></blockquote>
-
-
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -2950,6 +2988,10 @@ $('li').css('background-color','gray')
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/04/10/openssl-heartbleed-impact-on-android/">OpenSSL Heartbleed漏洞对Android的影响</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/05/02/android-hack-tools/">Android APK解析及反编译</a>
@@ -2987,15 +3029,11 @@ $('li').css('background-color','gray')
         <a href="/blog/2012/07/08/python-pip-virtualenv/">Python的virtualenv和pip</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2012/07/04/android-sparsearray/">Android上使用SparseArray来替代HashMap</a>
-      </li>
-    
   </ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 117.14285714285714%'>android(4)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/centos' style='font-size: 104.28571428571429%'>centos(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 108.57142857142857%'>django(2)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/linux' style='font-size: 104.28571428571429%'>Linux(1)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 117.14285714285714%'>python(4)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/sphinx' style='font-size: 104.28571428571429%'>sphinx(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
+    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 121.42857142857143%'>android(5)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/centos' style='font-size: 104.28571428571429%'>centos(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 108.57142857142857%'>django(2)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/linux' style='font-size: 104.28571428571429%'>Linux(1)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/openssl' style='font-size: 104.28571428571429%'>openssl(1)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 117.14285714285714%'>python(4)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/security' style='font-size: 104.28571428571429%'>security(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/sphinx' style='font-size: 104.28571428571429%'>sphinx(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
 </section>
 
 <section>
@@ -3026,7 +3064,7 @@ $('li').css('background-color','gray')
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - Ming -
+  Copyright &copy; 2014 - Ming -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

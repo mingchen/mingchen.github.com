@@ -4,7 +4,7 @@
   <title><![CDATA[Category: hp-ux | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/hp-ux/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[在HP-UX上使用nettl抓包]]></title>
     <link href="http://blog.chenming.info/blog/2009/12/04/how-to-use-nettl-on-hpux/"/>
-    <updated>2009-12-04T10:16:00+08:00</updated>
+    <updated>2009-12-04T10:16:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2009/12/04/how-to-use-nettl-on-hpux</id>
     <content type="html"><![CDATA[<p>HP-UX 自己提供了抓包工具<code>nettl</code> 。
 在<code>tcpdump</code>不能用的时候它（比如<code>tcpdump</code>在HP-UX上就不能抓回环上的包）就派上用场了。</p>

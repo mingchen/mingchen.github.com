@@ -4,7 +4,7 @@
   <title><![CDATA[Category: gdb | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/gdb/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[使用gdb调试异常]]></title>
     <link href="http://blog.chenming.info/blog/2008/04/16/handle-exception-in-gdb/"/>
-    <updated>2008-04-16T22:05:00+08:00</updated>
+    <updated>2008-04-16T22:05:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2008/04/16/handle-exception-in-gdb</id>
     <content type="html"><![CDATA[<p>有时程序中有未捕获的异常会导致程序异常的行为甚至导致程序的直接退出。
 这对服务器程序来说是不可接受的。</p>

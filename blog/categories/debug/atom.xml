@@ -4,7 +4,7 @@
   <title><![CDATA[Category: debug | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/debug/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[How to setup RHEL kdump]]></title>
     <link href="http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump/"/>
-    <updated>2009-05-05T22:39:00+08:00</updated>
+    <updated>2009-05-05T22:39:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump</id>
     <content type="html"><![CDATA[<p><code>Kdump</code>是一种调试Linux内核的方法，
 用于在Linux内核出现<code>Oops</code>之后自动dump内核映像到指定位置的机制，
@@ -82,7 +82,7 @@ reboot
   <entry>
     <title type="html"><![CDATA[使用gdb调试异常]]></title>
     <link href="http://blog.chenming.info/blog/2008/04/16/handle-exception-in-gdb/"/>
-    <updated>2008-04-16T22:05:00+08:00</updated>
+    <updated>2008-04-16T22:05:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2008/04/16/handle-exception-in-gdb</id>
     <content type="html"><![CDATA[<p>有时程序中有未捕获的异常会导致程序异常的行为甚至导致程序的直接退出。
 这对服务器程序来说是不可接受的。</p>
@@ -220,7 +220,7 @@ reboot
   <entry>
     <title type="html"><![CDATA[解读Linux内核的Oops]]></title>
     <link href="http://blog.chenming.info/blog/2007/09/17/understand-linux-oops/"/>
-    <updated>2007-09-17T21:35:00+08:00</updated>
+    <updated>2007-09-17T21:35:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2007/09/17/understand-linux-oops</id>
     <content type="html"><![CDATA[<p>Oops是内核编程中比较容易遇到的问题，为了跟多的了解Oops来便于调试，我对Oops提供的信息进行一个总结，以及如何调试Oops。</p>
 
@@ -575,7 +575,7 @@ reboot
   <entry>
     <title type="html"><![CDATA[使用VMware捕获Linux的串口输出来调试内核的Oops]]></title>
     <link href="http://blog.chenming.info/blog/2007/08/15/use-vmware-debug-linux-oops/"/>
-    <updated>2007-08-15T20:19:00+08:00</updated>
+    <updated>2007-08-15T20:19:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2007/08/15/use-vmware-debug-linux-oops</id>
     <content type="html"><![CDATA[<p>Linux的Kernel在产生Oops后会默认情况下把Oops的相关信息打印在控制台上，只有通过控制台才能看到Oops的信息，而且因为受到控制台行数限制，不能完整的看到Oops的信息，这样对调试Oops很麻烦，一种方法是使用虚拟机，把串口输出指定到文件，然后再的Linux的控制台消息重定向到串口，这样可以很方便的捕获串口输出，方便调试Oops。</p>
 

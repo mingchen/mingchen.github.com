@@ -2,204 +2,208 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://blog.chenming.info/blog/2007/04/14/ntp-mini-howto/</loc>
-        <lastmod>2012-07-01T19:33:11+08:00</lastmod>
+        <lastmod>2012-07-01T04:33:11-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2007/04/15/make-putty-pretty/</loc>
-        <lastmod>2012-07-01T20:16:33+08:00</lastmod>
+        <lastmod>2012-07-01T05:16:33-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2007/04/17/debian-apt-commands/</loc>
-        <lastmod>2012-07-01T21:24:13+08:00</lastmod>
+        <lastmod>2012-07-01T06:24:13-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2007/04/24/using_windbg/</loc>
-        <lastmod>2012-07-02T10:04:31+08:00</lastmod>
+        <lastmod>2012-07-01T19:04:31-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2007/05/10/binomial-heap/</loc>
-        <lastmod>2012-07-02T10:23:17+08:00</lastmod>
+        <lastmod>2012-07-01T19:23:17-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2007/05/15/rbtree/</loc>
-        <lastmod>2012-07-02T12:06:24+08:00</lastmod>
+        <lastmod>2012-07-01T21:06:24-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2007/08/15/use-vmware-debug-linux-oops/</loc>
-        <lastmod>2012-07-02T12:12:16+08:00</lastmod>
+        <lastmod>2012-07-01T21:12:16-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2007/09/14/compile-centos-5-kernel/</loc>
-        <lastmod>2012-07-02T12:19:23+08:00</lastmod>
+        <lastmod>2012-07-01T21:19:23-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2007/09/17/understand-linux-oops/</loc>
-        <lastmod>2012-07-02T13:26:19+08:00</lastmod>
+        <lastmod>2012-07-01T22:26:19-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2007/10/15/linux-device-major-and-minor-number/</loc>
-        <lastmod>2012-07-02T20:43:31+08:00</lastmod>
+        <lastmod>2012-07-02T05:43:31-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2007/10/18/linux-tasklist-lock-undefined-issue/</loc>
-        <lastmod>2012-07-02T20:53:20+08:00</lastmod>
+        <lastmod>2012-07-02T05:53:20-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2007/11/06/handle-signal-in-shell/</loc>
-        <lastmod>2012-07-02T21:50:14+08:00</lastmod>
+        <lastmod>2012-07-02T06:50:14-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2008/02/06/setup-vnc-on-rhel/</loc>
-        <lastmod>2012-07-02T21:53:08+08:00</lastmod>
+        <lastmod>2012-07-02T06:53:08-07:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.chenming.info/blog/2008/03/08/ace-message-queue-notify-deadlock-in-reactor/
         </loc>
-        <lastmod>2012-07-02T22:04:17+08:00</lastmod>
+        <lastmod>2012-07-02T07:04:17-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2008/04/16/handle-exception-in-gdb/</loc>
-        <lastmod>2012-07-02T22:10:29+08:00</lastmod>
+        <lastmod>2012-07-02T07:10:29-07:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.chenming.info/blog/2008/11/24/sys-call-table-undefined-and-how-to-replace-syscall/
         </loc>
-        <lastmod>2012-07-02T22:25:27+08:00</lastmod>
+        <lastmod>2012-07-02T07:25:27-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2009/03/06/drbd/</loc>
-        <lastmod>2012-07-02T22:36:29+08:00</lastmod>
+        <lastmod>2012-07-02T07:36:29-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2009/05/05/how-to-setup-rhel-kdump/</loc>
-        <lastmod>2012-07-03T09:35:24+08:00</lastmod>
+        <lastmod>2012-07-02T18:35:24-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2009/09/11/when-call-register-handle-in-ace/</loc>
-        <lastmod>2012-07-03T09:40:24+08:00</lastmod>
+        <lastmod>2012-07-02T18:40:24-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2009/10/15/http-digest-auth-with-python/</loc>
-        <lastmod>2012-07-03T09:46:57+08:00</lastmod>
+        <lastmod>2012-07-02T18:46:57-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2009/10/24/the-2nd-chengdu-scrum-assemble/</loc>
-        <lastmod>2012-07-03T09:50:11+08:00</lastmod>
+        <lastmod>2012-07-02T18:50:11-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2009/11/06/write-secure-code/</loc>
-        <lastmod>2012-07-03T10:09:16+08:00</lastmod>
+        <lastmod>2012-07-02T19:09:16-07:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.chenming.info/blog/2009/11/08/using-hill-climbing-algorithm-to-solve-n-queues-problem/
         </loc>
-        <lastmod>2012-07-03T10:14:38+08:00</lastmod>
+        <lastmod>2012-07-02T19:14:38-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2009/12/04/how-to-use-nettl-on-hpux/</loc>
-        <lastmod>2012-07-03T10:30:08+08:00</lastmod>
+        <lastmod>2012-07-02T19:30:08-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2011/12/20/cookie-expries-issue-on-django-auth/</loc>
-        <lastmod>2012-07-01T12:03:47+08:00</lastmod>
+        <lastmod>2012-06-30T21:03:47-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2011/12/22/linux-reset-terminal/</loc>
-        <lastmod>2012-07-01T13:26:30+08:00</lastmod>
+        <lastmod>2012-06-30T22:26:30-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2011/12/24/jquery-tree-filter/</loc>
-        <lastmod>2012-07-01T13:10:49+08:00</lastmod>
+        <lastmod>2012-06-30T22:10:49-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2011/12/28/jquery-revert-selection/</loc>
-        <lastmod>2012-07-01T13:32:58+08:00</lastmod>
+        <lastmod>2012-06-30T22:32:58-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2011/12/29/web-developer-tools-bookmark/</loc>
-        <lastmod>2012-08-21T17:48:23+08:00</lastmod>
+        <lastmod>2012-08-21T02:48:23-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2012/01/02/how-to-use-wp7-as-usb-drive/</loc>
-        <lastmod>2012-07-01T08:56:15+08:00</lastmod>
+        <lastmod>2012-06-30T17:56:15-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2012/01/13/install-wp7-sdk-on-xp/</loc>
-        <lastmod>2012-07-01T13:16:57+08:00</lastmod>
+        <lastmod>2012-06-30T22:16:57-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2012/01/16/windows-phone-debug-message-output/</loc>
-        <lastmod>2012-07-01T13:17:43+08:00</lastmod>
+        <lastmod>2012-06-30T22:17:43-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2012/06/22/html5-resources/</loc>
-        <lastmod>2012-07-01T14:49:30+08:00</lastmod>
+        <lastmod>2012-06-30T23:49:30-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2012/06/25/learn-git/</loc>
-        <lastmod>2013-04-10T08:59:08+08:00</lastmod>
+        <lastmod>2013-12-21T07:27:03-08:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2012/06/29/install-octave-on-mac/</loc>
-        <lastmod>2012-07-18T16:12:25+08:00</lastmod>
+        <lastmod>2012-07-18T01:12:25-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2012/07/04/android-sparsearray/</loc>
-        <lastmod>2012-07-06T09:16:38+08:00</lastmod>
+        <lastmod>2012-07-05T18:16:38-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2012/07/08/python-pip-virtualenv/</loc>
-        <lastmod>2012-07-09T12:57:24+08:00</lastmod>
+        <lastmod>2012-07-08T21:57:24-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2012/07/15/learn-octave/</loc>
-        <lastmod>2012-07-18T16:18:05+08:00</lastmod>
+        <lastmod>2012-07-18T01:18:05-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2012/08/21/protobuf-ios/</loc>
-        <lastmod>2012-08-21T18:04:40+08:00</lastmod>
+        <lastmod>2012-08-21T03:04:40-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2012/08/25/python-tips/</loc>
-        <lastmod>2013-01-04T14:16:53+08:00</lastmod>
+        <lastmod>2013-01-03T22:16:53-08:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2012/09/18/android-hardware-accel/</loc>
-        <lastmod>2012-09-19T15:13:50+08:00</lastmod>
+        <lastmod>2012-09-19T00:13:50-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2012/12/12/centos-tips/</loc>
-        <lastmod>2013-01-04T10:24:35+08:00</lastmod>
+        <lastmod>2013-01-03T18:24:35-08:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2013/01/04/android-library-jar/</loc>
-        <lastmod>2013-01-04T15:22:31+08:00</lastmod>
+        <lastmod>2013-01-03T23:22:31-08:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2013/03/02/using-sphinx-to-generate-chinese-pdf/</loc>
-        <lastmod>2013-03-03T19:20:34+08:00</lastmod>
+        <lastmod>2013-03-03T03:20:34-08:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/2013/05/02/android-hack-tools/</loc>
-        <lastmod>2013-05-02T17:10:50+08:00</lastmod>
+        <lastmod>2013-05-02T02:10:50-07:00</lastmod>
+    </url>
+    <url>
+        <loc>http://blog.chenming.info/blog/2014/04/10/openssl-heartbleed-impact-on-android/</loc>
+        <lastmod>2014-04-11T11:08:10-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/about/</loc>
-        <lastmod>2012-07-08T08:40:07+08:00</lastmod>
+        <lastmod>2012-07-07T17:40:07-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/archives/</loc>
-        <lastmod>2013-05-02T17:10:50+08:00</lastmod>
+        <lastmod>2014-04-11T11:08:10-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/blog/categories/</loc>
-        <lastmod>2012-07-01T14:34:48+08:00</lastmod>
+        <lastmod>2012-06-30T23:34:48-07:00</lastmod>
     </url>
     <url>
         <loc>http://blog.chenming.info/</loc>
-        <lastmod>2013-05-02T17:10:50+08:00</lastmod>
+        <lastmod>2014-04-11T11:08:10-07:00</lastmod>
     </url>
 </urlset>

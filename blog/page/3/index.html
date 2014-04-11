@@ -9,9 +9,7 @@
   <meta name="author" content="Ming">
 
   
-  <meta name="description" content="《算法导论》第19章中介绍了二项堆，使用伪码的方式提供部分二项堆的操作算法。
-我使用c++完整实现了二项堆的相关算法，并补充实现了查找和拷贝的算法。
-对于查找，二项堆的效率并不高，所以在算法导论中甚至都没有讨论查找的算法。 如果不清楚什么事二项堆，可以参考 http://en.wikipedia. &hellip;">
+  <meta name="description" content="《算法导论》第13章 红黑树 红黑树是许多“平衡的”的查找树的中的一种。红黑树提供了非常高的查找效率。STL的内部容器就是基于红黑树实现的。 《算法导论》上红黑树算法并不完整，我使用c++完整实现了红黑树的算法。 更多的红黑树的信息参考wiki：http://en.wikipedia.org/ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -86,6 +84,2056 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2007/05/15/rbtree/">红黑树的C++实现</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-05-15T19:55:00-07:00" pubdate data-updated="true">May 15<span>th</span>, 2007</time>
+        
+         | <a href="/blog/2007/05/15/rbtree/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>《算法导论》第13章 红黑树</p>
+
+<p>红黑树是许多“平衡的”的查找树的中的一种。红黑树提供了非常高的查找效率。STL的内部容器就是基于红黑树实现的。</p>
+
+<p>《算法导论》上红黑树算法并不完整，我使用c++完整实现了红黑树的算法。</p>
+
+<p>更多的红黑树的信息参考wiki：http://en.wikipedia.org/wiki/Red_black_tree</p>
+
+<p>贴出源代码供以后参考：</p>
+
+<figure class='code'><figcaption><span> (RBTree.hpp)</span> <a href='/downloads/code/RBTree.hpp'>download</a></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+<span class='line-number'>205</span>
+<span class='line-number'>206</span>
+<span class='line-number'>207</span>
+<span class='line-number'>208</span>
+<span class='line-number'>209</span>
+<span class='line-number'>210</span>
+<span class='line-number'>211</span>
+<span class='line-number'>212</span>
+<span class='line-number'>213</span>
+<span class='line-number'>214</span>
+<span class='line-number'>215</span>
+<span class='line-number'>216</span>
+<span class='line-number'>217</span>
+<span class='line-number'>218</span>
+<span class='line-number'>219</span>
+<span class='line-number'>220</span>
+<span class='line-number'>221</span>
+<span class='line-number'>222</span>
+<span class='line-number'>223</span>
+<span class='line-number'>224</span>
+<span class='line-number'>225</span>
+<span class='line-number'>226</span>
+<span class='line-number'>227</span>
+<span class='line-number'>228</span>
+<span class='line-number'>229</span>
+<span class='line-number'>230</span>
+<span class='line-number'>231</span>
+<span class='line-number'>232</span>
+<span class='line-number'>233</span>
+<span class='line-number'>234</span>
+<span class='line-number'>235</span>
+<span class='line-number'>236</span>
+<span class='line-number'>237</span>
+<span class='line-number'>238</span>
+<span class='line-number'>239</span>
+<span class='line-number'>240</span>
+<span class='line-number'>241</span>
+<span class='line-number'>242</span>
+<span class='line-number'>243</span>
+<span class='line-number'>244</span>
+<span class='line-number'>245</span>
+<span class='line-number'>246</span>
+<span class='line-number'>247</span>
+<span class='line-number'>248</span>
+<span class='line-number'>249</span>
+<span class='line-number'>250</span>
+<span class='line-number'>251</span>
+<span class='line-number'>252</span>
+<span class='line-number'>253</span>
+<span class='line-number'>254</span>
+<span class='line-number'>255</span>
+<span class='line-number'>256</span>
+<span class='line-number'>257</span>
+<span class='line-number'>258</span>
+<span class='line-number'>259</span>
+<span class='line-number'>260</span>
+<span class='line-number'>261</span>
+<span class='line-number'>262</span>
+<span class='line-number'>263</span>
+<span class='line-number'>264</span>
+<span class='line-number'>265</span>
+<span class='line-number'>266</span>
+<span class='line-number'>267</span>
+<span class='line-number'>268</span>
+<span class='line-number'>269</span>
+<span class='line-number'>270</span>
+<span class='line-number'>271</span>
+<span class='line-number'>272</span>
+<span class='line-number'>273</span>
+<span class='line-number'>274</span>
+<span class='line-number'>275</span>
+<span class='line-number'>276</span>
+<span class='line-number'>277</span>
+<span class='line-number'>278</span>
+<span class='line-number'>279</span>
+<span class='line-number'>280</span>
+<span class='line-number'>281</span>
+<span class='line-number'>282</span>
+<span class='line-number'>283</span>
+<span class='line-number'>284</span>
+<span class='line-number'>285</span>
+<span class='line-number'>286</span>
+<span class='line-number'>287</span>
+<span class='line-number'>288</span>
+<span class='line-number'>289</span>
+<span class='line-number'>290</span>
+<span class='line-number'>291</span>
+<span class='line-number'>292</span>
+<span class='line-number'>293</span>
+<span class='line-number'>294</span>
+<span class='line-number'>295</span>
+<span class='line-number'>296</span>
+<span class='line-number'>297</span>
+<span class='line-number'>298</span>
+<span class='line-number'>299</span>
+<span class='line-number'>300</span>
+<span class='line-number'>301</span>
+<span class='line-number'>302</span>
+<span class='line-number'>303</span>
+<span class='line-number'>304</span>
+<span class='line-number'>305</span>
+<span class='line-number'>306</span>
+<span class='line-number'>307</span>
+<span class='line-number'>308</span>
+<span class='line-number'>309</span>
+<span class='line-number'>310</span>
+<span class='line-number'>311</span>
+<span class='line-number'>312</span>
+<span class='line-number'>313</span>
+<span class='line-number'>314</span>
+<span class='line-number'>315</span>
+<span class='line-number'>316</span>
+<span class='line-number'>317</span>
+<span class='line-number'>318</span>
+<span class='line-number'>319</span>
+<span class='line-number'>320</span>
+<span class='line-number'>321</span>
+<span class='line-number'>322</span>
+<span class='line-number'>323</span>
+<span class='line-number'>324</span>
+<span class='line-number'>325</span>
+<span class='line-number'>326</span>
+<span class='line-number'>327</span>
+<span class='line-number'>328</span>
+<span class='line-number'>329</span>
+<span class='line-number'>330</span>
+<span class='line-number'>331</span>
+<span class='line-number'>332</span>
+<span class='line-number'>333</span>
+<span class='line-number'>334</span>
+<span class='line-number'>335</span>
+<span class='line-number'>336</span>
+<span class='line-number'>337</span>
+<span class='line-number'>338</span>
+<span class='line-number'>339</span>
+<span class='line-number'>340</span>
+<span class='line-number'>341</span>
+<span class='line-number'>342</span>
+<span class='line-number'>343</span>
+<span class='line-number'>344</span>
+<span class='line-number'>345</span>
+<span class='line-number'>346</span>
+<span class='line-number'>347</span>
+<span class='line-number'>348</span>
+<span class='line-number'>349</span>
+<span class='line-number'>350</span>
+<span class='line-number'>351</span>
+<span class='line-number'>352</span>
+<span class='line-number'>353</span>
+<span class='line-number'>354</span>
+<span class='line-number'>355</span>
+<span class='line-number'>356</span>
+<span class='line-number'>357</span>
+<span class='line-number'>358</span>
+<span class='line-number'>359</span>
+<span class='line-number'>360</span>
+<span class='line-number'>361</span>
+<span class='line-number'>362</span>
+<span class='line-number'>363</span>
+<span class='line-number'>364</span>
+<span class='line-number'>365</span>
+<span class='line-number'>366</span>
+<span class='line-number'>367</span>
+<span class='line-number'>368</span>
+<span class='line-number'>369</span>
+<span class='line-number'>370</span>
+<span class='line-number'>371</span>
+<span class='line-number'>372</span>
+<span class='line-number'>373</span>
+<span class='line-number'>374</span>
+<span class='line-number'>375</span>
+<span class='line-number'>376</span>
+<span class='line-number'>377</span>
+<span class='line-number'>378</span>
+<span class='line-number'>379</span>
+<span class='line-number'>380</span>
+<span class='line-number'>381</span>
+<span class='line-number'>382</span>
+<span class='line-number'>383</span>
+<span class='line-number'>384</span>
+<span class='line-number'>385</span>
+<span class='line-number'>386</span>
+<span class='line-number'>387</span>
+<span class='line-number'>388</span>
+<span class='line-number'>389</span>
+<span class='line-number'>390</span>
+<span class='line-number'>391</span>
+<span class='line-number'>392</span>
+<span class='line-number'>393</span>
+<span class='line-number'>394</span>
+<span class='line-number'>395</span>
+<span class='line-number'>396</span>
+<span class='line-number'>397</span>
+<span class='line-number'>398</span>
+<span class='line-number'>399</span>
+<span class='line-number'>400</span>
+<span class='line-number'>401</span>
+<span class='line-number'>402</span>
+<span class='line-number'>403</span>
+<span class='line-number'>404</span>
+<span class='line-number'>405</span>
+<span class='line-number'>406</span>
+<span class='line-number'>407</span>
+<span class='line-number'>408</span>
+<span class='line-number'>409</span>
+<span class='line-number'>410</span>
+<span class='line-number'>411</span>
+<span class='line-number'>412</span>
+<span class='line-number'>413</span>
+<span class='line-number'>414</span>
+<span class='line-number'>415</span>
+<span class='line-number'>416</span>
+<span class='line-number'>417</span>
+<span class='line-number'>418</span>
+<span class='line-number'>419</span>
+<span class='line-number'>420</span>
+<span class='line-number'>421</span>
+<span class='line-number'>422</span>
+<span class='line-number'>423</span>
+<span class='line-number'>424</span>
+<span class='line-number'>425</span>
+<span class='line-number'>426</span>
+<span class='line-number'>427</span>
+<span class='line-number'>428</span>
+<span class='line-number'>429</span>
+<span class='line-number'>430</span>
+<span class='line-number'>431</span>
+<span class='line-number'>432</span>
+<span class='line-number'>433</span>
+<span class='line-number'>434</span>
+<span class='line-number'>435</span>
+<span class='line-number'>436</span>
+<span class='line-number'>437</span>
+<span class='line-number'>438</span>
+<span class='line-number'>439</span>
+<span class='line-number'>440</span>
+<span class='line-number'>441</span>
+<span class='line-number'>442</span>
+<span class='line-number'>443</span>
+<span class='line-number'>444</span>
+<span class='line-number'>445</span>
+<span class='line-number'>446</span>
+<span class='line-number'>447</span>
+<span class='line-number'>448</span>
+<span class='line-number'>449</span>
+<span class='line-number'>450</span>
+<span class='line-number'>451</span>
+<span class='line-number'>452</span>
+<span class='line-number'>453</span>
+<span class='line-number'>454</span>
+<span class='line-number'>455</span>
+<span class='line-number'>456</span>
+<span class='line-number'>457</span>
+<span class='line-number'>458</span>
+<span class='line-number'>459</span>
+<span class='line-number'>460</span>
+<span class='line-number'>461</span>
+<span class='line-number'>462</span>
+<span class='line-number'>463</span>
+<span class='line-number'>464</span>
+<span class='line-number'>465</span>
+<span class='line-number'>466</span>
+<span class='line-number'>467</span>
+<span class='line-number'>468</span>
+<span class='line-number'>469</span>
+<span class='line-number'>470</span>
+<span class='line-number'>471</span>
+<span class='line-number'>472</span>
+<span class='line-number'>473</span>
+<span class='line-number'>474</span>
+<span class='line-number'>475</span>
+<span class='line-number'>476</span>
+<span class='line-number'>477</span>
+<span class='line-number'>478</span>
+<span class='line-number'>479</span>
+<span class='line-number'>480</span>
+<span class='line-number'>481</span>
+<span class='line-number'>482</span>
+<span class='line-number'>483</span>
+<span class='line-number'>484</span>
+<span class='line-number'>485</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cm">/** </span>
+</span><span class='line'><span class="cm"> * Copyright (c) 2005-2006</span>
+</span><span class='line'><span class="cm"> * Mockey Chen &lt;mockey.chen_AT_gmail.com&gt;  All rights reserved.</span>
+</span><span class='line'><span class="cm"> * </span>
+</span><span class='line'><span class="cm"> * Redistribution and use in source and binary forms, with or without</span>
+</span><span class='line'><span class="cm"> * modification, are permitted provided that the following conditions</span>
+</span><span class='line'><span class="cm"> * are met:</span>
+</span><span class='line'><span class="cm"> * 1. Redistributions of source code must retain the above copyright</span>
+</span><span class='line'><span class="cm"> *   notice, this list of conditions and the following disclaimer.</span>
+</span><span class='line'><span class="cm"> * 2. Redistributions in binary form must reproduce the above copyright</span>
+</span><span class='line'><span class="cm"> *   notice, this list of conditions and the following disclaimer in the</span>
+</span><span class='line'><span class="cm"> *   documentation and/or other materials provided with the distribution.</span>
+</span><span class='line'><span class="cm"> * </span>
+</span><span class='line'><span class="cm"> * THIS SOFTWARE IS PROVIDED BY Mockey Chen &lt;mockey.chen_AT_gmail.com&gt; </span>
+</span><span class='line'><span class="cm"> * ``AS IS&#39;&#39; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT</span>
+</span><span class='line'><span class="cm"> * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR</span>
+</span><span class='line'><span class="cm"> * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT, ARE DISCLAIMED.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#ifndef CM_RBTREE_HPP</span>
+</span><span class='line'><span class="cp">#define CM_RBTREE_HPP 1</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &quot;BinarySearchTree.hpp&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">namespace</span> <span class="n">cm</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="cm">/**</span>
+</span><span class='line'><span class="cm">   * 红黑树 &lt;&lt;算法导论&gt;&gt; 第 13 章</span>
+</span><span class='line'><span class="cm">   *</span>
+</span><span class='line'><span class="cm">   * 红黑树的特性：</span>
+</span><span class='line'><span class="cm">   *  - 根节点是黑色的</span>
+</span><span class='line'><span class="cm">   *  - 所有的叶子节点(NIL)是黑色的</span>
+</span><span class='line'><span class="cm">   *  - 所有红色节点的子节点是黑色的</span>
+</span><span class='line'><span class="cm">   *  - 对每个节点，从该节点到其子孙节点的所有路径上包含相同数目的黑节点</span>
+</span><span class='line'><span class="cm">   */</span>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">class</span> <span class="nc">RBTreeNode</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">class</span> <span class="nc">RBTreeIterator</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">class</span> <span class="nc">RBTree</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">RBTreeNode</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">typedef</span> <span class="n">T</span> <span class="n">VALUE_TYPE</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">enum</span> <span class="n">Color_t</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">COLOR_BLACK</span><span class="p">,</span>
+</span><span class='line'>          <span class="n">COLOR_RED</span>
+</span><span class='line'>        <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">explicit</span> <span class="n">RBTreeNode</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">v</span><span class="o">=</span><span class="n">T</span><span class="p">(),</span> <span class="n">Color_t</span> <span class="n">c</span><span class="o">=</span><span class="n">COLOR_BLACK</span><span class="p">)</span>
+</span><span class='line'>          <span class="o">:</span> <span class="n">value_</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">left_</span><span class="p">(</span><span class="n">NIL</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">right_</span><span class="p">(</span><span class="n">NIL</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">parent_</span><span class="p">(</span><span class="n">NIL</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">color_</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">left</span><span class="p">()</span>  <span class="p">{</span>  <span class="k">return</span> <span class="n">left_</span><span class="p">;</span>   <span class="p">}</span>
+</span><span class='line'>        <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">right</span><span class="p">()</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">right_</span><span class="p">;</span>  <span class="p">}</span>
+</span><span class='line'>        <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">parent</span><span class="p">(){</span>  <span class="k">return</span> <span class="n">parent_</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>        <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">left</span><span class="p">()</span>   <span class="k">const</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">left_</span><span class="p">;</span>   <span class="p">}</span>
+</span><span class='line'>        <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">right</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">right_</span><span class="p">;</span>  <span class="p">}</span>
+</span><span class='line'>        <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">parent</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">parent_</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>        <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span>     <span class="n">value</span><span class="p">()</span>        <span class="k">const</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">value_</span><span class="p">;</span>  <span class="p">}</span>
+</span><span class='line'>        <span class="n">Color_t</span> <span class="n">color</span><span class="p">()</span>             <span class="k">const</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">color_</span><span class="p">;</span>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">left</span><span class="p">(</span><span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">node</span><span class="p">)</span>  <span class="p">{</span>  <span class="n">left_</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>   <span class="p">}</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">right</span><span class="p">(</span><span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">node</span><span class="p">)</span> <span class="p">{</span>  <span class="n">right_</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>  <span class="p">}</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">parent</span><span class="p">(</span><span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">node</span><span class="p">){</span>  <span class="n">parent_</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">value</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>          <span class="p">{</span>  <span class="n">value_</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">color</span><span class="p">(</span><span class="n">Color_t</span> <span class="n">c</span><span class="p">)</span>               <span class="p">{</span> <span class="n">color_</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="k">this</span> <span class="o">!=</span> <span class="n">NIL</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">bool</span> <span class="k">operator</span> <span class="o">!</span><span class="p">()</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="k">this</span> <span class="o">==</span> <span class="n">NIL</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">static</span> <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">NIL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">private</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">T</span>            <span class="n">value_</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">left_</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">right_</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">parent_</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">Color_t</span> <span class="n">color_</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">///  哨兵节点，颜色为黑色</span>
+</span><span class='line'>  <span class="c1">// static </span>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">NIL</span><span class="p">(</span><span class="k">new</span> <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">RBTree</span><span class="o">:</span> <span class="k">public</span> <span class="n">BinarySearchTree_T</span><span class="o">&lt;</span> <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">&gt;</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>      <span class="k">typedef</span> <span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Node</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">/// 黑高度</span>
+</span><span class='line'>      <span class="n">size_t</span> <span class="n">bh</span><span class="p">()</span> <span class="k">const</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">bh</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">getRoot</span><span class="p">());</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">/// 节点node的黑高度：从节点node出发，到达其一个叶节点的黑节点个数</span>
+</span><span class='line'>      <span class="n">size_t</span> <span class="n">bh</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span><span class="o">*</span> <span class="n">node</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">n</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">size_t</span> <span class="n">h</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">while</span> <span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="o">++</span><span class="n">h</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">h</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// 如果插入成功返回1；如果key已经存在，返回0。</span>
+</span><span class='line'>      <span class="n">size_t</span> <span class="n">insert</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">z</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Node</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">);</span>    <span class="c1">// 要插入的节点</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">;</span>    <span class="c1">// y 是 x 的父节点</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">x</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">();</span>
+</span><span class='line'>        <span class="k">while</span> <span class="p">(</span><span class="n">x</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="c1">// 如果已经存在，直接返回</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="o">==</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="o">&lt;</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">();</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">();</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">root_</span> <span class="o">=</span> <span class="n">z</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">root_</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="n">key</span> <span class="o">&lt;</span> <span class="n">y</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">(</span><span class="n">z</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">(</span><span class="n">z</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">z</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">z</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 对节点重新进行着色并旋转</span>
+</span><span class='line'>        <span class="n">insert_fixup</span><span class="p">(</span><span class="n">z</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="o">++</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">size_</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kt">void</span> <span class="n">remove</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">x</span> <span class="o">=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">z</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span> <span class="o">||</span> <span class="n">z</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">y</span> <span class="o">=</span> <span class="n">z</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="c1">//y = this-&gt;successor(z);</span>
+</span><span class='line'>          <span class="n">y</span> <span class="o">=</span> <span class="n">z</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">();</span>
+</span><span class='line'>          <span class="k">while</span> <span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">();</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// x 是 y的唯一孩子</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">x</span> <span class="o">=</span> <span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">x</span> <span class="o">=</span> <span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">root_</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">!=</span> <span class="n">z</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">z</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">delete_fixup</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">delete</span> <span class="n">y</span><span class="p">;</span>
+</span><span class='line'>        <span class="o">--</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">size_</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">/// 如果key存在，删除并返回1，否则返回0</span>
+</span><span class='line'>      <span class="n">size_t</span> <span class="n">remove</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">node</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="p">);</span>
+</span><span class='line'>          <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">private</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="cm">/**</span>
+</span><span class='line'><span class="cm">       * 左旋:</span>
+</span><span class='line'><span class="cm">       * 前提条件：y的右孩子不为NIL</span>
+</span><span class='line'><span class="cm">       *</span>
+</span><span class='line'><span class="cm">       *        |                 |</span>
+</span><span class='line'><span class="cm">       *        x                 y</span>
+</span><span class='line'><span class="cm">       *       / \      =&gt;       / \</span>
+</span><span class='line'><span class="cm">       *      a   y             x   c </span>
+</span><span class='line'><span class="cm">       *         / \           / \</span>
+</span><span class='line'><span class="cm">       *        b   c         a   b</span>
+</span><span class='line'><span class="cm">       * </span>
+</span><span class='line'><span class="cm">       */</span>
+</span><span class='line'>      <span class="kt">void</span> <span class="n">left_rotate</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 把y的左子数变成x的右子树</span>
+</span><span class='line'>        <span class="n">x</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">root_</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 把x变成y的左子节点</span>
+</span><span class='line'>        <span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="cm">/**</span>
+</span><span class='line'><span class="cm">       * 右旋:</span>
+</span><span class='line'><span class="cm">       * 前提条件：y的左孩子不为NIL</span>
+</span><span class='line'><span class="cm">       *</span>
+</span><span class='line'><span class="cm">       *        |                 |</span>
+</span><span class='line'><span class="cm">       *        x                 y</span>
+</span><span class='line'><span class="cm">       *       / \      =&gt;       / \  </span>
+</span><span class='line'><span class="cm">       *      y   c             a   x</span>
+</span><span class='line'><span class="cm">       *     / \                   / \</span>
+</span><span class='line'><span class="cm">       *    a   b                 b   c</span>
+</span><span class='line'><span class="cm">       * </span>
+</span><span class='line'><span class="cm">       */</span>
+</span><span class='line'>      <span class="kt">void</span> <span class="n">right_rotate</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 把y的右子数变成x的左子树</span>
+</span><span class='line'>        <span class="n">x</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">root_</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kt">void</span> <span class="n">insert_fixup</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">while</span> <span class="p">(</span><span class="n">z</span> <span class="o">!=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span> <span class="o">==</span> <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">y</span> <span class="o">=</span> <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">();</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">y</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">();</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>              <span class="k">if</span> <span class="p">(</span><span class="n">z</span> <span class="o">==</span> <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">();</span>
+</span><span class='line'>                <span class="k">this</span><span class="o">-&gt;</span><span class="n">left_rotate</span><span class="p">(</span><span class="n">z</span><span class="p">);</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>              <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">);</span>
+</span><span class='line'>              <span class="k">this</span><span class="o">-&gt;</span><span class="n">right_rotate</span><span class="p">(</span><span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">());</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">y</span> <span class="o">=</span> <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">();</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">y</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">();</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>              <span class="k">if</span> <span class="p">(</span><span class="n">z</span> <span class="o">==</span> <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">();</span>
+</span><span class='line'>                <span class="k">this</span><span class="o">-&gt;</span><span class="n">right_rotate</span><span class="p">(</span><span class="n">z</span><span class="p">);</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>              <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">);</span>
+</span><span class='line'>              <span class="k">this</span><span class="o">-&gt;</span><span class="n">left_rotate</span><span class="p">(</span><span class="n">z</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">());</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kt">void</span> <span class="n">delete_fixup</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">w</span> <span class="o">=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">while</span> <span class="p">(</span><span class="n">x</span> <span class="o">!=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">w</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">();</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">w</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">w</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">);</span>
+</span><span class='line'>              <span class="k">this</span><span class="o">-&gt;</span><span class="n">left_rotate</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">());</span>
+</span><span class='line'>              <span class="n">w</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">();</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">w</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span> <span class="o">&amp;&amp;</span> <span class="n">w</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">w</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">();</span>
+</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>              <span class="k">if</span> <span class="p">(</span><span class="n">w</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">w</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">w</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">right_rotate</span><span class="p">(</span><span class="n">w</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">w</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">();</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>              <span class="n">w</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">());</span>
+</span><span class='line'>              <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">w</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">left_rotate</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">());</span>
+</span><span class='line'>              <span class="n">x</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">();</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">w</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">();</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">w</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">w</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">right_rotate</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">());</span>
+</span><span class='line'>              <span class="n">w</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">();</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">w</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span> <span class="o">&amp;&amp;</span> <span class="n">w</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">w</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">();</span>
+</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>              <span class="k">if</span> <span class="p">(</span><span class="n">w</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">w</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">w</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_RED</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">left_rotate</span><span class="p">(</span><span class="n">w</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">w</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">();</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>              <span class="n">w</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">());</span>
+</span><span class='line'>              <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">w</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>              <span class="n">right_rotate</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">());</span>
+</span><span class='line'>              <span class="n">x</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">();</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">x</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">COLOR_BLACK</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">RBTreeIterator</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">RBTreeIterator</span><span class="p">()</span>
+</span><span class='line'>          <span class="o">:</span> <span class="n">tree_</span><span class="p">(</span><span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">NIL</span><span class="p">),</span> <span class="n">current_</span><span class="p">(</span><span class="n">RBTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">NIL</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">RBTreeIterator</span><span class="p">(</span><span class="n">RBTree</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">tree</span><span class="p">,</span> <span class="k">typename</span> <span class="n">RBTree</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">Node</span><span class="o">*</span> <span class="n">current</span><span class="p">)</span>
+</span><span class='line'>          <span class="o">:</span> <span class="n">tree_</span><span class="p">(</span><span class="n">tree</span><span class="p">),</span> <span class="n">current_</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="n">current_</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">T</span><span class="o">*</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="n">current_</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span> <span class="n">RBTreeIterator</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="n">current_</span> <span class="o">==</span> <span class="n">rhs</span><span class="p">.</span><span class="n">current_</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">bool</span> <span class="k">operator</span><span class="o">!=</span><span class="p">(</span><span class="k">const</span> <span class="n">RBTreeIterator</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="n">current_</span> <span class="o">!=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">current_</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">/// 操作符 ++it</span>
+</span><span class='line'>        <span class="n">RBTreeIterator</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">++</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="n">current_</span> <span class="o">=</span> <span class="n">tree_</span><span class="p">.</span><span class="n">successor</span><span class="p">(</span><span class="n">current_</span><span class="p">);</span>
+</span><span class='line'>          <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">private</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">RBTree</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">tree_</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">typename</span> <span class="n">RBTree</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">Node</span><span class="o">*</span> <span class="n">current_</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span> <span class="c1">// end namespace cm</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#endif </span><span class="c1">// CM_RBTREE_HPP</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<figure class='code'><figcaption><span> (BinarySearchTree.hpp)</span> <a href='/downloads/code/BinarySearchTree.hpp'>download</a></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+<span class='line-number'>205</span>
+<span class='line-number'>206</span>
+<span class='line-number'>207</span>
+<span class='line-number'>208</span>
+<span class='line-number'>209</span>
+<span class='line-number'>210</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#ifndef CM_BINARYSEARCHTREE_HPP</span>
+</span><span class='line'><span class="cp">#define CM_BINARYSEARCHTREE_HPP</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &quot;BinaryTree.hpp&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">namespace</span> <span class="n">cm</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">/// 算法导论 第12章 二叉查找树</span>
+</span><span class='line'>  <span class="c1">/// </span>
+</span><span class='line'>  <span class="c1">/// 特性：</span>
+</span><span class='line'>  <span class="c1">/// 左节点 &lt; 父节点 &lt; 右节点</span>
+</span><span class='line'>  <span class="c1">/// </span>
+</span><span class='line'>  <span class="c1">/// BinarySearchTree_T 是 BinarySearchTree 和 RBTree 的父类</span>
+</span><span class='line'>  <span class="c1">/// </span>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">NODE</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">BinarySearchTree_T</span> <span class="o">:</span> <span class="k">public</span> <span class="n">BinaryTree</span><span class="o">&lt;</span><span class="n">NODE</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">NODE</span> <span class="n">Node</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>      <span class="n">Node</span><span class="o">*</span> <span class="n">find</span><span class="p">(</span><span class="k">const</span> <span class="k">typename</span> <span class="n">Node</span><span class="o">::</span><span class="n">VALUE_TYPE</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">node</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">();</span>
+</span><span class='line'>        <span class="k">while</span> <span class="p">(</span><span class="n">node</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span> <span class="o">&amp;&amp;</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">()</span> <span class="o">!=</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">())</span>
+</span><span class='line'>            <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">();</span>
+</span><span class='line'>          <span class="k">else</span>
+</span><span class='line'>            <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">node</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">/// 返回节点x的后继</span>
+</span><span class='line'>      <span class="n">Node</span><span class="o">*</span> <span class="n">successor</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// 有右子树</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">min</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 没有右子树</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">();</span>
+</span><span class='line'>        <span class="k">while</span> <span class="p">((</span><span class="n">y</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">x</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
+</span><span class='line'>          <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">y</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">Node</span><span class="o">*</span> <span class="n">min</span><span class="p">()</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">min</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">());</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">Node</span><span class="o">*</span> <span class="n">min</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">node</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">while</span> <span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">();</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">node</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">Node</span><span class="o">*</span> <span class="n">max</span><span class="p">()</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">max</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">());</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">Node</span><span class="o">*</span> <span class="n">max</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">node</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">while</span> <span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">();</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">node</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="cm">/**</span>
+</span><span class='line'><span class="cm">   *  最基本的二叉查找树</span>
+</span><span class='line'><span class="cm">   */</span>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">BinarySearchTree</span> <span class="o">:</span> <span class="k">public</span> <span class="n">BinarySearchTree_T</span><span class="o">&lt;</span> <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">&gt;</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>      <span class="k">typedef</span> <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Node</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>      <span class="n">BinarySearchTree</span><span class="p">()</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="o">~</span><span class="n">BinarySearchTree</span><span class="p">()</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">BinarySearchTree</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">insert</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">node</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Node</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">x</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">();</span>
+</span><span class='line'>        <span class="k">while</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">();</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">();</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">node</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="c1">// Empty tree.</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">root_</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">y</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">(</span><span class="n">node</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">(</span><span class="n">node</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="o">++</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">size_</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">/// 返回节点x的前驱</span>
+</span><span class='line'>      <span class="n">Node</span><span class="o">*</span> <span class="n">predecessor</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// TODO:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">/// 删除一个值</span>
+</span><span class='line'>      <span class="n">size_t</span> <span class="n">remove</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">node</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">find</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">this</span><span class="o">-&gt;</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">/// 删除一个已经存在的节点</span>
+</span><span class='line'>      <span class="k">virtual</span> <span class="kt">void</span> <span class="n">remove</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">node</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>  <span class="c1">// 后继，y是真正要删除的节点</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>  <span class="c1">// y 的子节点</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span> <span class="o">||</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">y</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">y</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">successor</span><span class="p">(</span><span class="n">node</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">x</span> <span class="o">=</span> <span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">x</span> <span class="o">=</span> <span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 把节点y移除</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">root_</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">y</span> <span class="o">!=</span> <span class="n">node</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="c1">// 拷贝y的值到node</span>
+</span><span class='line'>          <span class="n">node</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">delete</span> <span class="n">y</span><span class="p">;</span>
+</span><span class='line'>        <span class="o">--</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">size_</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span> <span class="c1">// end namespace cm</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#endif </span><span class="c1">// CM_BINARYSEARCHTREE_HPP</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<figure class='code'><figcaption><span> (BinaryTree.hpp)</span> <a href='/downloads/code/BinaryTree.hpp'>download</a></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+<span class='line-number'>205</span>
+<span class='line-number'>206</span>
+<span class='line-number'>207</span>
+<span class='line-number'>208</span>
+<span class='line-number'>209</span>
+<span class='line-number'>210</span>
+<span class='line-number'>211</span>
+<span class='line-number'>212</span>
+<span class='line-number'>213</span>
+<span class='line-number'>214</span>
+<span class='line-number'>215</span>
+<span class='line-number'>216</span>
+<span class='line-number'>217</span>
+<span class='line-number'>218</span>
+<span class='line-number'>219</span>
+<span class='line-number'>220</span>
+<span class='line-number'>221</span>
+<span class='line-number'>222</span>
+<span class='line-number'>223</span>
+<span class='line-number'>224</span>
+<span class='line-number'>225</span>
+<span class='line-number'>226</span>
+<span class='line-number'>227</span>
+<span class='line-number'>228</span>
+<span class='line-number'>229</span>
+<span class='line-number'>230</span>
+<span class='line-number'>231</span>
+<span class='line-number'>232</span>
+<span class='line-number'>233</span>
+<span class='line-number'>234</span>
+<span class='line-number'>235</span>
+<span class='line-number'>236</span>
+<span class='line-number'>237</span>
+<span class='line-number'>238</span>
+<span class='line-number'>239</span>
+<span class='line-number'>240</span>
+<span class='line-number'>241</span>
+<span class='line-number'>242</span>
+<span class='line-number'>243</span>
+<span class='line-number'>244</span>
+<span class='line-number'>245</span>
+<span class='line-number'>246</span>
+<span class='line-number'>247</span>
+<span class='line-number'>248</span>
+<span class='line-number'>249</span>
+<span class='line-number'>250</span>
+<span class='line-number'>251</span>
+<span class='line-number'>252</span>
+<span class='line-number'>253</span>
+<span class='line-number'>254</span>
+<span class='line-number'>255</span>
+<span class='line-number'>256</span>
+<span class='line-number'>257</span>
+<span class='line-number'>258</span>
+<span class='line-number'>259</span>
+<span class='line-number'>260</span>
+<span class='line-number'>261</span>
+<span class='line-number'>262</span>
+<span class='line-number'>263</span>
+<span class='line-number'>264</span>
+<span class='line-number'>265</span>
+<span class='line-number'>266</span>
+<span class='line-number'>267</span>
+<span class='line-number'>268</span>
+<span class='line-number'>269</span>
+<span class='line-number'>270</span>
+<span class='line-number'>271</span>
+<span class='line-number'>272</span>
+<span class='line-number'>273</span>
+<span class='line-number'>274</span>
+<span class='line-number'>275</span>
+<span class='line-number'>276</span>
+<span class='line-number'>277</span>
+<span class='line-number'>278</span>
+<span class='line-number'>279</span>
+<span class='line-number'>280</span>
+<span class='line-number'>281</span>
+<span class='line-number'>282</span>
+<span class='line-number'>283</span>
+<span class='line-number'>284</span>
+<span class='line-number'>285</span>
+<span class='line-number'>286</span>
+<span class='line-number'>287</span>
+<span class='line-number'>288</span>
+<span class='line-number'>289</span>
+<span class='line-number'>290</span>
+<span class='line-number'>291</span>
+<span class='line-number'>292</span>
+<span class='line-number'>293</span>
+<span class='line-number'>294</span>
+<span class='line-number'>295</span>
+<span class='line-number'>296</span>
+<span class='line-number'>297</span>
+<span class='line-number'>298</span>
+<span class='line-number'>299</span>
+<span class='line-number'>300</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#ifndef CM_BINARYTREE_HPP</span>
+</span><span class='line'><span class="cp">#define CM_BINARYTREE_HPP 1</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;ostream&gt;</span>
+</span><span class='line'><span class="cp">#include &quot;Util.hpp&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">namespace</span> <span class="n">cm</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">/// 二叉树节点</span>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">BinaryTreeNode</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">typedef</span> <span class="n">T</span> <span class="n">VALUE_TYPE</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">static</span> <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">NIL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">explicit</span> <span class="n">BinaryTreeNode</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>          <span class="o">:</span> <span class="n">value_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">left_</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">right_</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">parent_</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">left</span><span class="p">()</span>  <span class="p">{</span>  <span class="k">return</span> <span class="n">left_</span><span class="p">;</span>   <span class="p">}</span>
+</span><span class='line'>        <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">right</span><span class="p">()</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">right_</span><span class="p">;</span>  <span class="p">}</span>
+</span><span class='line'>        <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">parent</span><span class="p">(){</span>  <span class="k">return</span> <span class="n">parent_</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>        <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">left</span><span class="p">()</span>   <span class="k">const</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">left_</span><span class="p">;</span>   <span class="p">}</span>
+</span><span class='line'>        <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">right</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">right_</span><span class="p">;</span>  <span class="p">}</span>
+</span><span class='line'>        <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">parent</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">parent_</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>        <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span>     <span class="n">value</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>  <span class="k">return</span> <span class="n">value_</span><span class="p">;</span>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">left</span><span class="p">(</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">node</span><span class="p">)</span>  <span class="p">{</span>  <span class="n">left_</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>   <span class="p">}</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">right</span><span class="p">(</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">node</span><span class="p">)</span> <span class="p">{</span>  <span class="n">right_</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>  <span class="p">}</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">parent</span><span class="p">(</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">node</span><span class="p">){</span>  <span class="n">parent_</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">value</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>          <span class="p">{</span>  <span class="n">value_</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">private</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">T</span>            <span class="n">value_</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">left_</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">right_</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">parent_</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;*</span> <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">NIL</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">/// 二叉树</span>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">NODE</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">BinaryTree</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">typedef</span> <span class="n">NODE</span> <span class="n">Node</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">BinaryTree</span><span class="p">()</span>
+</span><span class='line'>          <span class="o">:</span> <span class="n">root_</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">size_</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">BinaryTree</span><span class="p">(</span><span class="k">const</span> <span class="n">BinaryTree</span><span class="o">&lt;</span><span class="n">NODE</span><span class="o">&gt;&amp;</span> <span class="n">rhs</span><span class="p">)</span>
+</span><span class='line'>          <span class="o">:</span> <span class="n">root_</span><span class="p">(</span><span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">size_</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">root_</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">copy</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">root</span><span class="p">());</span>
+</span><span class='line'>          <span class="n">size_</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">BinaryTree</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">BinaryTree</span><span class="o">&lt;</span><span class="n">NODE</span><span class="o">&gt;&amp;</span> <span class="n">rhs</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">rhs</span> <span class="o">==</span> <span class="k">this</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">destroy</span><span class="p">();</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">root_</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">copy</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">root</span><span class="p">());</span>
+</span><span class='line'>          <span class="n">size_</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">virtual</span> <span class="o">~</span><span class="n">BinaryTree</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">destroy</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">size_t</span> <span class="n">size</span><span class="p">()</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">size_</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">bool</span> <span class="n">is_empty</span><span class="p">()</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">()</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">/// 返回树的高度</span>
+</span><span class='line'>        <span class="c1">/// 空树的高度为0</span>
+</span><span class='line'>        <span class="c1">/// 根节点的高度为1</span>
+</span><span class='line'>        <span class="n">size_t</span> <span class="n">height</span><span class="p">()</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">height</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">destroy</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">destroy</span><span class="p">(</span><span class="n">root_</span><span class="p">);</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">root_</span> <span class="o">=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">size_</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">/// 中序遍历二叉树。</span>
+</span><span class='line'>        <span class="c1">/// 如果是是二叉排序的数，则是按排序后的结果遍历</span>
+</span><span class='line'>        <span class="c1">///</span>
+</span><span class='line'>        <span class="c1">/// FUNC 需要实现 int operator()(const NODE&amp; node);</span>
+</span><span class='line'>        <span class="c1">/// 一个实现示例:</span>
+</span><span class='line'>        <span class="c1">///</span>
+</span><span class='line'>        <span class="c1">/// class TreePrintWalker</span>
+</span><span class='line'>        <span class="c1">/// {</span>
+</span><span class='line'>        <span class="c1">///  public:</span>
+</span><span class='line'>        <span class="c1">///    template&lt;typename NODE&gt;</span>
+</span><span class='line'>        <span class="c1">///      void operator()(NODE node) </span>
+</span><span class='line'>        <span class="c1">///      {</span>
+</span><span class='line'>        <span class="c1">///        std::cout &lt;&lt; node-&gt;value() &lt;&lt; &#39; &#39;;</span>
+</span><span class='line'>        <span class="c1">///      }</span>
+</span><span class='line'>        <span class="c1">/// };</span>
+</span><span class='line'>        <span class="c1">///</span>
+</span><span class='line'>        <span class="c1">/// 如果walker返回非0值，则停止遍历</span>
+</span><span class='line'>        <span class="c1">///</span>
+</span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">FUNC</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="kt">void</span> <span class="n">inorder_traverse</span><span class="p">(</span><span class="n">FUNC</span> <span class="n">walker</span><span class="p">)</span>
+</span><span class='line'>          <span class="p">{</span>
+</span><span class='line'>            <span class="k">this</span><span class="o">-&gt;</span><span class="n">inorder_traverse</span><span class="p">(</span><span class="n">walker</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">());</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">FUNC</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="kt">void</span> <span class="n">preorder_traverse</span><span class="p">(</span><span class="n">FUNC</span> <span class="n">walker</span><span class="p">)</span>
+</span><span class='line'>          <span class="p">{</span>
+</span><span class='line'>            <span class="k">this</span><span class="o">-&gt;</span><span class="n">preorder_traverse</span><span class="p">(</span><span class="n">walker</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">());</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">FUNC</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="kt">void</span> <span class="n">postorder_traverse</span><span class="p">(</span><span class="n">FUNC</span> <span class="n">walker</span><span class="p">)</span>
+</span><span class='line'>          <span class="p">{</span>
+</span><span class='line'>            <span class="k">this</span><span class="o">-&gt;</span><span class="n">postorder_traverse</span><span class="p">(</span><span class="n">walker</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">());</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span> <span class="n">BinaryTree</span><span class="o">&lt;</span><span class="n">NODE</span><span class="o">&gt;&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">equal</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">(),</span> <span class="n">rhs</span><span class="p">.</span><span class="n">root</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="cm">/**</span>
+</span><span class='line'><span class="cm">         * 输出二叉树的结构, 以括号来分层。</span>
+</span><span class='line'><span class="cm">         * 示例：</span>
+</span><span class='line'><span class="cm">         *             7</span>
+</span><span class='line'><span class="cm">         *            / \</span>
+</span><span class='line'><span class="cm">         *           3   9</span>
+</span><span class='line'><span class="cm">         *            \   </span>
+</span><span class='line'><span class="cm">         *             5</span>
+</span><span class='line'><span class="cm">         * 输出：</span>
+</span><span class='line'><span class="cm">         * 7(3(nil,5(nil, nil)),9(nil, nil))</span>
+</span><span class='line'><span class="cm">         *</span>
+</span><span class='line'><span class="cm">         */</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">dump</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Dump &quot;</span> <span class="o">&lt;&lt;</span> <span class="k">this</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;(&quot;</span> <span class="o">&lt;&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;): &quot;</span><span class="p">;</span>
+</span><span class='line'>          <span class="k">this</span><span class="o">-&gt;</span><span class="n">dump</span><span class="p">(</span><span class="n">os</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root</span><span class="p">());</span>
+</span><span class='line'>          <span class="k">return</span> <span class="n">os</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">const</span> <span class="n">Node</span><span class="o">*</span> <span class="n">root</span><span class="p">()</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root_</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">root</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">root_</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">NODE</span><span class="o">*</span>  <span class="n">root_</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">size_t</span> <span class="n">size_</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">private</span><span class="o">:</span>
+</span><span class='line'>        <span class="c1">//  使用前序遍历来实现拷贝</span>
+</span><span class='line'>        <span class="n">Node</span><span class="o">*</span> <span class="n">copy</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span><span class="o">*</span> <span class="n">orig</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">orig</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="n">Node</span><span class="o">*</span> <span class="n">n</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Node</span><span class="p">(</span><span class="n">orig</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">());</span>
+</span><span class='line'>          <span class="n">n</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">copy</span><span class="p">(</span><span class="n">orig</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()));</span>
+</span><span class='line'>          <span class="n">n</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">copy</span><span class="p">(</span><span class="n">orig</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()));</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">return</span> <span class="n">n</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// 如果 lhs 和 rhs 的子树不等同，则返回false</span>
+</span><span class='line'>        <span class="c1">// 否则返回true </span>
+</span><span class='line'>        <span class="kt">bool</span> <span class="n">equal</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">Node</span><span class="o">*</span> <span class="n">rhs</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">lhs</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span> <span class="o">&amp;&amp;</span> <span class="n">rhs</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span>
+</span><span class='line'>            <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">lhs</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span> <span class="o">&amp;&amp;</span> <span class="n">rhs</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span>
+</span><span class='line'>              <span class="o">&amp;&amp;</span> <span class="n">equal</span><span class="p">(</span><span class="n">lhs</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">(),</span> <span class="n">rhs</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">())</span>
+</span><span class='line'>              <span class="o">&amp;&amp;</span> <span class="n">equal</span><span class="p">(</span><span class="n">lhs</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">(),</span> <span class="n">rhs</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()))</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">size_t</span> <span class="n">height</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span><span class="o">*</span> <span class="n">node</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">==</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="n">size_t</span> <span class="n">lh</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">height</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">());</span>
+</span><span class='line'>          <span class="n">size_t</span> <span class="n">rh</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">height</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">((</span><span class="n">lh</span> <span class="o">&lt;</span> <span class="n">rh</span><span class="p">)</span> <span class="o">?</span> <span class="n">rh</span> <span class="o">:</span> <span class="n">lh</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">dump</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span><span class="p">,</span> <span class="k">const</span> <span class="n">Node</span><span class="o">*</span> <span class="n">node</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">();</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span> <span class="o">||</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;(&#39;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">this</span><span class="o">-&gt;</span><span class="n">dump</span><span class="p">(</span><span class="n">os</span><span class="p">,</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">());</span>
+</span><span class='line'>              <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;,&#39;</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">this</span><span class="o">-&gt;</span><span class="n">dump</span><span class="p">(</span><span class="n">os</span><span class="p">,</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">());</span>
+</span><span class='line'>              <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;)&#39;</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;nil&quot;</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">/// 释放节点 current 及其子节点的内存</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">destroy</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">current</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="n">current</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">destroy</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">());</span>
+</span><span class='line'>            <span class="n">destroy</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">());</span>
+</span><span class='line'>            <span class="k">delete</span> <span class="n">current</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">FUNC</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="kt">void</span> <span class="n">preorder_traverse</span><span class="p">(</span><span class="n">FUNC</span> <span class="n">walker</span><span class="p">,</span> <span class="n">Node</span><span class="o">*</span> <span class="n">node</span><span class="p">)</span>
+</span><span class='line'>          <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="k">if</span> <span class="p">(</span><span class="n">walker</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>              <span class="k">this</span><span class="o">-&gt;</span><span class="n">preorder_traverse</span><span class="p">(</span><span class="n">walker</span><span class="p">,</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">());</span>
+</span><span class='line'>              <span class="k">this</span><span class="o">-&gt;</span><span class="n">preorder_traverse</span><span class="p">(</span><span class="n">walker</span><span class="p">,</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">());</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">FUNC</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="kt">void</span> <span class="n">inorder_traverse</span><span class="p">(</span><span class="n">FUNC</span> <span class="n">walker</span><span class="p">,</span> <span class="n">Node</span><span class="o">*</span> <span class="n">node</span><span class="p">)</span>
+</span><span class='line'>          <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="k">this</span><span class="o">-&gt;</span><span class="n">inorder_traverse</span><span class="p">(</span><span class="n">walker</span><span class="p">,</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">());</span>
+</span><span class='line'>              <span class="k">if</span> <span class="p">(</span><span class="n">walker</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>              <span class="k">this</span><span class="o">-&gt;</span><span class="n">inorder_traverse</span><span class="p">(</span><span class="n">walker</span><span class="p">,</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">());</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">FUNC</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="kt">void</span> <span class="n">postorder_traverse</span><span class="p">(</span><span class="n">FUNC</span> <span class="n">walker</span><span class="p">,</span> <span class="n">Node</span><span class="o">*</span> <span class="n">node</span><span class="p">)</span>
+</span><span class='line'>          <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">!=</span> <span class="n">Node</span><span class="o">::</span><span class="n">NIL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="k">this</span><span class="o">-&gt;</span><span class="n">postorder_traverse</span><span class="p">(</span><span class="n">walker</span><span class="p">,</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">());</span>
+</span><span class='line'>              <span class="k">this</span><span class="o">-&gt;</span><span class="n">postorder_traverse</span><span class="p">(</span><span class="n">walker</span><span class="p">,</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">());</span>
+</span><span class='line'>              <span class="k">if</span> <span class="p">(</span><span class="n">walker</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#endif </span><span class="c1">// CM_BINARYTREE_HPP</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2007/05/10/binomial-heap/">二项堆的C++实现</a></h1>
     
     
@@ -102,7 +2150,7 @@
   
 
 
-<time datetime="2007-05-10T22:12:00+08:00" pubdate data-updated="true">May 10<span>th</span>, 2007</time>
+<time datetime="2007-05-10T22:12:00-07:00" pubdate data-updated="true">May 10<span>th</span>, 2007</time>
         
          | <a href="/blog/2007/05/10/binomial-heap/#disqus_thread">Comments</a>
         
@@ -1116,7 +3164,7 @@
   
 
 
-<time datetime="2007-04-24T21:39:00+08:00" pubdate data-updated="true">Apr 24<span>th</span>, 2007</time>
+<time datetime="2007-04-24T21:39:00-07:00" pubdate data-updated="true">Apr 24<span>th</span>, 2007</time>
         
          | <a href="/blog/2007/04/24/using_windbg/#disqus_thread">Comments</a>
         
@@ -1468,7 +3516,7 @@
   
 
 
-<time datetime="2007-04-17T08:51:00+08:00" pubdate data-updated="true">Apr 17<span>th</span>, 2007</time>
+<time datetime="2007-04-17T08:51:00-07:00" pubdate data-updated="true">Apr 17<span>th</span>, 2007</time>
         
          | <a href="/blog/2007/04/17/debian-apt-commands/#disqus_thread">Comments</a>
         
@@ -1635,7 +3683,7 @@ I repeat, You need to configure your boot loader
   
 
 
-<time datetime="2007-04-15T19:32:00+08:00" pubdate data-updated="true">Apr 15<span>th</span>, 2007</time>
+<time datetime="2007-04-15T19:32:00-07:00" pubdate data-updated="true">Apr 15<span>th</span>, 2007</time>
         
          | <a href="/blog/2007/04/15/make-putty-pretty/#disqus_thread">Comments</a>
         
@@ -1708,7 +3756,7 @@ Enable X11 forwarding: enabled
   
 
 
-<time datetime="2007-04-14T19:51:00+08:00" pubdate data-updated="true">Apr 14<span>th</span>, 2007</time>
+<time datetime="2007-04-14T19:51:00-07:00" pubdate data-updated="true">Apr 14<span>th</span>, 2007</time>
         
          | <a href="/blog/2007/04/14/ntp-mini-howto/#disqus_thread">Comments</a>
         
@@ -1792,6 +3840,10 @@ time.nist.gov
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/04/10/openssl-heartbleed-impact-on-android/">OpenSSL Heartbleed漏洞对Android的影响</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/05/02/android-hack-tools/">Android APK解析及反编译</a>
       </li>
     
@@ -1827,15 +3879,11 @@ time.nist.gov
         <a href="/blog/2012/07/08/python-pip-virtualenv/">Python的virtualenv和pip</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2012/07/04/android-sparsearray/">Android上使用SparseArray来替代HashMap</a>
-      </li>
-    
   </ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 117.14285714285714%'>android(4)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/centos' style='font-size: 104.28571428571429%'>centos(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 108.57142857142857%'>django(2)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/linux' style='font-size: 104.28571428571429%'>Linux(1)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 117.14285714285714%'>python(4)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/sphinx' style='font-size: 104.28571428571429%'>sphinx(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
+    <span id="tag-cloud"><a href='/blog/categories/ace' style='font-size: 108.57142857142857%'>ace(2)</a> <a href='/blog/categories/agile' style='font-size: 104.28571428571429%'>agile(1)</a> <a href='/blog/categories/ai' style='font-size: 104.28571428571429%'>ai(1)</a> <a href='/blog/categories/algorithm' style='font-size: 112.85714285714286%'>algorithm(3)</a> <a href='/blog/categories/android' style='font-size: 121.42857142857143%'>android(5)</a> <a href='/blog/categories/apt' style='font-size: 104.28571428571429%'>apt(1)</a> <a href='/blog/categories/centos' style='font-size: 104.28571428571429%'>centos(1)</a> <a href='/blog/categories/debian' style='font-size: 104.28571428571429%'>debian(1)</a> <a href='/blog/categories/debug' style='font-size: 117.14285714285714%'>debug(4)</a> <a href='/blog/categories/django' style='font-size: 108.57142857142857%'>django(2)</a> <a href='/blog/categories/drbd' style='font-size: 104.28571428571429%'>drbd(1)</a> <a href='/blog/categories/gdb' style='font-size: 104.28571428571429%'>gdb(1)</a> <a href='/blog/categories/git' style='font-size: 104.28571428571429%'>git(1)</a> <a href='/blog/categories/howto' style='font-size: 112.85714285714286%'>howto(3)</a> <a href='/blog/categories/hp-ux' style='font-size: 104.28571428571429%'>hp-ux(1)</a> <a href='/blog/categories/html5' style='font-size: 104.28571428571429%'>html5(1)</a> <a href='/blog/categories/http' style='font-size: 104.28571428571429%'>http(1)</a> <a href='/blog/categories/ios' style='font-size: 104.28571428571429%'>ios(1)</a> <a href='/blog/categories/javascript' style='font-size: 112.85714285714286%'>javascript(3)</a> <a href='/blog/categories/jquery' style='font-size: 108.57142857142857%'>jquery(2)</a> <a href='/blog/categories/kernel' style='font-size: 125.71428571428572%'>kernel(6)</a> <a href='/blog/categories/linux' style='font-size: 160.0%'>linux(14)</a> <a href='/blog/categories/linux' style='font-size: 104.28571428571429%'>Linux(1)</a> <a href='/blog/categories/nettl' style='font-size: 104.28571428571429%'>nettl(1)</a> <a href='/blog/categories/ntp' style='font-size: 104.28571428571429%'>ntp(1)</a> <a href='/blog/categories/octave' style='font-size: 108.57142857142857%'>octave(2)</a> <a href='/blog/categories/openssl' style='font-size: 104.28571428571429%'>openssl(1)</a> <a href='/blog/categories/pip' style='font-size: 104.28571428571429%'>pip(1)</a> <a href='/blog/categories/protobuf' style='font-size: 104.28571428571429%'>protobuf(1)</a> <a href='/blog/categories/putty' style='font-size: 104.28571428571429%'>putty(1)</a> <a href='/blog/categories/python' style='font-size: 117.14285714285714%'>python(4)</a> <a href='/blog/categories/scrum' style='font-size: 104.28571428571429%'>scrum(1)</a> <a href='/blog/categories/secure' style='font-size: 104.28571428571429%'>secure(1)</a> <a href='/blog/categories/security' style='font-size: 104.28571428571429%'>security(1)</a> <a href='/blog/categories/shell' style='font-size: 104.28571428571429%'>shell(1)</a> <a href='/blog/categories/sphinx' style='font-size: 104.28571428571429%'>sphinx(1)</a> <a href='/blog/categories/tips' style='font-size: 104.28571428571429%'>tips(1)</a> <a href='/blog/categories/virtualenv' style='font-size: 104.28571428571429%'>virtualenv(1)</a> <a href='/blog/categories/web' style='font-size: 108.57142857142857%'>web(2)</a> <a href='/blog/categories/windbg' style='font-size: 104.28571428571429%'>windbg(1)</a> <a href='/blog/categories/wp7' style='font-size: 112.85714285714286%'>wp7(3)</a> </span>
 </section>
 
 <section>
@@ -1866,7 +3914,7 @@ time.nist.gov
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - Ming -
+  Copyright &copy; 2014 - Ming -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

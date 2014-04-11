@@ -4,7 +4,7 @@
   <title><![CDATA[Category: shell | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/shell/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[如何在shell脚本中捕获并处理信号]]></title>
     <link href="http://blog.chenming.info/blog/2007/11/06/handle-signal-in-shell/"/>
-    <updated>2007-11-06T20:55:00+08:00</updated>
+    <updated>2007-11-06T20:55:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2007/11/06/handle-signal-in-shell</id>
     <content type="html"><![CDATA[<p>有时候在执行shell脚本的时候需要处理用户的中断，比如<code>Ctrl+C</code>，
 收到这种中断后需要清理资源，然后优雅的退出程序。</p>

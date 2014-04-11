@@ -4,7 +4,7 @@
   <title><![CDATA[Category: windbg | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/windbg/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[使用windbg来调试程序]]></title>
     <link href="http://blog.chenming.info/blog/2007/04/24/using_windbg/"/>
-    <updated>2007-04-24T21:39:00+08:00</updated>
+    <updated>2007-04-24T21:39:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2007/04/24/using_windbg</id>
     <content type="html"><![CDATA[<p><code>windbg</code>是Windows上的调试工具。据说功能比较强大，我用它是因为它能支持JIT和
 利用程序的<code>mini dump</code>来进行Postmortem调试。

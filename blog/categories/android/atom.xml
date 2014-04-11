@@ -4,7 +4,7 @@
   <title><![CDATA[Category: android | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -14,9 +14,39 @@
 
   
   <entry>
+    <title type="html"><![CDATA[OpenSSL Heartbleed漏洞对Android的影响]]></title>
+    <link href="http://blog.chenming.info/blog/2014/04/10/openssl-heartbleed-impact-on-android/"/>
+    <updated>2014-04-10T12:12:00-07:00</updated>
+    <id>http://blog.chenming.info/blog/2014/04/10/openssl-heartbleed-impact-on-android</id>
+    <content type="html"><![CDATA[<p>前两天爆出来的<a href="http://heartbleed.com/">OpenSSL Heartbleed高危漏洞</a>是如此的重要，
+以至于有一个<a href="http://heartbleed.com/">专门的网站</a>为它诞生。
+它的影响主要是在服务器侧，但是它同样能对客户端造成影响。</p>
+
+<p><blockquote><p>Bug is in the OpenSSL's implementation of the TLS/DTLS (transport layer security protocols) heartbeat extension (RFC6520). When it is exploited it leads to the leak of memory contents from the server to the client and from the client to the server.</p></blockquote></p>
+
+<p>因为Android上的程序一般都不作为HTTPS服务器运行，所以一般情况下该漏洞不会对Android有影响。那它在什么样的情况下能对客户端造成影响呢？</p>
+
+<p>一种典型的情况是当你使用有漏洞的浏览器（比如某些版本的Chrome）访问一个利用了该漏洞的HTTPS服务器，服务器就能利用该漏洞读取客户端的额外的内存信息。
+这里有一个<a href="http://www.digitaltrends.com/mobile/heartbleed-bug-apps-affected-list/">列表</a>列出了Android系统的app的受影响情况。</p>
+
+<p>基本上来说虽然存在被攻击的可能性，但是这种可能性很小，不用担心你Android手机的安全。</p>
+
+<h3>参考</h3>
+
+<ul>
+<li><a href="http://heartbleed.com/">Heartbleed主页</a></li>
+<li><a href="https://www.openssl.org/news/secadv_20140407.txt">OpenSSL security advisory</a></li>
+<li><a href="http://www.digitaltrends.com/mobile/heartbleed-bug-apps-affected-list/">Heartbleed影响的mobile app列表</a></li>
+<li><a href="https://play.google.com/store/apps/details?id=com.lookout.heartbleeddetector">Heartbleed Detector</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Android APK解析及反编译]]></title>
     <link href="http://blog.chenming.info/blog/2013/05/02/android-hack-tools/"/>
-    <updated>2013-05-02T15:22:00+08:00</updated>
+    <updated>2013-05-02T15:22:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2013/05/02/android-hack-tools</id>
     <content type="html"><![CDATA[<h2>APK文件格式</h2>
 
@@ -190,7 +220,7 @@ dex2jar classes.dex -&gt; classes-dex2jar.jar
   <entry>
     <title type="html"><![CDATA[Android的Library工程]]></title>
     <link href="http://blog.chenming.info/blog/2013/01/04/android-library-jar/"/>
-    <updated>2013-01-04T15:02:00+08:00</updated>
+    <updated>2013-01-04T15:02:00-08:00</updated>
     <id>http://blog.chenming.info/blog/2013/01/04/android-library-jar</id>
     <content type="html"><![CDATA[<h2>为什么要使用Android的Library工程？</h2>
 
@@ -279,7 +309,7 @@ android.library.reference.1=..
   <entry>
     <title type="html"><![CDATA[Android的硬件加速及可能导致的问题]]></title>
     <link href="http://blog.chenming.info/blog/2012/09/18/android-hardware-accel/"/>
-    <updated>2012-09-18T14:39:00+08:00</updated>
+    <updated>2012-09-18T14:39:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/09/18/android-hardware-accel</id>
     <content type="html"><![CDATA[<h2>问题</h2>
 
@@ -492,7 +522,7 @@ parent are executed again.</p>
   <entry>
     <title type="html"><![CDATA[Android上使用SparseArray来替代HashMap]]></title>
     <link href="http://blog.chenming.info/blog/2012/07/04/android-sparsearray/"/>
-    <updated>2012-07-04T10:50:00+08:00</updated>
+    <updated>2012-07-04T10:50:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2012/07/04/android-sparsearray</id>
     <content type="html"><![CDATA[<p>在android上做lint时，下面的代码会收到警告，提示使用<code>SparseArray</code>来代替<code>HashMap</code>来提高性能。</p>
 

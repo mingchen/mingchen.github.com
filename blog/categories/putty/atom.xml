@@ -4,7 +4,7 @@
   <title><![CDATA[Category: putty | Ming's Blog]]></title>
   <link href="http://blog.chenming.info/blog/categories/putty/atom.xml" rel="self"/>
   <link href="http://blog.chenming.info/"/>
-  <updated>2013-05-02T17:12:30+08:00</updated>
+  <updated>2014-04-11T11:10:26-07:00</updated>
   <id>http://blog.chenming.info/</id>
   <author>
     <name><![CDATA[Ming]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[让Putty在Windows上好看点]]></title>
     <link href="http://blog.chenming.info/blog/2007/04/15/make-putty-pretty/"/>
-    <updated>2007-04-15T19:32:00+08:00</updated>
+    <updated>2007-04-15T19:32:00-07:00</updated>
     <id>http://blog.chenming.info/blog/2007/04/15/make-putty-pretty</id>
     <content type="html"><![CDATA[<p>Putty默认的设置下，使用ssh登录到Linux的主机上，使用ls查看目录的颜色很暗，
 而且默认的vim的配色也不是很好看，当然可以使用vim的 :set bg=dark 来让vim的语法加亮变得好看点。</p>
